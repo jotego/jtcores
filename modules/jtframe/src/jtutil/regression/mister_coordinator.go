@@ -481,19 +481,9 @@ func (c *CaptureCoordinator) checkOtherLaneFences(jobs []PoolJob) error {
 		if err != nil {
 			return fmt.Errorf("validate saved pool checkpoint %s: %w", key, err)
 		}
-		for _, record := range checkpoint.Attempts {
-			if record.State != PoolAttemptInFlight && record.State != PoolAttemptUnknown {
-				continue
-			}
-			if selectedBoards[record.Attempt.Board] || selectedTuples[record.JobKey] {
-				return fmt.Errorf("capture lane %s retains unresolved attempt %s on board %s", key, record.JobKey, record.Attempt.Board)
-			}
-		}
-		for _, item := range checkpoint.Quarantined {
-			if selectedBoards[item.Board] || selectedTuples[item.JobKey] {
-				return fmt.Errorf("capture lane %s quarantines selected board or tuple %s", key, item.JobKey)
-			}
-		}
+		// Attempts and quarantines in other lanes no longer fence boards or
+		// games; the driver recovers a board before each capture.
+		_ = checkpoint
 		for _, item := range lane.Finalizations {
 			if item.State == CaptureFinalizationPending && selectedTuples[item.JobKey] {
 				return fmt.Errorf("capture lane %s retains unresolved private finalization for %s", key, item.JobKey)

@@ -68,6 +68,27 @@ func TestMiSTerTargetSkipUsesSelectedSource(t *testing.T) {
 	}
 }
 
+func TestMiSTerTargetSkipsCoresWithoutRegression(t *testing.T) {
+	cases := map[string]bool{
+		"JTFRAME_RATE=60.00\n":               false,
+		"JTFRAME_MR_GAME_DDR\n":              true,
+		"JTFRAME_LF_BUFFER\n":                true,
+		"JTFRAME_LF_BUFFER\nJTFRAME_MR_LF_BRAM\n": false,
+		"MISTER_DEBUG_NOHDMI\n":              true,
+	}
+	for def, want := range cases {
+		source := t.TempDir()
+		pinJTFRAMEForSourceTest(t, source, "fixture", def)
+		got, err := miSTerTargetSkipped(source, "fixture")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got != want {
+			t.Errorf("%q: skipped=%v, want %v", def, got, want)
+		}
+	}
+}
+
 func TestBulkArchiveKeepsReadyGameBesideMissingRBF(t *testing.T) {
 	root := t.TempDir()
 	source := filepath.Join(root, "source")

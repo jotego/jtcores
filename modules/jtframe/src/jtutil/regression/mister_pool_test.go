@@ -449,9 +449,10 @@ func TestSessionPoolPreflightFailureDoesNotQuarantineBoard(t *testing.T) {
 	job := poolJob(t, "alpha", "session-1", "nonce-1")
 	var unhealthy atomic.Bool
 	unhealthy.Store(true)
-	var cancels, reconciles atomic.Int32
+	var cancels, reconciles, checks atomic.Int32
 	driver := &poolFakeDriver{
 		healthy: func(context.Context) error {
+			checks.Add(1)
 			if unhealthy.Load() {
 				return errors.New("transient SSH timeout before board lock")
 			}
@@ -465,8 +466,13 @@ func TestSessionPoolPreflightFailureDoesNotQuarantineBoard(t *testing.T) {
 	}
 	pool := newTestPool(t, []PoolBoard{poolBoard("board-a", "a", driver)}, &poolFakeFinalizer{}, nil)
 	snapshot, err := pool.Run(context.Background(), []PoolJob{job}, PoolCheckpoint{})
-	if err != nil {
-		t.Fatal(err)
+	// The game returns to the queue after each failure; a board that keeps
+	// failing sits out the run, which leaves no board for the game.
+	if err == nil || !strings.Contains(err.Error(), "no available board") || checks.Load() != poolPreflightFailureLimit {
+		t.Fatalf("repeated preflight failure did not retire the board: checks=%d err=%v", checks.Load(), err)
+	}
+	if snapshot.Boards[0].State != PoolBoardUnavailable || snapshot.Jobs[0].State != PoolResultPending {
+		t.Fatalf("unexpected board or job state after preflight failures: %+v", snapshot)
 	}
 	if len(snapshot.Checkpoint.Attempts) != 0 || len(snapshot.Checkpoint.Unknown) != 0 || len(snapshot.Checkpoint.Quarantined) != 0 {
 		t.Fatalf("preflight failure created ownership/quarantine: %+v", snapshot.Checkpoint)
@@ -479,6 +485,13 @@ func TestSessionPoolPreflightFailureDoesNotQuarantineBoard(t *testing.T) {
 	snapshot, err = pool.Run(context.Background(), []PoolJob{job}, PoolCheckpoint{})
 	if err != nil || snapshot.Jobs[0].State != PoolResultComplete {
 		t.Fatalf("healthy retry did not complete after preflight failure: snapshot=%+v err=%v", snapshot.Jobs, err)
+	}
+	// With a healthy board available, the game moves there in the same run.
+	unhealthy.Store(true)
+	pool = newTestPool(t, []PoolBoard{poolBoard("board-a", "a", driver), poolBoard("board-b", "b", &poolFakeDriver{})}, &poolFakeFinalizer{}, nil)
+	snapshot, err = pool.Run(context.Background(), []PoolJob{job}, PoolCheckpoint{})
+	if err != nil || snapshot.Jobs[0].State != PoolResultComplete || snapshot.Jobs[0].Attempt.Board != "board-b" {
+		t.Fatalf("game did not move to the healthy board: snapshot=%+v err=%v", snapshot.Jobs, err)
 	}
 }
 
@@ -600,7 +613,7 @@ func TestSessionPoolRequiresFreshAttemptAfterCleanFailure(t *testing.T) {
 	}
 }
 
-func TestSessionPoolQuarantinesWhenReconcileReportsError(t *testing.T) {
+func TestSessionPoolBenchesBoardWhenReconcileReportsError(t *testing.T) {
 	job := poolJob(t, "alpha", "session-1", "nonce-1")
 	driver := &poolFakeDriver{
 		result: func(AttemptKey, PreparedSession) (SessionCapture, error) {
@@ -615,12 +628,16 @@ func TestSessionPoolQuarantinesWhenReconcileReportsError(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if snapshot.Jobs[0].State != PoolResultBlocked || len(snapshot.Checkpoint.Quarantined) != 1 {
-		t.Fatalf("cleanup error released a board as safe: %+v", snapshot)
+	if snapshot.Jobs[0].State != PoolResultPending || !strings.Contains(snapshot.Jobs[0].Message, "board recovery failed") ||
+		snapshot.Boards[0].State != PoolBoardUnavailable {
+		t.Fatalf("cleanup error released a board as safe for this run: %+v", snapshot)
+	}
+	if len(snapshot.Checkpoint.Quarantined) != 0 || len(snapshot.Checkpoint.Unknown) != 0 || snapshot.Checkpoint.Attempts[0].State != PoolAttemptClean {
+		t.Fatalf("failed recovery fenced the board for later runs: %+v", snapshot.Checkpoint)
 	}
 }
 
-func TestSessionPoolQuarantinesUnknownAttemptAndRequiresRecoveryWitness(t *testing.T) {
+func TestSessionPoolBenchesBoardWithLiveWorkerAndIgnoresLateReply(t *testing.T) {
 	job := poolJob(t, "alpha", "session-1", "nonce-1")
 	started, release, returned := make(chan AttemptKey, 1), make(chan struct{}), make(chan struct{})
 	driver := &poolFakeDriver{
@@ -658,35 +675,27 @@ func TestSessionPoolQuarantinesUnknownAttemptAndRequiresRecoveryWitness(t *testi
 		snapshot, _ := pool.Run(context.Background(), []PoolJob{job}, PoolCheckpoint{})
 		result <- snapshot
 	}()
-	attempt := <-started
-	clock.waitTimer(t).fire()
-	clock.waitTimer(t).fire()
+	<-started
+	clock.waitTimer(t).fire() // capture deadline
+	clock.waitTimer(t).fire() // cancel wait
+	clock.waitTimer(t).fire() // worker never returns
 	snapshot := <-result
+	if len(snapshot.Checkpoint.Unknown) != 0 || len(snapshot.Checkpoint.Quarantined) != 0 || snapshot.Jobs[0].State == PoolResultComplete ||
+		snapshot.Boards[0].State != PoolBoardUnavailable {
+		t.Fatalf("unrecovered board was not benched for this run only: %+v", snapshot)
+	}
 	startsBeforeResume := len(started)
-	blocked, err := pool.Run(context.Background(), []PoolJob{job}, snapshot.Checkpoint)
+	resumed, err := pool.Run(context.Background(), []PoolJob{job}, snapshot.Checkpoint)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(started) != startsBeforeResume || blocked.Jobs[0].State != PoolResultBlocked {
-		t.Fatalf("unknown live attempt was redispatched: starts=%d snapshot=%+v", len(started), blocked)
+	if len(started) != startsBeforeResume || resumed.Jobs[0].State == PoolResultComplete || resumed.Boards[0].State != PoolBoardIdle {
+		t.Fatalf("resume reused the old attempt identity or kept the board fenced: starts=%d snapshot=%+v", len(started), resumed)
 	}
 	close(release)
 	<-returned
 	if len(finalizer.seen) != 0 {
 		t.Fatalf("late worker reply reached the finalizer: %+v", finalizer.seen)
-	}
-	if len(snapshot.Checkpoint.Unknown) != 1 || len(snapshot.Checkpoint.Quarantined) != 1 || snapshot.Jobs[0].State != PoolResultBlocked {
-		t.Fatalf("unknown attempt was not fenced: %+v", snapshot)
-	}
-	checkpoint := snapshot.Checkpoint.Clone()
-	if err := checkpoint.RecoverBoard(RecoveryWitness{Board: "board-a", Attempt: attempt, CaptureGeneration: job.Session.Generation, Reconciled: SessionCleanup{Confirmed: true}}); err == nil {
-		t.Fatal("ping-like reconciliation without full RBF reload cleared quarantine")
-	}
-	if err := checkpoint.RecoverBoard(RecoveryWitness{Board: "board-a", Attempt: attempt, CaptureGeneration: job.Session.Generation, FullRBFReloaded: true, Reconciled: SessionCleanup{Confirmed: true}}); err != nil {
-		t.Fatal(err)
-	}
-	if len(checkpoint.Unknown) != 0 || len(checkpoint.Quarantined) != 0 {
-		t.Fatalf("real reload witness did not clear matching attempt: %+v", checkpoint)
 	}
 }
 
@@ -732,7 +741,7 @@ func TestSessionPoolCancellationUsesIndependentCleanupAndIgnoresLateResult(t *te
 	if !errors.Is(outcome.err, context.Canceled) {
 		t.Fatalf("Run did not report caller cancellation: %v", outcome.err)
 	}
-	if outcome.snapshot.Jobs[0].State != PoolResultBlocked || len(finalizer.seen) != 0 {
+	if outcome.snapshot.Jobs[0].State == PoolResultComplete || len(finalizer.seen) != 0 {
 		t.Fatalf("late success escaped attempt fence: %+v / %+v", outcome.snapshot, finalizer.seen)
 	}
 }
@@ -805,7 +814,7 @@ func TestSessionPoolResumeUsesPortableIdentityAndRetainsOldGeneration(t *testing
 	}
 }
 
-func TestSessionPoolActiveCheckpointResumeQuarantinesBeforeAnyDriverCall(t *testing.T) {
+func TestSessionPoolActiveCheckpointResumeReleasesInterruptedAttempt(t *testing.T) {
 	job := poolJob(t, "alpha", "fresh-session", "fresh-nonce")
 	portableID, _ := job.Session.PortableIdentity()
 	checkpoint := PoolCheckpoint{Attempts: []PoolAttemptRecord{{
@@ -824,8 +833,13 @@ func TestSessionPoolActiveCheckpointResumeQuarantinesBeforeAnyDriverCall(t *test
 	if err != nil {
 		t.Fatal(err)
 	}
-	if calls.Load() != 0 || snapshot.Jobs[0].State != PoolResultBlocked || len(snapshot.Checkpoint.Unknown) != 1 || len(snapshot.Checkpoint.Quarantined) != 1 {
-		t.Fatalf("in-flight checkpoint was reused without reconciliation: calls=%d snapshot=%+v", calls.Load(), snapshot)
+	if calls.Load() != 1 || snapshot.Jobs[0].State != PoolResultComplete || len(snapshot.Checkpoint.Unknown) != 0 || len(snapshot.Checkpoint.Quarantined) != 0 {
+		t.Fatalf("interrupted attempt was not released and retried with fresh identity: calls=%d snapshot=%+v", calls.Load(), snapshot)
+	}
+	for _, record := range snapshot.Checkpoint.Attempts {
+		if record.Attempt.SessionID == "old-session" && record.State != PoolAttemptClean {
+			t.Fatalf("interrupted attempt left %q", record.State)
+		}
 	}
 }
 
@@ -943,5 +957,53 @@ func TestSessionPoolRejectsConcurrentRunOnSamePool(t *testing.T) {
 	close(release)
 	if err := <-firstDone; err != nil {
 		t.Fatal(err)
+	}
+}
+
+// A cancel that gives up while the capture worker is still cleaning up must
+// not bench the board: once the worker returns, Reconcile recovers it.
+func TestSessionPoolWaitsForWorkerAfterCancelError(t *testing.T) {
+	job := poolJob(t, "alpha", "session-1", "nonce-1")
+	second := poolJob(t, "beta", "session-2", "nonce-2")
+	gate := make(chan struct{})
+	var reconciles atomic.Int32
+	var first atomic.Bool
+	driver := &poolFakeDriver{
+		result: func(key AttemptKey, _ PreparedSession) (SessionCapture, error) {
+			if first.CompareAndSwap(false, true) {
+				<-gate
+				return SessionCapture{Key: key, Cleanup: SessionCleanup{Required: true}}, errors.New("capture deadline expired")
+			}
+			return goodPoolCapture(key), nil
+		},
+		cancel: func(context.Context, AttemptKey) error {
+			defer close(gate) // the worker finishes its cleanup after cancel gave up
+			return errors.New("MiSTer cancellation cleanup timed out")
+		},
+		reconcile: func(context.Context, AttemptKey) (SessionCleanup, error) {
+			reconciles.Add(1)
+			return SessionCleanup{Confirmed: true, Message: "recovered by reboot"}, nil
+		},
+	}
+	pool, err := NewSessionPool([]PoolBoard{poolBoard("board-a", "a", driver)}, PoolOptions{
+		CaptureTimeout: 50 * time.Millisecond, CleanupTimeout: time.Second,
+		Finalizer: &poolFakeFinalizer{}, Observer: &poolFakeObserver{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := pool.Run(context.Background(), []PoolJob{job, second}, PoolCheckpoint{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reconciles.Load() != 1 || snapshot.Boards[0].State != PoolBoardIdle {
+		t.Fatalf("board was not recovered after its worker returned: reconciles=%d boards=%+v", reconciles.Load(), snapshot.Boards)
+	}
+	states := map[string]PoolResultState{}
+	for _, item := range snapshot.Jobs {
+		states[item.JobKey.Setname] = item.State
+	}
+	if states["alpha"] != PoolResultPending || states["beta"] != PoolResultComplete {
+		t.Fatalf("recovered board did not take the next game: %+v", snapshot.Jobs)
 	}
 }

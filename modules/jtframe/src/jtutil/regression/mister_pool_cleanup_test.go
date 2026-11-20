@@ -188,7 +188,7 @@ func TestPoolCheckpointRejectsCleanFailurePromotedToComplete(t *testing.T) {
 	}
 }
 
-func TestSessionPoolCleanupUsesOneDeadlineThroughReconcile(t *testing.T) {
+func TestSessionPoolReconcileGetsRecoveryDeadline(t *testing.T) {
 	job := poolJob(t, "circusc", "session-budget", "nonce-budget")
 	clock := &poolCleanupDeadlineClock{cleanup: time.Second}
 	driver := &poolFakeDriver{
@@ -196,8 +196,9 @@ func TestSessionPoolCleanupUsesOneDeadlineThroughReconcile(t *testing.T) {
 			return SessionCapture{}, errors.New("capture failed")
 		},
 		reconcile: func(ctx context.Context, _ AttemptKey) (SessionCleanup, error) {
+			// Reconcile may reboot the board, so it runs past the cleanup budget.
 			deadline, ok := ctx.Deadline()
-			if !ok || deadline.After(clock.first) {
+			if ok && !clock.first.IsZero() && deadline.Sub(clock.first) >= poolRecoveryAllowance-time.Second {
 				clock.renewed.Store(true)
 			}
 			return SessionCleanup{Confirmed: true}, nil
@@ -216,8 +217,8 @@ func TestSessionPoolCleanupUsesOneDeadlineThroughReconcile(t *testing.T) {
 	if _, err := pool.Run(context.Background(), []PoolJob{job}, PoolCheckpoint{}); err != nil {
 		t.Fatal(err)
 	}
-	if clock.renewed.Load() {
-		t.Fatal("Reconcile received a fresh deadline instead of the original cleanup budget")
+	if !clock.renewed.Load() {
+		t.Fatal("Reconcile did not get the recovery allowance beyond the cleanup budget")
 	}
 }
 
@@ -348,7 +349,7 @@ func TestSessionPoolWaitCoversSlow32ImageCleanupAfter4000FramePlan(t *testing.T)
 	}
 }
 
-func TestSessionPoolStuckCleanupStillBecomesBoundedUnknown(t *testing.T) {
+func TestSessionPoolStuckCleanupBenchesBoardWithinBound(t *testing.T) {
 	cleanupBudget := 50 * time.Millisecond
 	job := poolJob(t, "circusc", "stuck-cleanup-session", "stuck-cleanup-nonce")
 	started := make(chan AttemptKey, 1)
@@ -393,8 +394,9 @@ func TestSessionPoolStuckCleanupStillBecomesBoundedUnknown(t *testing.T) {
 		if time.Since(startedAt) > 2*time.Second {
 			t.Fatal("stuck cleanup exceeded the bounded pool wait")
 		}
-		if len(result.snapshot.Checkpoint.Unknown) != 1 || len(result.snapshot.Checkpoint.Quarantined) != 1 || result.snapshot.Jobs[0].State != PoolResultBlocked {
-			t.Fatalf("genuinely stuck cleanup was not retained as unknown: %+v", result.snapshot)
+		if len(result.snapshot.Checkpoint.Unknown) != 0 || len(result.snapshot.Checkpoint.Quarantined) != 0 ||
+			result.snapshot.Jobs[0].State == PoolResultComplete || result.snapshot.Boards[0].State != PoolBoardUnavailable {
+			t.Fatalf("genuinely stuck cleanup did not bench the board for this run only: %+v", result.snapshot)
 		}
 	case <-time.After(2 * time.Second):
 		t.Fatal("stuck cleanup did not terminate within the pool bound")
@@ -431,7 +433,8 @@ func TestSessionPoolDoesNotTrustWrongKeyOrUnconfirmedCaptureCleanup(t *testing.T
 			if err != nil {
 				t.Fatal(err)
 			}
-			if len(snapshot.Checkpoint.Unknown) != 1 || len(snapshot.Checkpoint.Quarantined) != 1 || snapshot.Jobs[0].State != PoolResultBlocked {
+			if snapshot.Jobs[0].State == PoolResultComplete || snapshot.Boards[0].State != PoolBoardUnavailable ||
+				len(snapshot.Checkpoint.Unknown) != 0 || len(snapshot.Checkpoint.Quarantined) != 0 {
 				t.Fatalf("untrusted cleanup envelope was accepted: %+v", snapshot)
 			}
 		})

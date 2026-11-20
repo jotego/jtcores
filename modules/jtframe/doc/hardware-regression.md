@@ -16,6 +16,9 @@ builds without HDMI (`-mrq`, `-qq`, or credits mode) remove the macro and leave
 the existing hps_io commands unsupported. Standalone `-q` keeps HDMI and the
 capability; `-u JTFRAME_REGRESSION` disables it explicitly. A defined value of
 `0` is still enabled under the project's macro-presence semantics.
+Archive runs skip cores whose MiSTer macros lack `JTFRAME_REGRESSION`, such
+as cores that use DDR for video all the time, in the same way as `JTFRAME_SKIP`
+cores.
 
 The exact capture transport is unavailable in CRT480I and interlaced builds.
 Native vertical capture uses the normal Video Rotate screen option set to No.
@@ -207,10 +210,20 @@ Automatic build discovery can be polled once with `--poll`; an optional
 under `builds-dir` (or `$JOTEGO/core-builds` when omitted). Do not combine
 automatic selectors with the manual `--mister-run-scope` option. A manual
 capture normally creates a fresh scope; to resume that same interrupted manual
-scope, pass its exact ID with `--mister-run-scope`. A board with an uncertain
-live attempt remains quarantined until the driver can prove a clean reload and
-reconcile its persisted state; a ping or expired host timeout does not clear
-the quarantine.
+scope, pass its exact ID with `--mister-run-scope`.
+
+Boards are never quarantined. When an attempt cannot be cleaned up exactly,
+the driver recovers the board by rebooting it: it restores the backed-up files
+(MiSTer.ini, NVRAM, CFG), reboots over SSH, waits up to four minutes for the
+qualified Main to come back on its original loader, restores the files again
+and removes what the attempt left on the SD card. Missing or changed staged
+files are reported but do not block recovery. The same recovery runs in the
+health check before each capture when a stale board ledger is found or the
+board is not running the qualified Main. The failed game is reported for that
+run; the board takes the next game. A board whose recovery fails, or that fails
+three health checks in a row, sits out the rest of that run only. A resumed run
+releases attempts that an earlier run left in flight, unknown or quarantined,
+and attempts in other lanes no longer block a run.
 MiSTer runs reject `--manifest`, `--retry-errors`, `--migrate-logs`,
 `--import-progress` and `--publish-to`; the route prepares and verifies its own
 inventory and is local-only.

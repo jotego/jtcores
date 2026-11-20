@@ -487,7 +487,9 @@ type atomicCounter struct{ value int }
 func (c *atomicCounter) Add(delta int) int { c.value += delta; return c.value }
 func (c *atomicCounter) Load() int         { return c.value }
 
-func TestCaptureCoordinatorBlocksPendingUnknownAndRetiredCrossLaneFences(t *testing.T) {
+// An older lane's quarantine no longer fences boards or games: the driver
+// recovers the board before capturing.
+func TestCaptureCoordinatorIgnoresOlderLaneQuarantine(t *testing.T) {
 	qualification := coordinatorQualification()
 	driver := &coordinatorTestDriver{}
 	effects := newCoordinatorTestEffects()
@@ -514,18 +516,11 @@ func TestCaptureCoordinatorBlocksPendingUnknownAndRetiredCrossLaneFences(t *test
 	}
 	jobInput := coordinatorJobs(t, qualification, "circusc")
 	jobInput[0].SessionID, jobInput[0].Nonce = "fresh-session", "fresh-nonce"
-	if _, err = coordinator.Run(context.Background(), jobInput); err == nil || !strings.Contains(err.Error(), "unresolved attempt") {
-		t.Fatalf("selected board crossed an older quarantine: %v", err)
+	if _, err = coordinator.Run(context.Background(), jobInput); err != nil {
+		t.Fatalf("older lane quarantine blocked the run: %v", err)
 	}
-	if healthy, captured := driver.counts(); healthy != 0 || captured != 0 {
-		t.Fatalf("driver ran despite older quarantine: healthy=%d capture=%d", healthy, captured)
-	}
-	otherBoard, err := NewCaptureCoordinator(log, qualification, []PoolBoard{poolBoard("board-b", "board-b.local", driver)}, effects, CaptureCoordinatorOptions{CaptureTimeout: time.Second, CleanupTimeout: time.Second})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err = otherBoard.Run(context.Background(), jobInput); err == nil || !strings.Contains(err.Error(), "unresolved attempt") {
-		t.Fatalf("same tuple crossed an older board quarantine: %v", err)
+	if healthy, captured := driver.counts(); healthy != 1 || captured != 1 {
+		t.Fatalf("driver did not capture despite a stale older quarantine: healthy=%d capture=%d", healthy, captured)
 	}
 }
 

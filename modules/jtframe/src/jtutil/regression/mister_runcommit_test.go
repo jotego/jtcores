@@ -802,12 +802,8 @@ func TestRunCommitMiSTerResumesZeroSummaryLaneAfterOldKeyRecovery(t *testing.T) 
 	if len(lane.Snapshot.Checkpoint.Completed) != 0 || len(lane.Games) != 0 || lane.Games == nil {
 		t.Fatalf("first run did not retain a non-complete, empty summary inventory: %+v", lane)
 	}
-	var oldUnknown PoolBoardQuarantine
-	for _, item := range lane.Snapshot.Checkpoint.Quarantined {
-		oldUnknown = item
-	}
-	if oldUnknown.Attempt.SessionID == "" {
-		t.Fatal("first run did not persist the unknown attempt key")
+	if len(lane.Snapshot.Checkpoint.Quarantined) != 0 || len(lane.Snapshot.Checkpoint.Unknown) != 0 {
+		t.Fatalf("unrecovered board was fenced for later runs: %+v", lane.Snapshot.Checkpoint)
 	}
 	if err = log.Close(); err != nil {
 		t.Fatal(err)
@@ -822,20 +818,6 @@ func TestRunCommitMiSTerResumesZeroSummaryLaneAfterOldKeyRecovery(t *testing.T) 
 	}
 	if err = validateCaptureRunLane(laneKey, lane); err != nil {
 		t.Fatalf("public lane validation rejected a saved lane with no finalized summaries: %v", err)
-	}
-	var recoveredCleanup SessionCleanup
-	for _, board := range boards {
-		if board.Key == oldUnknown.Board {
-			recoveredCleanup, err = board.Driver.Reconcile(context.Background(), oldUnknown.Attempt)
-			break
-		}
-	}
-	if err != nil || !recoveredCleanup.Confirmed || recoveredCleanup.Required {
-		t.Fatalf("reconcile exact old key: cleanup=%+v err=%v", recoveredCleanup, err)
-	}
-	lane = log.Progress.CaptureRuns[laneKey]
-	if err = lane.Snapshot.Checkpoint.RecoverBoard(RecoveryWitness{Board: oldUnknown.Board, Attempt: oldUnknown.Attempt, CaptureGeneration: qualification.Generation, FullRBFReloaded: true, Reconciled: recoveredCleanup}); err != nil {
-		t.Fatalf("recover exact old quarantined key: %v", err)
 	}
 	log.Progress.CaptureRuns[laneKey] = lane
 	if err = log.Save(); err != nil {

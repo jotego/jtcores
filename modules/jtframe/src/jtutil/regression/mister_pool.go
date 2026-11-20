@@ -269,6 +269,13 @@ type PoolOptions struct {
 	EventSink      PoolEventSink
 }
 
+// poolPreflightFailureLimit is how many health checks in a row a board may
+// fail before it sits out the rest of the run.
+const poolPreflightFailureLimit = 3
+
+// poolRecoveryAllowance covers a driver that reboots the board to recover it.
+const poolRecoveryAllowance = 5 * time.Minute
+
 func poolCleanupWait(driverBudget time.Duration) time.Duration {
 	margin := driverBudget / 10
 	if margin < 250*time.Millisecond {
@@ -299,6 +306,7 @@ const (
 	poolCaptureTimedOut
 	poolCancelReturned
 	poolReconcileReturned
+	poolWorkerAbandoned
 )
 
 type poolMessage struct {
@@ -328,6 +336,7 @@ type poolActive struct {
 	cleanup          SessionCleanup
 	cleanupErr       error
 	cancelled        bool
+	reconcileErr     error
 	reason           string
 	workerDone       chan struct{}
 }
@@ -391,7 +400,7 @@ func (p *SessionPool) Run(ctx context.Context, jobs []PoolJob, resume PoolCheckp
 	if err != nil {
 		return PoolSnapshot{}, err
 	}
-	checkpoint, err = quarantineInterruptedPoolAttempts(checkpoint, p.boards, p.options.Clock.Now())
+	checkpoint, err = releaseInterruptedPoolAttempts(checkpoint)
 	if err != nil {
 		return PoolSnapshot{}, err
 	}
@@ -434,6 +443,7 @@ func (p *SessionPool) Run(ctx context.Context, jobs []PoolJob, resume PoolCheckp
 		boardStatus[board.Key] = PoolBoardStatus{Board: board.Key, Host: board.Host, State: state, Message: message}
 	}
 	tried := make(map[PoolJobKey]bool, len(queue))
+	preflightFailures := make(map[BoardKey]int, len(p.boards))
 	usedSession := make(map[string]bool, len(checkpoint.Attempts))
 	usedNonce := make(map[string]bool, len(checkpoint.Attempts))
 	for _, record := range checkpoint.Attempts {
@@ -534,6 +544,9 @@ func (p *SessionPool) Run(ctx context.Context, jobs []PoolJob, resume PoolCheckp
 			case poolCaptureReturned:
 				current.workerReturned = true
 				current.captureCancel()
+				if !message.preflightFailure {
+					preflightFailures[current.board.Key] = 0
+				}
 				current.capture = message.capture.Clone()
 				current.captureErr = message.err
 				// A driver returns an empty capture only when it rejected the
@@ -545,6 +558,13 @@ func (p *SessionPool) Run(ctx context.Context, jobs []PoolJob, resume PoolCheckp
 					checkpoint = removePoolAttempt(checkpoint, current.attempt)
 					results[current.job.key] = PoolJobResult{JobKey: current.job.key, PortableID: current.job.portableID, State: PoolResultPending, Message: message.err.Error()}
 					p.releasePoolBoard(current, &activeByBoard, activeByKey, &boardStatus, message.err.Error())
+					// The health check already tried to recover the board. Give the
+					// game back to the queue; skip a board that keeps failing.
+					tried[current.job.key] = false
+					preflightFailures[current.board.Key]++
+					if preflightFailures[current.board.Key] >= poolPreflightFailureLimit {
+						boardStatus[current.board.Key] = PoolBoardStatus{Board: current.board.Key, Host: current.board.Host, State: PoolBoardUnavailable, Message: "board failed its health check repeatedly: " + message.err.Error()}
+					}
 					if err := p.emit(PoolEvent{At: p.options.Clock.Now(), Kind: "capture-preflight-failed", JobKey: current.job.key, Message: message.err.Error()}, snapshotPool(results, boardStatus, checkpoint, unknown, quarantined)); err != nil {
 						terminalErr, stopDispatch = err, true
 						cancelRun()
@@ -659,10 +679,17 @@ func (p *SessionPool) Run(ctx context.Context, jobs []PoolJob, resume PoolCheckp
 				if current.workerReturned {
 					p.continuePoolCleanup(ctx, current, messages, &activeByBoard, activeByKey, &boardStatus, &results, &checkpoint, &unknown, &quarantined, &terminalErr, &stopDispatch, cancelRun)
 				} else if message.err != nil {
-					p.quarantinePoolAttempt(current, &activeByBoard, activeByKey, &boardStatus, &results, &checkpoint, &unknown, &quarantined, "cleanup ended while capture worker remained live")
+					// The worker runs its own bounded cleanup. Wait for it, then
+					// reconcile; give up on the board only if it never returns.
+					p.watchAbandonedWorker(current, messages)
+				}
+			case poolWorkerAbandoned:
+				if !current.workerReturned {
+					p.quarantinePoolAttempt(current, &activeByBoard, activeByKey, &boardStatus, &results, &checkpoint, &unknown, &quarantined, "capture worker did not return after cleanup")
 				}
 			case poolReconcileReturned:
 				current.cleanupReturned, current.cleanup = true, message.cleanup
+				current.reconcileErr = message.err
 				current.cleanupErr = errors.Join(current.cleanupErr, message.err)
 				if message.err != nil {
 					current.reason += ": " + message.err.Error()
@@ -893,32 +920,19 @@ func unknownPoolAttempt(items []PoolUnknownAttempt, attempt AttemptKey) (PoolUnk
 	return PoolUnknownAttempt{}, false
 }
 
-func quarantineInterruptedPoolAttempts(checkpoint PoolCheckpoint, boards []PoolBoard, now time.Time) (PoolCheckpoint, error) {
-	hostByBoard := make(map[BoardKey]string, len(boards))
-	for _, board := range boards {
-		hostByBoard[board.Key] = board.Host
-	}
+// releaseInterruptedPoolAttempts closes attempts that an earlier run left in
+// flight, unknown or quarantined. Boards are never fenced across runs: the
+// driver's health check recovers a board, rebooting it if needed, before its
+// next capture. The released games stay pending.
+func releaseInterruptedPoolAttempts(checkpoint PoolCheckpoint) (PoolCheckpoint, error) {
 	for index := range checkpoint.Attempts {
 		record := &checkpoint.Attempts[index]
-		if record.State != PoolAttemptInFlight {
-			continue
+		if record.State == PoolAttemptInFlight || record.State == PoolAttemptUnknown {
+			record.State = PoolAttemptClean
 		}
-		if _, exists := findPoolQuarantine(checkpoint.Quarantined, record.Attempt.Board); exists {
-			return PoolCheckpoint{}, fmt.Errorf("in-flight attempt conflicts with quarantined board %s", record.Attempt.Board)
-		}
-		if _, exists := unknownPoolAttempt(checkpoint.Unknown, record.Attempt); exists {
-			return PoolCheckpoint{}, fmt.Errorf("in-flight attempt is already marked unknown")
-		}
-		reason := "previous run ended with this attempt in flight; explicit reconciliation required"
-		record.State = PoolAttemptUnknown
-		checkpoint.Unknown = append(checkpoint.Unknown, PoolUnknownAttempt{JobKey: record.JobKey, PortableID: record.PortableID, Attempt: record.Attempt, Reason: reason})
-		checkpoint.Quarantined = append(checkpoint.Quarantined, PoolBoardQuarantine{Board: record.Attempt.Board, Host: hostByBoard[record.Attempt.Board], JobKey: record.JobKey, Attempt: record.Attempt, Generation: record.Generation, Reason: reason, At: now})
 	}
-	validated, err := validatePoolCheckpoint(checkpoint)
-	if err != nil {
-		return PoolCheckpoint{}, err
-	}
-	return validated, nil
+	checkpoint.Unknown, checkpoint.Quarantined = nil, nil
+	return validatePoolCheckpoint(checkpoint)
 }
 
 func nextPoolJob(queue []normalizedPoolJob, tried map[PoolJobKey]bool, results map[PoolJobKey]PoolJobResult, unknown map[PoolJobKey]PoolUnknownAttempt, completed map[PoolJobKey]PoolCompleted) (normalizedPoolJob, bool) {
@@ -1030,11 +1044,13 @@ func (p *SessionPool) continuePoolCleanup(ctx context.Context, current *poolActi
 		return
 	}
 	current.reconcileStarted = true
-	reconcileCtx := current.cleanupCtx
-	if reconcileCtx == nil {
-		p.quarantinePoolAttempt(current, activeByBoard, activeByKey, boardStatus, results, checkpoint, unknown, quarantined, "cleanup deadline context is missing")
-		return
+	// Reconcile may reboot the board, which takes longer than the frozen
+	// cleanup budget, so it gets its own deadline.
+	reconcileCtx, reconcileCancel := p.options.Clock.WithTimeout(context.WithoutCancel(ctx), poolCleanupWait(p.options.CleanupTimeout)+poolRecoveryAllowance)
+	if current.cleanupCancel != nil {
+		current.cleanupCancel()
 	}
+	current.cleanupCtx, current.cleanupCancel = reconcileCtx, reconcileCancel
 	go func() {
 		done := make(chan struct {
 			cleanup SessionCleanup
@@ -1052,6 +1068,22 @@ func (p *SessionPool) continuePoolCleanup(ctx context.Context, current *poolActi
 			messages <- poolMessage{kind: poolReconcileReturned, attempt: current.attempt, cleanup: result.cleanup, err: result.err}
 		case <-reconcileCtx.Done():
 			messages <- poolMessage{kind: poolReconcileReturned, attempt: current.attempt, err: reconcileCtx.Err()}
+		}
+	}()
+}
+
+// watchAbandonedWorker reports a capture worker that is still running long
+// after cancel gave up. The worker first finishes its current board command,
+// then runs a cleanup bounded by the cleanup budget, so only a hung driver
+// takes four budgets.
+func (p *SessionPool) watchAbandonedWorker(current *poolActive, messages chan<- poolMessage) {
+	ctx, cancel := p.options.Clock.WithTimeout(context.Background(), 4*poolCleanupWait(p.options.CleanupTimeout))
+	go func() {
+		defer cancel()
+		select {
+		case <-current.workerDone:
+		case <-ctx.Done():
+			messages <- poolMessage{kind: poolWorkerAbandoned, attempt: current.attempt}
 		}
 	}()
 }
@@ -1119,13 +1151,18 @@ func (p *SessionPool) releasePoolBoard(current *poolActive, activeByBoard *map[B
 }
 
 func (p *SessionPool) finishPoolCleanup(current *poolActive, attempt AttemptKey, activeByBoard *map[BoardKey]*poolActive, activeByKey map[AttemptKey]*poolActive, boardStatus *map[BoardKey]PoolBoardStatus, results *map[PoolJobKey]PoolJobResult, checkpoint *PoolCheckpoint, unknown *map[PoolJobKey]PoolUnknownAttempt, quarantined *map[BoardKey]PoolBoardQuarantine, terminalErr *error, stopDispatch *bool, cancelRun context.CancelFunc) {
-	if current.cleanup.Confirmed && !current.cleanup.Required && current.cleanupErr == nil {
+	// A confirmed Reconcile settles the board even if cancel failed earlier.
+	if current.cleanup.Confirmed && !current.cleanup.Required && current.reconcileErr == nil {
 		p.finishCleanPoolAttempt(current, attempt, current.reason, activeByBoard, activeByKey, boardStatus, results, checkpoint, unknown, quarantined, terminalErr, stopDispatch, cancelRun)
 		return
 	}
 	p.quarantinePoolAttempt(current, activeByBoard, activeByKey, boardStatus, results, checkpoint, unknown, quarantined, current.reason)
 }
 
+// quarantinePoolAttempt benches the board for the rest of this run when its
+// attempt could not be recovered, even by reboot. Nothing is persisted that
+// would fence the board or the game in later runs; the game is reported as
+// failed for this run.
 func (p *SessionPool) quarantinePoolAttempt(current *poolActive, activeByBoard *map[BoardKey]*poolActive, activeByKey map[AttemptKey]*poolActive, boardStatus *map[BoardKey]PoolBoardStatus, results *map[PoolJobKey]PoolJobResult, checkpoint *PoolCheckpoint, unknown *map[PoolJobKey]PoolUnknownAttempt, quarantined *map[BoardKey]PoolBoardQuarantine, reason string) {
 	if current.cleanupCancel != nil {
 		current.cleanupCancel()
@@ -1134,15 +1171,10 @@ func (p *SessionPool) quarantinePoolAttempt(current *poolActive, activeByBoard *
 	if strings.TrimSpace(reason) == "" {
 		reason = "attempt cleanup is unknown"
 	}
-	item := PoolUnknownAttempt{JobKey: current.job.key, PortableID: current.job.portableID, Attempt: current.attempt, Reason: reason}
-	*checkpoint = setPoolAttemptState(*checkpoint, current.attempt, PoolAttemptUnknown)
-	(*unknown)[current.job.key] = item
-	q := PoolBoardQuarantine{Board: current.board.Key, Host: current.board.Host, JobKey: current.job.key, Attempt: current.attempt, Generation: current.job.job.Session.Generation, Reason: reason, At: p.options.Clock.Now()}
-	(*quarantined)[current.board.Key] = q
-	*checkpoint = setPoolUnknown(*checkpoint, item)
-	*checkpoint = setPoolQuarantine(*checkpoint, q)
-	(*results)[current.job.key] = PoolJobResult{JobKey: current.job.key, PortableID: current.job.portableID, State: PoolResultBlocked, Attempt: current.attempt, Message: reason}
-	(*boardStatus)[current.board.Key] = PoolBoardStatus{Board: current.board.Key, Host: current.board.Host, State: PoolBoardQuarantined, Attempt: current.attempt, Message: reason}
+	reason = "board recovery failed; board skipped for the rest of this run: " + reason
+	*checkpoint = setPoolAttemptState(*checkpoint, current.attempt, PoolAttemptClean)
+	(*results)[current.job.key] = PoolJobResult{JobKey: current.job.key, PortableID: current.job.portableID, State: PoolResultPending, Attempt: current.attempt, Message: reason}
+	(*boardStatus)[current.board.Key] = PoolBoardStatus{Board: current.board.Key, Host: current.board.Host, State: PoolBoardUnavailable, Attempt: current.attempt, Message: reason}
 	delete(*activeByBoard, current.board.Key)
 	delete(activeByKey, current.attempt)
 }

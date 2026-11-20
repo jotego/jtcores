@@ -182,6 +182,9 @@ func validateCoreMacroFile(source, core string) error {
 	return nil
 }
 
+// miSTerTargetSkipped reports cores that produce no MiSTer capture build:
+// JTFRAME_SKIP cores and cores whose macros drop JTFRAME_REGRESSION (for
+// example, cores that use DDR for video all the time).
 func miSTerTargetSkipped(source, core string) (bool, error) {
 	if err := validateCoreMacroFile(source, core); err != nil { return false, err }
 	var skipped bool
@@ -189,7 +192,7 @@ func miSTerTargetSkipped(source, core string) (bool, error) {
 		jtframeMacroMu.Lock()
 		defer jtframeMacroMu.Unlock()
 		macros.MakeMacros(core, "mister")
-		skipped = macros.IsSet("JTFRAME_SKIP")
+		skipped = macros.IsSet("JTFRAME_SKIP") || !macros.IsSet(macros.JTFRAME_REGRESSION)
 		return nil
 	})
 	return skipped, err

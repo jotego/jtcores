@@ -467,6 +467,16 @@ func (d *MiSTerSessionDriver) Cancel(ctx context.Context, key AttemptKey) error 
 // program and the explicit fresh Main recovery receipt. A ping, process
 // restart, or old session status alone cannot release the board.
 func (d *MiSTerSessionDriver) Reconcile(ctx context.Context, key AttemptKey) (SessionCleanup, error) {
+	cleanup, err := d.reconcileExact(ctx, key)
+	if err == nil || key.Board != d.Config.BoardKey || d.validateConfig() != nil {
+		return cleanup, err
+	}
+	return d.recoverByReboot(ctx, err)
+}
+
+// reconcileExact replays the original loader from the ledger's exact staged
+// files. When that is impossible, Reconcile falls back to a reboot.
+func (d *MiSTerSessionDriver) reconcileExact(ctx context.Context, key AttemptKey) (SessionCleanup, error) {
 	if err := d.validateConfig(); err != nil {
 		return SessionCleanup{}, err
 	}
@@ -852,15 +862,27 @@ func (d *MiSTerSessionDriver) Healthy(ctx context.Context) error {
 		return err
 	}
 	if _, err := os.Lstat(d.ledgerName()); err == nil {
-		return fmt.Errorf("MiSTer board has a persisted quarantine ledger")
+		// An earlier attempt was not cleaned up. Recover the board now.
+		if _, err = d.recoverByReboot(ctx, fmt.Errorf("stale board ledger from an earlier attempt")); err != nil {
+			return err
+		}
 	} else if !os.IsNotExist(err) {
 		return err
 	}
 	snapshot, err := d.Remote.Probe(ctx)
-	if err != nil {
-		return err
+	if err == nil {
+		err = d.validateSnapshot(snapshot)
 	}
-	return d.validateSnapshot(snapshot)
+	if err == nil && freshBootLoader(snapshot) {
+		_, err = d.loadMenuAfterBoot(ctx, snapshot)
+	}
+	if err == nil {
+		return nil
+	}
+	if _, rebootErr := d.recoverByReboot(ctx, err); rebootErr != nil {
+		return rebootErr
+	}
+	return nil
 }
 
 // ValidateLocalConfig applies the same local driver checks used by Healthy and
@@ -2425,6 +2447,9 @@ func (d *MiSTerSessionDriver) cleanupAttempt(ctx context.Context, active *miSTer
 	if len(failures) != 0 {
 		return fmt.Errorf("%s", strings.Join(failures, "; "))
 	}
+	if err := d.adoptPartialCaptureOutputs(ctx, active); err != nil {
+		return fmt.Errorf("adopt partial capture outputs; quarantine retained: %w", err)
+	}
 	if err := removeOwnedMiSTerFiles(ctx, d.Remote, active.ledger.OwnedFiles); err != nil {
 		failures = append(failures, err.Error())
 	}
@@ -2445,6 +2470,56 @@ func (d *MiSTerSessionDriver) cleanupAttempt(ctx context.Context, active *miSTer
 		}
 	}
 	return nil
+}
+
+// adoptPartialCaptureOutputs records the receipts and PNGs that Main wrote
+// for checkpoints of a session that ended before collection. Without this, a
+// failed capture leaves files in the owned screenshot directory, which then
+// cannot be removed. It runs before any owned file is deleted, so a failure
+// here keeps the quarantine recoverable.
+func (d *MiSTerSessionDriver) adoptPartialCaptureOutputs(ctx context.Context, active *miSTerActiveSession) error {
+	owned := make(map[string]bool, len(active.ledger.OwnedFiles))
+	for _, file := range active.ledger.OwnedFiles {
+		owned[file.Path] = true
+	}
+	pngDir := "/media/fat/screenshots/" + active.prepared.Setname
+	var adopted []miSTerOwnedRemoteFile
+	for _, checkpoint := range active.prepared.Checkpoints {
+		receiptPath := fmt.Sprintf("/tmp/jtframe-capture-%s-checkpoint-%05x.receipt.json", active.key.SessionID, checkpoint)
+		if owned[receiptPath] {
+			continue
+		}
+		receiptBytes, exists, err := d.Remote.File(ctx, receiptPath, maxCaptureReceiptBytes)
+		if err != nil {
+			return fmt.Errorf("read checkpoint %d receipt: %w", checkpoint, err)
+		}
+		if !exists {
+			continue
+		}
+		receipt, err := decodeMiSTerCaptureImageReceiptV2(receiptBytes)
+		if err != nil {
+			return fmt.Errorf("decode checkpoint %d receipt: %w", checkpoint, err)
+		}
+		adopted = append(adopted, miSTerOwnedRemoteFile{Path: receiptPath, SHA256: digestBytes(receiptBytes), Owned: true})
+		if receipt.PNGPath == "" || owned[receipt.PNGPath] {
+			continue
+		}
+		if err = validMainCapturePNGPath(receipt.PNGPath, pngDir, active.key.SessionID, uint32(checkpoint)); err != nil {
+			return fmt.Errorf("checkpoint %d PNG path: %w", checkpoint, err)
+		}
+		pngSHA, pngExists, err := d.Remote.Hash(ctx, receipt.PNGPath)
+		if err != nil {
+			return fmt.Errorf("inspect checkpoint %d PNG: %w", checkpoint, err)
+		}
+		if pngExists {
+			adopted = append(adopted, miSTerOwnedRemoteFile{Path: receipt.PNGPath, SHA256: pngSHA, Owned: true})
+		}
+	}
+	if len(adopted) == 0 {
+		return nil
+	}
+	active.ledger.OwnedFiles = append(active.ledger.OwnedFiles, adopted...)
+	return d.writeLedger(active.ledger, active.ledger.State, active.ledger.Reason)
 }
 
 func removeOwnedMiSTerFiles(ctx context.Context, remote MiSTerRemote, files []miSTerOwnedRemoteFile) error {
