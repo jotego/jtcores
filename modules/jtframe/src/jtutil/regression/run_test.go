@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 )
 
 // fake_lab holds the state shared by the fake boards of one test
@@ -25,6 +26,7 @@ type fake_lab struct {
 	fail  map[string]int   // capture errors left per setname
 	color map[string]uint8 // frame colour per setname
 	dead  map[string]bool  // boards whose Main is not running
+	hang  map[string]bool  // boards whose deploy never ends
 	loads []string
 	clean map[string]int // Clean calls per setname
 }
@@ -39,6 +41,13 @@ func (b *fake_board) Name() string { return b.name }
 
 func (b *fake_board) Deploy(ctx context.Context, release, folder string) error {
 	b.release = release
+	b.lab.mu.Lock()
+	hang := b.lab.hang[b.name]
+	b.lab.mu.Unlock()
+	if hang {
+		<-ctx.Done()
+		return ctx.Err()
+	}
 	return nil
 }
 
@@ -133,7 +142,7 @@ func fake_run(t *testing.T, lab *fake_lab, boards ...string) (Options, *bytes.Bu
 }
 
 func new_lab() *fake_lab {
-	return &fake_lab{fail: map[string]int{}, color: map[string]uint8{}, dead: map[string]bool{}, clean: map[string]int{}}
+	return &fake_lab{fail: map[string]int{}, color: map[string]uint8{}, dead: map[string]bool{}, hang: map[string]bool{}, clean: map[string]int{}}
 }
 
 func run_games(t *testing.T, opts Options, out *bytes.Buffer) *progress {
@@ -250,6 +259,19 @@ func TestRunRetiresBoard(t *testing.T) {
 	check_results(t, p, map[string]Outcome{"aaa/a1": Pending, "aaa/a2": Pending, "bbb/b1": Pending})
 	if p.Status != "incomplete" {
 		t.Errorf("status %s\n%s", p.Status, out)
+	}
+}
+
+// a deploy that times out leaves its board out and the others finish the run
+func TestRunDeployTimeout(t *testing.T) {
+	lab := new_lab()
+	lab.hang["m1"] = true
+	opts, out := fake_run(t, lab, "m1", "m2")
+	opts.deploy_limit = 50 * time.Millisecond
+	p := run_games(t, opts, out)
+	check_results(t, p, map[string]Outcome{"aaa/a1": New, "aaa/a2": New, "bbb/b1": New})
+	if !strings.Contains(out.String(), "m1: deploy failed, board left out: context deadline exceeded") {
+		t.Errorf("m1 not left out:\n%s", out)
 	}
 }
 

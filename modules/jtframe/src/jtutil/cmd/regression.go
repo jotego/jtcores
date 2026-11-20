@@ -35,7 +35,8 @@ Sources, choose one:
                    cores/<core>/ver/*/reg.cab files. A dirty tree is allowed
 
 The release folder goes to /media/fat/_<hash> of each board with jtbin2mr, which
-needs MISTERPASSWD and wipes the core settings. Each board then takes the
+needs MISTERPASSWD and wipes the core settings. A board whose copy takes over
+10 minutes is left out. Each board then takes the
 next game from a shared queue: load_core, cab_session_start, wait for the
 status file /tmp/jtcap/status.json, fetch the PNGs. The load has its own limit;
 the capture limit is 1.2*(M+1)/50 seconds for a CAB whose last line is M (50 Hz

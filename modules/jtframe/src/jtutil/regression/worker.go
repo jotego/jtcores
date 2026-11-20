@@ -4,6 +4,7 @@
 package regression
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -55,7 +56,10 @@ func (r *runner) execute() error {
 
 func (r *runner) worker(b Board) {
 	folder := "_" + r.key
-	if e := b.Deploy(r.ctx, r.release, folder); e != nil {
+	ctx, cancel := context.WithTimeout(r.ctx, r.deploy_limit)
+	e := b.Deploy(ctx, r.release, folder)
+	cancel()
+	if e != nil {
 		r.printf("%s: deploy failed, board left out: %v", b.Name(), e)
 		r.done(nil)
 		return

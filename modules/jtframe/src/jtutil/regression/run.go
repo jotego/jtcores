@@ -32,7 +32,8 @@ type Options struct {
 	Builds    string // $JOTEGO/core-builds
 	Source    string // JTROOT
 	Out       io.Writer
-	new_board func(host, socket_dir string) Board
+	new_board    func(host, socket_dir string) Board
+	deploy_limit time.Duration
 }
 
 // The capture limit assumes the lowest refresh rate of the cores, so that
@@ -80,6 +81,9 @@ func Run(ctx context.Context, opts Options) (e error) {
 	}
 	if opts.new_board == nil {
 		opts.new_board = new_ssh_board
+	}
+	if opts.deploy_limit == 0 {
+		opts.deploy_limit = 10 * time.Minute
 	}
 	lock, e := lock_regression(opts.Root)
 	if opts.Poll && e == errBusy {

@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -71,6 +72,9 @@ func (b *ssh_board) Name() string { return b.host }
 func (b *ssh_board) Deploy(ctx context.Context, release, folder string) error {
 	cmd := exec.CommandContext(ctx, "jtbin2mr", "-g", "--skip-sd", "--folder", folder, "--delete-hash-folders", "-m", b.host)
 	cmd.Env = append(os.Environ(), "JTBIN="+release, "JTUTIL=") // no jtbeta.zip copy: games/mame is shared over NFS
+	// on a timeout, stop the scp/ssh children of jtbin2mr too
+	cmd.SysProcAttr, cmd.WaitDelay = &syscall.SysProcAttr{Setpgid: true}, 10*time.Second
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
 	if out, e := cmd.CombinedOutput(); e != nil {
 		return fmt.Errorf("jtbin2mr: %w\n%s", e, out)
 	}
