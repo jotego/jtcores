@@ -1,0 +1,5 @@
+capture -
+frames 4
+1 0 - -- finish-level
+2 0 - -- -
+1 0 - -- a,b

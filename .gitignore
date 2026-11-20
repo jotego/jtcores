@@ -139,3 +139,7 @@ scenes/
 CODEX.md
 DEEPSEEK.md
 .claude
+
+# cabinet parser native test binaries
+modules/jtframe/verilator/tests/cabinet/cabinet_test
+modules/jtframe/verilator/tests/cabinet/cabinet_pack
