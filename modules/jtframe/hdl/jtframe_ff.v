@@ -2,7 +2,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 13-12-2019 */
 
-module jtframe_ff #(parameter W=1 ) (
+module jtframe_ff #(
+    parameter W=1,
+    parameter EDGE_RESET=1'b0
+) (
     input                clk,
     input                rst,
     (*direct_enable*) input cen,
@@ -23,7 +26,8 @@ generate
             if(rst) begin
                 q[i]         <= 0;
                 qn[i]        <= 1;
-                last_edge[i] <= 0;
+                // Value sampled on the edge input while reset is active.
+                last_edge[i] <= EDGE_RESET;
             end
             else begin
                 last_edge[i] <= sigedge[i];

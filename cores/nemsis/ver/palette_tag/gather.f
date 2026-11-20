@@ -1,0 +1,9 @@
+$JTROOT/cores/nemsis/hdl/jtnemsis_main.v
+$JTROOT/cores/nemsis/ver/generated/palette_tag/cores/nemsis/hdl/jtnemsis_u11k_mmr.v
+$JTROOT/cores/nemsis/ver/generated/palette_tag/cores/nemsis/hdl/jtnemsis_u13j_mmr.v
+$JTROOT/cores/nemsis/hdl/jtnemsis_colmix.v
+$JTROOT/cores/nemsis/hdl/jtnemsis_colour_lut.v
+$JTROOT/cores/nemsis/hdl/colmix.hex
+$JTROOT/modules/jtframe/hdl/ram/jtframe_dual_ram16.v
+$JTROOT/modules/jtframe/hdl/ram/jtframe_dual_ram.v
+$JTROOT/modules/jtframe/hdl/video/jtframe_blank.v

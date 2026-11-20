@@ -1,0 +1,27 @@
+# Two 74LS259 addressable latches. Each byte in the scene image corresponds
+# to one latch address; the hardware uses only bit 0 of each byte.
+- name: u11k
+  size: 8
+  dw: 8
+  regs:
+    - { name: u11k_q0, dw: 1, at: "0[0]" }
+    - { name: u11k_q1, dw: 1, at: "1[0]" }
+    - { name: u11k_q2, dw: 1, at: "2[0]" }
+    - { name: u11k_q3, dw: 1, at: "3[0]" }
+    - { name: u11k_q4, dw: 1, at: "4[0]" }
+    - { name: u11k_q5, dw: 1, at: "5[0]" }
+    - { name: u11k_q6, dw: 1, at: "6[0]" }
+    - { name: u11k_q7, dw: 1, at: "7[0]" }
+
+- name: u13j
+  size: 8
+  dw: 8
+  regs:
+    - { name: u13j_q0, dw: 1, at: "0[0]" }
+    - { name: u13j_q1, dw: 1, at: "1[0]" }
+    - { name: u13j_q2, dw: 1, at: "2[0]" }
+    - { name: u13j_q3, dw: 1, at: "3[0]" }
+    - { name: u13j_q4, dw: 1, at: "4[0]" }
+    - { name: u13j_q5, dw: 1, at: "5[0]" }
+    - { name: u13j_q6, dw: 1, at: "6[0]" }
+    - { name: u13j_q7, dw: 1, at: "7[0]" }
