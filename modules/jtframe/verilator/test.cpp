@@ -227,6 +227,7 @@ public:
     bool is_controlling_reset() { return rst_assigned; }
     bool has_cabinet_script() const { return cab != nullptr; }
     bool cabinet_done() const { return cab != nullptr && done; }
+    int line_index() const { return line - 1; } // CAB line applied by the last next()
     bool take_tracing_on() {
         const bool requested = trace_requested;
         trace_requested = false;
@@ -609,6 +610,7 @@ class JTSim {
     bool download = false;
     bool explicit_video_limit = false;
     bool release_reset_pending = false;
+    bool first_cab_line_reported = false;
     int  release_reset_wait = 0;
     vluint64_t last_frame_time = 0;
     HarnessOptions options;
@@ -813,7 +815,13 @@ void JTSim::cabinet_dump() {
 void JTSim::process_sim_inputs() {
     if( !game.LVBL || last_LVBL ) return;
 
-    if( sim_inputs.is_controlling_reset() || !game.rst ) sim_inputs.next();
+    if( sim_inputs.is_controlling_reset() || !game.rst ) {
+        sim_inputs.next();
+        if( !game.rst && !first_cab_line_reported && sim_inputs.has_cabinet_script() ) {
+            first_cab_line_reported = true;
+            fprintf(stderr, "\nCAB line %d active from frame %d\n", sim_inputs.line_index(), frame_cnt);
+        }
+    }
     if( sim_inputs.take_dump() ) cabinet_dump();
 #ifdef _DUMP
     if( !options.trace_from_command_line && !dump_ok && sim_inputs.take_tracing_on() ) {
