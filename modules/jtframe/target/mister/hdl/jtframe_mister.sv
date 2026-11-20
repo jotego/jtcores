@@ -260,10 +260,9 @@ wire [35:0] hps_ext_bus;
 wire [31:0] hps_dipsw;
 wire [20:0] cab_inputs;
 wire [31:0] cab_dipsw;
-wire [14:0] cab_frame, cab_frame_index;
+wire [14:0] cab_frame_index;
+wire [ 2:0] cab_state;
 wire cab_active, cab_hold_reset, cab_dipsw_valid, cab_frame_start;
-wire [2:0] cab_state;
-wire [7:0] cab_error;
 wire ext_response_enable;
 wire [15:0] ext_response_word;
 wire io_strobe, io_enable;
@@ -275,9 +274,8 @@ wire [ 6:0] uio_bad_index;
 wire [95:0] uio_payload;
 wire [127:0] uio_cab_caps, uio_cap_caps;
 wire [255:0] uio_snapshot;
-wire uio_snapshot_valid, uio_result_valid, uio_rst;
-wire [ 7:0] cap_result_byte;
-wire [ 5:0] cap_result_index;
+wire [127:0] uio_cap_result;
+wire uio_snapshot_valid, uio_rst;
 wire [127:0] hps_status_full;
 
 wire [3*COLORW-1:0] base_rgb;
@@ -602,11 +600,9 @@ jtframe_mister_uio #(.CAPTURE_SUPPORT(CAPTURE_BUILD)) u_uio_transport(
     .host_word ( host_word    ),
     .cab_caps  ( uio_cab_caps ),
     .cap_caps  ( uio_cap_caps ),
+    .cap_result( uio_cap_result ),
     .cab_snapshot ( uio_snapshot ),
-    .cap_result_index ( cap_result_index ),
-    .cap_result_byte  ( cap_result_byte  ),
     .cab_snapshot_valid ( uio_snapshot_valid ),
-    .cap_result_valid ( uio_result_valid ),
     .response_enable ( ext_response_enable ),
     .response_word ( ext_response_word ),
     .start     ( uio_start    ),
@@ -642,11 +638,11 @@ jtframe_mister_cab u_cab_bridge(
     .cab_inputs      ( cab_inputs      ),
     .cab_dipsw_valid ( cab_dipsw_valid ),
     .cab_dipsw       ( cab_dipsw       ),
-    .cab_frame       ( cab_frame       ),
+    .cab_frame       (                 ),
     .cab_frame_start ( cab_frame_start ),
     .cab_frame_index ( cab_frame_index ),
     .cab_state       ( cab_state       ),
-    .cab_error       ( cab_error       )
+    .cab_error       (                 )
 );
 end else begin: g_no_regression
     assign ext_response_enable=1'b0;
@@ -656,11 +652,9 @@ end else begin: g_no_regression
     assign cab_inputs=21'd0;
     assign cab_dipsw_valid=1'b0;
     assign cab_dipsw=32'd0;
-    assign cab_frame=15'd0;
     assign cab_frame_start=1'b0;
     assign cab_frame_index=15'd0;
     assign cab_state=3'd0;
-    assign cab_error=8'd0;
 end endgenerate
 
 // Regression capture: one clk_sys block (clk_sys = clk_rom = DDRAM_CLK)
@@ -684,25 +678,17 @@ generate if(CAPTURE_BUILD) begin: g_capture
     jtframe_mister_capture u_capture(
         .rst              ( rst                     ),
         .clk              ( clk_sys                 ),
-        .host_word        ( host_word               ),
-        .uio_start        ( uio_start               ),
         .uio_finish       ( uio_finish              ),
-        .uio_active       ( uio_active              ),
         .uio_command      ( uio_command             ),
         .uio_words        ( uio_words               ),
-        .uio_payload      ( uio_payload[63:0]       ),
+        .uio_payload      ( uio_payload[14:0]       ),
         .uio_bad_word     ( uio_bad_word            ),
-        .uio_bad_index    ( uio_bad_index           ),
         .uio_caps         ( uio_cap_caps            ),
-        .uio_result_valid ( uio_result_valid        ),
-        .result_index     ( cap_result_index        ),
-        .result_byte      ( cap_result_byte         ),
+        .uio_result       ( uio_cap_result          ),
         .lvbl             ( LVBL                    ),
         .cab_frame_start  ( cab_frame_start         ),
         .cab_frame_index  ( cab_frame_index         ),
-        .cab_completed    ( cab_frame               ),
         .cab_state        ( cab_state               ),
-        .cab_error        ( cab_error               ),
         .pxl_cen          ( scan2x_cen              ),
         .red              ( scan2x_r                ),
         .green            ( scan2x_g                ),
@@ -720,8 +706,7 @@ generate if(CAPTURE_BUILD) begin: g_capture
     );
 end else begin: g_no_capture
     assign uio_cap_caps     = 128'd0;
-    assign uio_result_valid = 1'b0;
-    assign cap_result_byte  = 8'd0;
+    assign uio_cap_result   = 128'd0;
     assign cap_ddr_sel      = 1'b0;
     assign cap_ddr_lock     = 1'b0;
     assign cap_ddr_we       = 1'b0;

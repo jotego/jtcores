@@ -62,10 +62,10 @@ module test;
         if(uut.cab_active !== 1'b0 || uut.cab_hold_reset !== 1'b0 ||
            uut.cab_inputs !== 21'd0 || uut.cab_dipsw_valid !== 1'b0 ||
            uut.cab_dipsw !== 32'd0 ||
-           uut.cab_frame !== 15'd0 || uut.cab_frame_index !== 15'd0 ||
-           uut.cab_frame_start !== 1'b0 || uut.cab_state !== 3'd0 || uut.cab_error !== 8'd0)
+           uut.cab_frame_index !== 15'd0 ||
+           uut.cab_frame_start !== 1'b0 || uut.cab_state !== 3'd0)
             $fatal(1,"disabled wrapper changed CAB controls, reset, DIPs, or tags");
-        if(uut.cap_ddr_sel !== 1'b0 || uut.cap_ddr_we !== 1'b0 || uut.uio_result_valid !== 1'b0 ||
+        if(uut.cap_ddr_sel !== 1'b0 || uut.cap_ddr_we !== 1'b0 || uut.uio_cap_result !== 128'd0 ||
            uut.uio_cap_caps !== 128'd0)
             $fatal(1,"disabled wrapper capture DDR client or result was not neutral");
         if(status[0] !== uut.hps_status_full[0])
