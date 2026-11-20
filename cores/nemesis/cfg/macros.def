@@ -1,0 +1,38 @@
+# [*]
+CORENAME=JTNEMESIS
+
+JTFRAME_BUTTONS=3
+JTFRAME_COLORW=8
+JTFRAME_WIDTH=256
+JTFRAME_HEIGHT=224
+
+# Run make in the core firmware folder to generate hex files
+JTFRAME_BUILD_FIRMWARE
+
+JTFRAME_OSD_NOLOAD
+JTFRAME_OSD_NOLOGO
+JTFRAME_CREDITS
+JTFRAME_CREDITS_PAGES=2
+
+# accurate pixel clock
+# 18.432MHz/3 -> 6.144MHz pixel clock, 384x264 total, 60.606Hz
+# (nemesis.cpp gx400_base_state::set_screen_raw_params)
+JTFRAME_PLL=jtframe_pll6144
+
+# unsigned sound
+# TODO: does it still exist?
+JTFRAME_SIGNED_SND=0
+
+JTFRAME_BA1_START=0x40000
+JTFRAME_PROM_START=0x44000
+
+# GX400 custom-chip build options
+# wide address busses in K5295 instead of RAS/CAS
+GX400_UNFOLD_DRAM_ADDR
+
+SDRAM_FIX
+K5291_NO_MUX
+
+[mister]
+JTFRAME_ARX=5
+JTFRAME_ARY=4

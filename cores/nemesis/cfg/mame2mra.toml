@@ -1,0 +1,30 @@
+[global]
+author=[ "LMN-san", "OScherler", "Raki" ]
+webpage="https://gx400-friends.github.io/"
+twitter="-"
+
+[parse]
+sourcefile=[ "nemesis.cpp" ]
+# nemesis.cpp also holds Salamander, TwinBee, Konami GT, City Bomber... which
+# this core does not implement. Keep only the machines using the GX400 ROM
+# board (nemesis + nemesisuk).
+mustbe.machines=[ "nemesis" ]
+skip.setnames=[ "gradius" ]
+ 
+[buttons]
+names=[
+    { names="Option,Fire,Bomb", map="YBA" },
+]
+
+[ROM]
+regions=[
+    # reverse=true: jtframe_dwnld byte-swaps on the way into SDRAM, so the MRA
+    # must present the 16-bit words pre-swapped for the 68000 to read them back
+    # big-endian. Without it the reset SSP loads as 0x0600F07F (odd) -> address
+    # error -> double fault -> CPU halts after 12 bus cycles.
+    { name="maincpu",  width=16, no_offset=true, reverse=true },
+    { name="audiocpu", start="JTFRAME_BA1_START"  },
+    { name="k005289",  start="JTFRAME_PROM_START" },
+]
+
+order=["maincpu", "audiocpu", "k005289"]
