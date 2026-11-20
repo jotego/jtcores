@@ -1,3 +1,4 @@
+capture 500
 250
 1 coin
 6
@@ -10,3 +11,4 @@ loop
   14
   1 b1
 repeat 100
+=4000
