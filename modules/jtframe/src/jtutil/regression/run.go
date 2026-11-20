@@ -45,7 +45,8 @@ const (
 
 type runner struct {
 	Options
-	commit, key   string // full SHA; short SHA plus -dirty for dirty manual runs
+	commit, key   string // full SHA; progress key: short SHA, manual-<short SHA>[-dirty] for --core
+	folder        string // board folder, _<short SHA>[-dirty]
 	work, release string
 	ctx           context.Context
 	poll          time.Duration
@@ -134,11 +135,12 @@ func lock_regression(root string) (*os.File, error) {
 func (r *runner) manual_source() error {
 	head, e := r.git("rev-parse", "HEAD"); if e != nil { return e }
 	status, e := r.git("status", "--porcelain"); if e != nil { return e }
-	r.commit, r.key = head, head[:7]
+	r.commit, r.folder = head, "_"+head[:7]
 	if status != "" {
-		r.key += "-dirty"
+		r.folder += "-dirty"
 		fmt.Fprintln(r.Out, "Warning: the working tree is dirty")
 	}
+	r.key = "manual-" + r.folder[1:] // never marks the commit as tested
 	rbf := filepath.Join(r.Source, "release", "mister", "jt"+r.Core+".rbf")
 	e = os.MkdirAll(filepath.Join(r.release, "mister"), 0750); if e != nil { return e }
 	e = copy_file(rbf, filepath.Join(r.release, "mister", filepath.Base(rbf)))
@@ -200,7 +202,7 @@ func (r *runner) zip_source(commit, run string) (e error) {
 	if r.commit, e = r.git("rev-parse", "--verify", commit+"^{commit}"); e != nil {
 		return fmt.Errorf("unknown commit %s (git fetch?): %w", commit, e)
 	}
-	r.key = r.commit[:7]
+	r.key, r.folder = r.commit[:7], "_"+r.commit[:7]
 	zip := filepath.Join(r.Builds, r.key+".zip")
 	if _, e = os.Stat(zip); os.IsNotExist(e) && run != "" {
 		e = r.download(run, zip)

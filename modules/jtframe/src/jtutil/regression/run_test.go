@@ -314,3 +314,17 @@ func TestRunPollWhileBusy(t *testing.T) {
 		t.Errorf("got %v, %q", e, out)
 	}
 }
+
+// manual runs keep their progress apart from the commit's full run
+func TestManualProgressKey(t *testing.T) {
+	opts, _ := fake_run(t, new_lab(), "m1")
+	os.WriteFile(filepath.Join(opts.Source, "untracked"), nil, 0640)
+	opts.Core = "zzz"
+	r := &runner{Options: opts, ctx: context.Background(), release: t.TempDir()}
+	if e := r.manual_source(); e == nil || !strings.Contains(e.Error(), "jtcore zzz -mr") {
+		t.Errorf("got %v", e)
+	}
+	if r.key != "manual-"+r.commit[:7]+"-dirty" || r.folder != "_"+r.commit[:7]+"-dirty" {
+		t.Errorf("key %s, folder %s", r.key, r.folder)
+	}
+}

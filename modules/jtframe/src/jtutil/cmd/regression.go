@@ -35,17 +35,18 @@ Sources, choose one:
                    cores/<core>/ver/*/reg.cab files. A dirty tree is allowed
 
 The release folder goes to /media/fat/_<hash> of each board with jtbin2mr, which
-needs MISTERPASSWD and wipes the core settings. A board whose copy takes over
-10 minutes is left out. Each board then takes the
-next game from a shared queue: load_core, cab_session_start, wait for the
-status file /tmp/jtcap/status.json, fetch the PNGs. The load has its own limit;
+needs MISTERPASSWD and wipes the core settings; a board whose copy takes over
+10 minutes is left out. Each board then takes the next game from a shared
+queue: load_core, cab_session_start, wait for the status file
+/tmp/jtcap/status.json, fetch the PNGs. The load has its own limit;
 the capture limit is 1.2*(M+1)/50 seconds for a CAB whose last line is M (50 Hz
 is the lowest refresh rate of the cores). An operational error is retried once,
 then recorded as ERROR with /tmp/MiSTer.log; the board reboots after each one
 and leaves the run if it does not come back. Frame mismatches are not retried.
 
 Results go to $JOTEGO/regression/<core>/<setname>/{new,fail,error} and the
-progress to $JOTEGO/regression/log/<hash>.json. Running the same commit again
+progress to $JOTEGO/regression/log/<hash>.json (manual-<hash>[-dirty].json for
+--core, which never marks a commit as tested). Running the same commit again
 resumes it; --commit also reruns its ERROR games.`,
 	Args: cobra.NoArgs,
 	RunE: run_regression_cmd,

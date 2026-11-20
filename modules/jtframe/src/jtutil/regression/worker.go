@@ -55,7 +55,7 @@ func (r *runner) execute() error {
 }
 
 func (r *runner) worker(b Board) {
-	folder := "_" + r.key
+	folder := r.folder
 	ctx, cancel := context.WithTimeout(r.ctx, r.deploy_limit)
 	e := b.Deploy(ctx, r.release, folder)
 	cancel()
