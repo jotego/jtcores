@@ -209,6 +209,7 @@ func (r *runner) done(retry *job) {
 
 // record saves a game result in the progress file and the text log
 func (r *runner) record(j *job, board string, seconds float64, outcome Outcome, msg string) {
+	msg = strings.ReplaceAll(msg, "\n", " ") // one line per game
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.progress.Games[j.core+"/"+j.set] = &progress_game{Result: outcome, Board: board, Seconds: seconds, Message: msg}
