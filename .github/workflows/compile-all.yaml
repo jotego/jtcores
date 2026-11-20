@@ -185,6 +185,8 @@ jobs:
         run: |
           find release -mindepth 2 -maxdepth 2 -type f -name '*.yml' -print0 | sort -z | xargs -0 cat > release/stats.yml
           find release -mindepth 2 -maxdepth 2 -type f -name '*.yml' -delete
+      - name: Bundle regression CAB files
+        run: modules/jtframe/devops/reg-cabs.sh
       - name: Make zip file
         run: |
           ls -l release/*
