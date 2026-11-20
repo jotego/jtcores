@@ -117,8 +117,8 @@ func (p GitHubPublisher) Publish(summary Summary) (string, map[string]any, error
 	if summary.Build.RunNumber > 0 {
 		label = fmt.Sprint(summary.Build.RunNumber)
 	}
-	title:=fmt.Sprintf("SiDi128 regression: %s #%s", build_workflow_label(summary.Build), label)
-	if valid_commit(summary.RunID) {title="SiDi128 regression: "+summary.RunID[:12]}
+	title:=fmt.Sprintf("MiSTer regression: %s #%s", build_workflow_label(summary.Build), label)
+	if valid_commit(summary.RunID) {title="MiSTer regression: "+summary.RunID[:12]}
 	out, e := p.run("issue", "create", "--repo", githubRepository, "--title", title, "--body-file", bodyFile)
 	if e != nil {
 		return "", nil, e
@@ -197,7 +197,7 @@ func parseLastURL(output string) string {
 
 func formatGitHubSummary(summary Summary, marker string) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "# SiDi128 video regression\n\n%s\n\n", marker)
+	fmt.Fprintf(&b, "# MiSTer video regression\n\n%s\n\n", marker)
 	label := summary.Build.RunID
 	if summary.Build.RunNumber > 0 {
 		label = fmt.Sprint(summary.Build.RunNumber)

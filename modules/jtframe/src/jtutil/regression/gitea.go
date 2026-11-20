@@ -86,7 +86,7 @@ func (p GiteaPublisher) Publish(summary Summary, previous string) (string, error
 		}
 	}
 	body := formatGitHubSummary(summary, marker)
-	payload := map[string]string{"title": "SiDi128 regression: " + summary.RunID[:12], "body": body}
+	payload := map[string]string{"title": "MiSTer regression: " + summary.RunID[:12], "body": body}
 	path, method := "/issues", "POST"
 	if number > 0 {
 		path += fmt.Sprintf("/%d", number)
