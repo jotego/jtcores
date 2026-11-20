@@ -30,6 +30,8 @@ jobs:
         source setprj.sh
         $JTFRAME/bin/jtsim-funcs-test.sh
         make -C modules/jtframe/verilator/tests/cabinet test
+        $JTFRAME/bin/jtbin2mr-test.sh
+        $JTFRAME/devops/reg-cabs-test.sh
     - id: go
       run: |
         source ./setprj.sh
