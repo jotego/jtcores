@@ -145,7 +145,12 @@ func (b *ssh_board) Reboot(ctx context.Context) error {
 		if e != nil {
 			return e
 		}
-		if e = b.Health(ctx); e == nil || time.Now().After(deadline) {
+		// boards that read the ROMs over NFS mount them in the background after boot
+		e = b.run(ctx, 30*time.Second, "d=/media/fat/cifs/games/mame; [ ! -d $d ] || mountpoint -q $d || { echo $d is not mounted >&2; exit 1; }", nil)
+		if e == nil {
+			e = b.Health(ctx)
+		}
+		if e == nil || time.Now().After(deadline) {
 			return e
 		}
 	}
