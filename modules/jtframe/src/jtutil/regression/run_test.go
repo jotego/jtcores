@@ -98,7 +98,7 @@ func (b *fake_board) Clean(ctx context.Context, id string) error {
 	b.lab.clean[id]++
 	return nil
 }
-func (b *fake_board) Reboot(ctx context.Context) error        { return nil }
+func (b *fake_board) Reboot(ctx context.Context) error        { return b.Health(ctx) }
 func (b *fake_board) Close()                                  {}
 
 // fake_run makes a git repository and its compile-all zip with three games
@@ -236,17 +236,32 @@ func TestRunRetiresBoard(t *testing.T) {
 			t.Errorf("result from %s", g.Board)
 		}
 	}
+	if !strings.Contains(out.String(), "m1: recovery failed, board retired") {
+		t.Errorf("m1 not retired:\n%s", out)
+	}
 	// with every board gone the run stops and the games left stay pending
 	lab.dead["m2"] = true
 	opts.Boards = []string{"m2"}
 	os.Remove(filepath.Join(opts.Root, "log", p.Commit[:7]+".json"))
-	if e := Run(context.Background(), opts); e == nil || !strings.Contains(e.Error(), "2 games were not run") {
+	if e := Run(context.Background(), opts); e == nil || !strings.Contains(e.Error(), "3 games were not run") {
 		t.Errorf("got %v", e)
 	}
 	p, _ = read_progress(filepath.Join(opts.Root, "log", p.Commit[:7]+".json"))
-	check_results(t, p, map[string]Outcome{"aaa/a1": Error, "aaa/a2": Pending, "bbb/b1": Pending})
-	if p.Status != "incomplete" || !strings.Contains(out.String(), "m2: three consecutive failures, board retired") {
+	check_results(t, p, map[string]Outcome{"aaa/a1": Pending, "aaa/a2": Pending, "bbb/b1": Pending})
+	if p.Status != "incomplete" {
 		t.Errorf("status %s\n%s", p.Status, out)
+	}
+}
+
+// game errors never retire a board, however many there are in a row
+func TestRunGameErrorsKeepBoard(t *testing.T) {
+	lab := new_lab()
+	lab.fail["a1"], lab.fail["a2"], lab.fail["b1"] = 5, 5, 5
+	opts, out := fake_run(t, lab, "m1")
+	p := run_games(t, opts, out)
+	check_results(t, p, map[string]Outcome{"aaa/a1": Error, "aaa/a2": Error, "bbb/b1": Error})
+	if strings.Contains(out.String(), "retired") {
+		t.Errorf("board retired:\n%s", out)
 	}
 }
 

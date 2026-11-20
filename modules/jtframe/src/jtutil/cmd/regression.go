@@ -41,7 +41,7 @@ status file /tmp/jtcap/status.json, fetch the PNGs. The load has its own limit;
 the capture limit is 1.2*(M+1)/50 seconds for a CAB whose last line is M (50 Hz
 is the lowest refresh rate of the cores). An operational error is retried once,
 then recorded as ERROR with /tmp/MiSTer.log; the board reboots after each one
-and three consecutive failures retire it. Frame mismatches are not retried.
+and leaves the run if it does not come back. Frame mismatches are not retried.
 
 Results go to $JOTEGO/regression/<core>/<setname>/{new,fail,error} and the
 progress to $JOTEGO/regression/log/<hash>.json. Running the same commit again

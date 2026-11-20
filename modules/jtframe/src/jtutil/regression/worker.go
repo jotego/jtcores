@@ -62,7 +62,7 @@ func (r *runner) worker(b Board) {
 	}
 	r.printf("%s: deployed to /media/fat/%s", b.Name(), folder)
 	r.done(nil)
-	for fails := 0; ; {
+	for {
 		j := r.next(b.Name())
 		if j == nil {
 			return
@@ -79,7 +79,6 @@ func (r *runner) worker(b Board) {
 			return
 		}
 		if e == nil {
-			fails = 0
 			j.logs["MiSTer.log"], _ = b.Log(r.ctx) // kept if the frames differ
 			if e := b.Clean(r.ctx, j.set); e != nil {
 				r.printf("%s: cannot remove /tmp/jtcap/%s: %v", b.Name(), j.set, e)
@@ -94,7 +93,6 @@ func (r *runner) worker(b Board) {
 			continue
 		}
 		os.RemoveAll(dir)
-		fails++
 		j.tries, j.failed_on = j.tries+1, b.Name()
 		log, _ := b.Log(r.ctx) // before any reboot
 		b.Clean(r.ctx, j.set)
@@ -106,10 +104,6 @@ func (r *runner) worker(b Board) {
 			r.publish_error(j)
 			r.record(j, b.Name(), seconds, Error, e.Error())
 			r.done(nil)
-		}
-		if fails == 3 {
-			r.printf("%s: three consecutive failures, board retired", b.Name())
-			return
 		}
 		if e = b.Reboot(r.ctx); e != nil {
 			r.printf("%s: recovery failed, board retired: %v", b.Name(), e)
