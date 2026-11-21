@@ -17,6 +17,7 @@ import (
 )
 
 var regression_opts regression.Options
+var regression_accept []string
 
 var regressionCmd = &cobra.Command{
 	Use:   "regression",
@@ -47,7 +48,10 @@ and leaves the run if it does not come back. Frame mismatches are not retried.
 Results go to $JOTEGO/regression/<core>/<setname>/{new,fail,error} and the
 progress to $JOTEGO/regression/log/<hash>.json (manual-<hash>[-dirty].json for
 --core, which never marks a commit as tested). Running the same commit again
-resumes it; --commit also reruns its ERROR games.`,
+resumes it; --commit also reruns its ERROR games.
+
+--accept <names> makes the new/ or fail/ frames of each setname, or of all the
+pending games of each core, the new ref/. It runs no capture.`,
 	Args: cobra.NoArgs,
 	RunE: run_regression_cmd,
 }
@@ -60,6 +64,7 @@ func init() {
 	flag.StringSliceVar(&regression_opts.Boards, "boards", []string{"mister.home", "mister2.home", "mister3.home"}, "MiSTer host names")
 	flag.DurationVar(&regression_opts.LoadLimit, "load-limit", 30*time.Second, "Time limit to load a game")
 	flag.StringVar(&regression_opts.PublishTo, "publish-to", "github", "Report destination for full runs: github, gitea (GITEA_SERVER_URL, GITEA_REPOSITORY, GITEA_TOKEN) or none")
+	flag.StringSliceVar(&regression_accept, "accept", nil, "Make the new or fail frames of these setnames or cores the reference")
 	rootCmd.AddCommand(regressionCmd)
 }
 
@@ -72,6 +77,9 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--core must be a core name")
 	}
 	cmd.SilenceUsage = true
+	if len(regression_accept) > 0 {
+		return regression.Accept(filepath.Join(jotego, "regression"), regression_accept, cmd.OutOrStdout())
+	}
 	opts := regression_opts
 	opts.Root, opts.Builds = filepath.Join(jotego, "regression"), filepath.Join(jotego, "core-builds")
 	opts.Source, opts.Out = project_root(), cmd.OutOrStdout()
