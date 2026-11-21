@@ -141,11 +141,14 @@ func (r *runner) publish_error(j *job) {
 
 // publish_slot replaces the slot folder with a copy of src, through a
 // temporary folder and a rename, and removes the other result folders.
-// ref is never touched
+// An error keeps new and fail: it says nothing about the game. ref is never touched
 func (r *runner) publish_slot(game, slot, src string) error {
 	e := os.MkdirAll(game, 0750); if e != nil { return e }
 	for _, name := range []string{"new", "fail", "error"} {
 		dst := filepath.Join(game, name)
+		if name != slot && slot == "error" {
+			continue
+		}
 		if name != slot {
 			if e = os.RemoveAll(dst); e != nil {
 				return e

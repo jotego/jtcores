@@ -210,7 +210,13 @@ func TestRunRetryOnce(t *testing.T) {
 	lab := new_lab()
 	lab.fail["a1"], lab.fail["a2"] = 1, 5
 	opts, out := fake_run(t, lab, "m1", "m2")
+	pending := filepath.Join(opts.Root, "aaa", "a2", "new", "frame_00000001.png") // awaiting review
+	if e := os.MkdirAll(filepath.Dir(pending), 0750); e != nil { t.Fatal(e) }
+	if e := os.WriteFile(pending, nil, 0640); e != nil { t.Fatal(e) }
 	p := run_games(t, opts, out)
+	if _, e := os.Stat(pending); e != nil {
+		t.Error("an error removed the new frames:", e)
+	}
 	check_results(t, p, map[string]Outcome{"aaa/a1": New, "aaa/a2": Error, "bbb/b1": New})
 	if lab.clean["a1"] != 2 || lab.clean["a2"] != 2 || lab.clean["b1"] != 1 {
 		t.Errorf("/tmp/jtcap/<id> removals %v", lab.clean)
@@ -332,5 +338,19 @@ func TestManualProgressKey(t *testing.T) {
 	}
 	if r.key != "manual-"+r.commit[:7]+"-dirty" || r.folder != "_"+r.commit[:7]+"-dirty" {
 		t.Errorf("key %s, folder %s", r.key, r.folder)
+	}
+}
+
+// a manual run refuses to sign the MRAs without the shared beta key
+func TestManualBetaKey(t *testing.T) {
+	opts, _ := fake_run(t, new_lab(), "m1")
+	opts.Core = "zzz"
+	rbf := filepath.Join(opts.Source, "release", "mister", "jtzzz.rbf")
+	os.MkdirAll(filepath.Dir(rbf), 0750)
+	os.WriteFile(rbf, nil, 0640)
+	t.Setenv("JTUTIL", t.TempDir())
+	r := &runner{Options: opts, ctx: context.Background(), release: t.TempDir()}
+	if e := r.manual_source(); e == nil || !strings.Contains(e.Error(), "set JTUTIL") {
+		t.Errorf("got %v", e)
 	}
 }

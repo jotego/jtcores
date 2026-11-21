@@ -147,6 +147,10 @@ func (r *runner) manual_source() error {
 	if e != nil {
 		return fmt.Errorf("%w (build it with jtcore %s -mr)", e, r.Core)
 	}
+	// without the shared key, jtframe mra signs beta MRAs with a random one and they fail to load
+	if _, e = os.Stat(filepath.Join(os.Getenv("JTUTIL"), "beta.bin")); e != nil {
+		return fmt.Errorf("set JTUTIL to the folder of the beta.bin in games/mame/jtbeta.zip: %w", e)
+	}
 	e = r.tool("jtframe", "mra", r.Core, "--git", "--skipROM", "--skipPocket"); if e != nil { return e }
 	return r.tool(filepath.Join(r.Source, "modules", "jtframe", "devops", "reg-cabs.sh"), "-o", filepath.Join(r.release, "cab"), r.Core)
 }
