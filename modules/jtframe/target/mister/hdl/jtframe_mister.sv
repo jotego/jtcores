@@ -473,7 +473,7 @@ assign status_menumask[15:9] = 0,
        status_menumask[0]    = direct_video;
 
 always @(posedge clk_sys) begin
-    framebuf_flip <= status[39:38]==2;
+    framebuf_flip <= status[40:39]==2; // o78 Rotate screen: No (flip)
 end
 
 // this places the pxl1_cen in the pixel centre
