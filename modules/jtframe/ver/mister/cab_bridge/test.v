@@ -191,7 +191,7 @@ wire [255:0] uio_snapshot;
 wire uio_snapshot_valid;
 jtframe_mister_uio transport(.rst(rst), .clk(clk_rom), .io_enable(EXT_BUS[34] && !EXT_BUS[35]), .io_strobe(EXT_BUS[33]), .host_word(EXT_BUS[31:16]),
     .cab_caps(uio_cab_caps), .cap_caps(128'd0), .cab_snapshot(uio_snapshot),
-    .cap_result(512'd0), .cab_snapshot_valid(uio_snapshot_valid), .cap_result_valid(1'b0),
+    .cap_result_index(), .cap_result_byte(8'd0), .cab_snapshot_valid(uio_snapshot_valid), .cap_result_valid(1'b0),
     .response_enable(cab_response_enable), .response_word(cab_response_word), .start(uio_start), .finish(uio_finish), .active(uio_active), .command(uio_command),
     .words(uio_words), .payload(uio_payload), .bad_word(uio_bad_word), .bad_index(uio_bad_index));
 
