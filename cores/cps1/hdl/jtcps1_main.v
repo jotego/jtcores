@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 13-1-2020 */
 
@@ -36,6 +37,8 @@ module jtcps1_main(
     input   [3:0]      cab_1p,
     input   [3:0]      coin,
     `else
+    input   [15:0]     joyana_r1,
+    input   [15:0]     joyana_r2,
     input   [1:0]      cab_1p,
     input   [1:0]      coin,
     `endif
@@ -94,7 +97,7 @@ reg         io_cs, joy_cs, eeprom_cs,
             sys_cs, olatch_cs, snd1_cs, snd0_cs, dial_cs;
 reg         dsn_dly;
 
-reg         sys_sel;
+reg         sys_sel, last_LVBL;
 wire        ok_dly;
 `ifdef CPS15
 reg         io15_cs, joy3_cs, joy4_cs;
@@ -168,7 +171,7 @@ always @(posedge clk, posedge rst) begin
             if( io_cs ) begin // PAL IOA1 (16P8B @ 12F)
                 ppu1_cs  <= A[8:6] == 3'b100; // 'h10x
                 ppu2_cs  <= A[8:6] == 3'b101 /* 'h14x */ || A[8:6] == 3'b111; /* 'h1Cx */
-                dial_cs  <= A[8:5] == 4'b0_010;    // 0x800040/50
+                dial_cs  <= A[8:5] == 4'b0_010 || A[8:3] == 6'b001100;
                 if( RnW ) begin
                     joy_cs  <= A[8:3] == 6'b0_0000_0; // 0x800000
                     sys_cs  <= A[8:3] == 6'b0_0001_1; // 0x800018
@@ -259,10 +262,34 @@ end
 // incremental encoder counter
 wire [7:0] dial_dout;
 `ifndef CPS15
-    wire       dial_rst  = dial_cs && !RnW && ~A[4];
+    wire       dial_rst  = dial_cs && !RnW && !A[5] && !A[4];
     wire       xn_y      = A[3];
     wire       x_rst     = dial_rst & ~xn_y;
     wire       y_rst     = dial_rst &  xn_y;
+    reg [15:0] aim_stick1, aim_stick2;
+    reg [ 1:0] aim_enable;
+
+    // Same square dead zone as the ROM patch; signed axes include -128.
+    function stick_moved(input [15:0] stick);
+        stick_moved = $signed(stick[ 7:0]) >=  8'sd24 ||
+                      $signed(stick[ 7:0]) <= -8'sd24 ||
+                      $signed(stick[15:8]) >=  8'sd24 ||
+                      $signed(stick[15:8]) <= -8'sd24;
+    endfunction
+
+    always @(posedge clk) begin
+        if( rst ) begin
+            aim_stick1 <= 0;
+            aim_stick2 <= 0;
+            aim_enable <= 0;
+        end else if( LVBL && !last_LVBL ) begin
+            aim_stick1 <= joyana_r1;
+            aim_stick2 <= joyana_r2;
+            // Once used, keep absolute aiming until reset, even at center.
+            aim_enable[0] <= aim_enable[0] | stick_moved(joyana_r1);
+            aim_enable[1] <= aim_enable[1] | stick_moved(joyana_r2);
+        end
+    end
 
     jt4701 u_dial(
         .clk        ( clk       ),
@@ -341,6 +368,16 @@ always @(posedge clk) begin
             2'b11: sys_data <= { dipsw_c, 8'hff };
         endcase
     end
+    `ifndef CPS15
+    else if( dial_cs && A[5] && RnW ) begin
+        case( A[2:1] )
+            0: sys_data <= aim_stick1;
+            1: sys_data <= aim_stick2;
+            2: sys_data <= {15'h252a,aim_enable[0]}; // 0x800064: P1 mode
+            3: sys_data <= {15'h252a,aim_enable[1]}; // 0x800066: P2 mode
+        endcase
+    end
+    `endif
     else if( dial_cs && A[4] && RnW ) begin
             sys_data <= { 8'hff, dial_dout };
     end
@@ -389,7 +426,6 @@ wire       bus_busy = |{
     (ram_cs|vram_cs) & ~ok_dly };
 //                          wait_cycles[0] };
 wire       DTACKn;
-reg        last_LVBL;
 wire       dtack_clr;
 
 jtframe_okdly #(.W(2)) u_okdly(

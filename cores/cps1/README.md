@@ -29,6 +29,22 @@ For MiST, the first 6 gamepad buttons are used for game buttons, the next 2 butt
 
 There is an option to slow down the game (available only for CPS2). If you enable the 1P_hold_for_slow setting on the OSD, then while the 1P button is held the game will run at half the speed. Release the 1P button to go back to normal speed or disable the option in the OSD. Note that if the option is enabled the 2P, 3P and 4P buttons will also activate the slow down effect.
 
+## Forgotten Worlds: right-stick aiming
+
+On MiSTer, load the alternative MRA
+`_alternatives/_Forgotten Worlds/(Right stick)Forgotten Worlds (World, newer).mra`.
+Use the directional controls to move, point the controller's second (right)
+analog stick in the direction you want to aim, and use the fire button to shoot.
+The stick selects one of 32 aiming directions.
+
+Each player starts with dial control. Moving that player's right stick beyond
+its dead zone automatically activates stick aiming. Returning the stick to
+center holds the last aiming direction. To return to dial control, reset the
+game and leave the right stick centered.
+
+Activation is independent for each player, so one player can use a dial while
+the other uses a right stick.
+
 # Setup
 
 ## MiSTer
