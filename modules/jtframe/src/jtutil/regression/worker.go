@@ -217,6 +217,14 @@ func (r *runner) record(j *job, board string, seconds float64, outcome Outcome, 
 	if e := r.save_locked(); e != nil {
 		fmt.Fprintln(r.Out, "Cannot save the progress:", e)
 	}
+	game := filepath.Join(r.Root, j.core, j.set)
+	crc, e := reference_crc(filepath.Join(game, "ref"))
+	if e == nil {
+		e = game_log(game, strings.TrimPrefix(r.key, "manual-"), strings.ToUpper(string(outcome)), crc)
+	}
+	if e != nil {
+		r.logline(fmt.Sprintf("%s/%s: cannot write the game log: %v", j.core, j.set, e))
+	}
 }
 
 func (r *runner) printf(format string, args ...any) {

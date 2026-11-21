@@ -76,7 +76,7 @@ func accept_game(game string) (bool, error) {
 	}
 	if e := os.RemoveAll(old); e != nil { return false, e }
 	crc, e := reference_crc(ref); if e != nil { return false, e }
-	return true, manual_log(game, "ACCEPT", crc)
+	return true, game_log(game, "manual", "ACCEPT", crc)
 }
 
 func unaccept_game(game string) (bool, error) {
@@ -90,12 +90,13 @@ func unaccept_game(game string) (bool, error) {
 		}
 	}
 	if e := os.Rename(ref, filepath.Join(game, "new")); e != nil { return false, e }
-	return true, manual_log(game, "UNACCEPT", "--------") // no reference left
+	return true, game_log(game, "manual", "UNACCEPT", "--------") // no reference left
 }
 
-func manual_log(game, verdict, crc string) error {
+// game_log appends a history row to <game>/log: time, who (a commit or manual), verdict and ref/ CRC
+func game_log(game, who, verdict, crc string) error {
 	log, e := os.OpenFile(filepath.Join(game, "log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0640); if e != nil { return e }
-	_, e = fmt.Fprintf(log, "%s %-13s %-11s %s\n", LogTime(time.Now()), "manual", verdict, crc)
+	_, e = fmt.Fprintf(log, "%s %-13s %-11s %s\n", LogTime(time.Now()), who, verdict, crc)
 	if close_error := log.Close(); e == nil { e = close_error }
 	return e
 }

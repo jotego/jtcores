@@ -198,6 +198,12 @@ func TestRunNewPassFail(t *testing.T) {
 	if _, e := os.Stat(filepath.Join(opts.Root, "aaa", "a1", "new")); !os.IsNotExist(e) {
 		t.Error("new folder left after a pass")
 	}
+	log, _ := os.ReadFile(filepath.Join(opts.Root, "aaa", "a2", "log"))
+	rows := strings.Split(strings.TrimSpace(string(log)), "\n")
+	if len(rows) != 2 || !strings.Contains(rows[0], p.Commit[:7]+"       NEW         --------") ||
+		!strings.Contains(rows[1], " FAIL ") || strings.HasSuffix(rows[1], "--------") {
+		t.Errorf("a2 game log %q", log)
+	}
 }
 
 func TestRunRetryOnce(t *testing.T) {
