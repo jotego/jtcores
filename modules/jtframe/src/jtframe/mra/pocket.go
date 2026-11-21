@@ -582,6 +582,12 @@ func pocket_add(machine *MachineXML, cfg Mame2MRA, args Args, def_dipsw string, 
 			Filename: machine.Name + ".sav",
 		})
 	}
+	if jvs_name := pocket_jvs_profile(machine, args.Core); jvs_name != "" {
+		inst_meta.inst.Data_slots = append( inst_meta.inst.Data_slots, InstSlot{
+			Id: 25,
+			Filename: jvs_name,
+		})
+	}
 	if betas.IsBetaFor( cfg.rbf[2:], "pocket" ) {
 		inst_meta.inst.Data_slots = append( inst_meta.inst.Data_slots, InstSlot{
 			Id: 17,
@@ -595,6 +601,25 @@ func pocket_add(machine *MachineXML, cfg Mame2MRA, args Args, def_dipsw string, 
 	// New controller
 	pck_mappers = append(pck_mappers, pocket_parse_inputs(machine, cfg))
 	pocket_nvram(machine, cfg, args.Core)
+}
+
+// Copies the game JVS profile cfg/<setname>.jvs (or the parent's one for clones)
+// next to the .rom files and returns its name for the instance file.
+// Returns "" when the core has no JVS profile for this game
+func pocket_jvs_profile(machine *MachineXML, corename string) string {
+	for _, setname := range []string{machine.Name, machine.Cloneof} {
+		if setname == "" { continue }
+		rawbytes, e := os.ReadFile(common.ConfigFilePath(corename, setname+".jvs"))
+		if e != nil { continue }
+		if len(rawbytes) > 256 {
+			log.Printf("Warning: JVS profile %s.jvs is longer than 256 bytes, ignored\n", setname)
+			return ""
+		}
+		fname := machine.Name + ".jvs"
+		common.Must(os.WriteFile(filepath.Join(pck_dir.common, fname), rawbytes, 0664))
+		return fname
+	}
+	return ""
 }
 
 // Creates a .nvm file if there are default values for the NVRAM
@@ -907,6 +932,32 @@ func MakeMetaData(meta *CoreMetadata, carts []string, firmware string, args Args
 			Address:    "0x00000000",
 		}
 	}
+	// JVS profiles for the Analogizer SNAC JVS adapter: vendor init table (MAINID string
+	// and vendor frames sent to the JVS I/O board). Declared unconditionally like
+	// crtcfg.bin: jtframe mra runs without JTFRAME_RELEASE, so JTFRAME_NO_ANALOGIZER
+	// is always set at this point
+	meta.Data.Data_slots = append(meta.Data.Data_slots,
+		Data_slots{
+			// common to every core, like crtcfg.bin
+			Name:       "JVS Profile",
+			Id:         24,
+			Required:   false,
+			Filename:   "jvs.bin",
+			Parameters: "0x1000000",	// use jtpatreon platform
+			Extensions: []string{"bin"},
+			Address:    "0x00000000",
+		},
+		Data_slots{
+			// game specific, listed in the instance file when the core
+			// has a cfg/<setname>.jvs file. It replaces the common profile
+			Name:       "JVS Game Profile",
+			Id:         25,
+			Required:   false,
+			Parameters: "0x108", // read only, reset after load
+			Extensions: []string{"jvs"},
+			Address:    "0x00000000",
+		},
+	)
 	if beta {
 		meta.Data.Data_slots = append(meta.Data.Data_slots, Data_slots{
 			Name:       "JTBETA",

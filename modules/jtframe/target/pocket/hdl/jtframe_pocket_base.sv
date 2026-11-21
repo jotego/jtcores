@@ -148,7 +148,14 @@ module jtframe_pocket_base #(parameter
 
     // SNAC Controller inputs
     input      [15:0]  snac_p1, snac_p2, snac_p3, snac_p4,
-    output reg [ 7:0]  snac_cfg
+    output reg [ 7:0]  snac_cfg,
+    // JVS profiles (Analogizer SNAC), clk_rom domain. Captured from the bridge
+    // as 32-bit words, first file byte in [31:24]. They do not go through
+    // ioctl_wr, so the game never sees them
+    output reg         jvs_we,
+    output reg         jvs_game,  // 0 = common profile (slot 24), 1 = game profile (slot 25)
+    output reg [ 5:0]  jvs_addr,  // word address, 256-byte profile
+    output reg [31:0]  jvs_data
 );
 
 localparam [7:0] IDX_ROM     = 1,
@@ -156,7 +163,9 @@ localparam [7:0] IDX_ROM     = 1,
                  IDX_CART    = 4,
                  IDX_CHEAT   = 16,
                  IDX_LOCK    = 17,
-                 IDX_CRT     = 18;
+                 IDX_CRT     = 18,
+                 IDX_JVS     = 24,  // common JVS profile (jvs.bin, jtpatreon platform)
+                 IDX_JVSGAME = 25;  // game JVS profile (<setname>.jvs, from the instance file)
 
 localparam [25:0] CART_OFFSET = `ifdef JTFRAME_CART_OFFSET `JTFRAME_CART_OFFSET `else 26'd0 `endif ;
 
@@ -285,6 +294,14 @@ end
 always @(posedge clk_sys) if( ioctl_crt && ioctl_wr )begin
     crt_cfg  <= sys_dout[31:20];
     snac_cfg <= sys_dout[19:12];
+end
+
+always @(posedge clk_rom) begin
+    jvs_we <= sys_wr && sys_addr[31:24]<8'hf8 && sys_addr[31:8]==0 &&
+              (ioctl_index==IDX_JVS || ioctl_index==IDX_JVSGAME);
+    jvs_game <= ioctl_index==IDX_JVSGAME;
+    jvs_addr <= sys_addr[7:2];
+    jvs_data <= sys_dout;
 end
 
 `ifndef SIMULATION

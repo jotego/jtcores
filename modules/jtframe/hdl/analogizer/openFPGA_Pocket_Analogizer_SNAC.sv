@@ -67,6 +67,8 @@
 //   TX-   -> SEL      ->  D+     OUT2
 
 // `timescale 1ns / 1ps
+import jvs_node_info_pkg::*;
+
 module openFPGA_Pocket_Analogizer_SNAC #(parameter MASTER_CLK_FREQ=50_000_000)
 (
     input             i_clk, //Core Master Freq.
@@ -75,11 +77,17 @@ module openFPGA_Pocket_Analogizer_SNAC #(parameter MASTER_CLK_FREQ=50_000_000)
     input      [ 4:0] game_cont_type, //0-15 Conf. A, 16-31 Conf. B
     //input wire [2:0] game_cont_sample_rate, //0 compatibility mode (slowest), 1 normal mode, 2 fast mode, 3 superfast mode
     output reg [15:0] p1_btn_state,
-    output reg [31:0] p1_joy_state,
     output reg [15:0] p2_btn_state,
-    output reg [31:0] p2_joy_state,
     output reg [15:0] p3_btn_state,
     output reg [15:0] p4_btn_state,
+    // Analog sticks, JTFRAME format (same as the joyana_* inputs of jtframe_board):
+    // [7:0] = X, [15:8] = Y, two's complement, 0 = center, right and bottom positive.
+    // l = left stick, r = right stick, 1..4 = player
+    output reg [15:0] joyana_l1, joyana_r1, joyana_l2, joyana_r2,
+                      joyana_l3, joyana_r3, joyana_l4, joyana_r4,
+    // JVS vendor init table (JVS profile RAM in jtframe_analogizer), 1 cycle read latency
+    output     [ 7:0] jvs_vendor_addr,
+    input      [ 7:0] jvs_vendor_data,
     // output reg        busy,
     //SNAC Pocket cartridge port interface (see graph above)
     output reg [ 7:4] cart_bk0_out,        // Unused ??
@@ -146,6 +154,7 @@ localparam GC_PSX             = 5'h10; //16 PSX 125KHz
 localparam GC_PSX_FAST        = 5'h11; //17 PSX 250KHz
 localparam GC_PSX_ANALOG      = 5'h12; //16 PSX 125KHz
 localparam GC_PSX_ANALOG_FAST = 5'h13; //17 PSX 250KHz
+localparam GC_JVS             = 5'h14; //20 JVS RS485
 
 //Configuration:
 localparam CONF_A = 1'b0;
@@ -170,6 +179,8 @@ wire psx_ena = (game_cont_type == GC_PSX            ) ||
                (game_cont_type == GC_PSX_ANALOG      ) ||
                (game_cont_type == GC_PSX_FAST        ) ||
                (game_cont_type == GC_PSX_ANALOG_FAST );
+
+wire jvs_ena = (game_cont_type == GC_JVS);
 
 always @(posedge i_clk) begin
     case (game_cont_type)
@@ -321,10 +332,89 @@ analogizer_psx #(.MASTER_CLK_FREQ(MASTER_CLK_FREQ)) psx
 //    .DBG_TX(dbg_tx_w)
 );
 
+//JVS I/O boards (RS485 adapter): RX on IN4, SENSE on IN7, TX on OUT1, RS485 direction on OUT2
+wire [15:0] jvs_p1, jvs_p2, jvs_p3, jvs_p4;
+wire [15:0] jvs_analog_ch1, jvs_analog_ch2, jvs_analog_ch3, jvs_analog_ch4,
+            jvs_analog_ch5, jvs_analog_ch6, jvs_analog_ch7, jvs_analog_ch8;
+wire        jvs_coin1, jvs_coin2, jvs_coin3, jvs_coin4;
+wire        JVS_snac_out1, JVS_snac_out2;
+wire        jvs_data_ready;
+wire [ 7:0] jvs_node_name_rd_data;
+jvs_node_info_t jvs_nodes;
+
+// TEST (JVS profile validation): when the profile gives node 1 a MAINID, every analog
+// output channel gets a fixed mid scale value (ANLOUT 8000h, cabinet lights). Without
+// MAINID, ANLOUT stays at 0
+wire        jvs_aout_test_en = jvs_ena && (jvs_nodes.node_mainid_ptr[0] != 8'h00);
+
+jvs_ctrl #(
+    .MASTER_CLK_FREQ  ( MASTER_CLK_FREQ ),
+    .HAS_LINK_DETECT  ( 0               )   // LINK does not detect an un-addressed board
+) jvs
+(
+    .i_clk                ( i_clk           ),
+    .i_rst                ( reset_on_change ),
+    .i_ena                ( jvs_ena         ),
+    .i_stb                ( stb_clk         ),
+    .i_uart_rx            ( snac_in4        ),
+    .o_uart_tx            ( JVS_snac_out1   ),
+    .i_sense              ( snac_in7        ),
+    .i_link               ( 1'b0            ),  // ignored with HAS_LINK_DETECT=0
+    .o_rx485_dir          ( JVS_snac_out2   ),
+    .o_bus_state          (                 ),
+    .player1_input_switch ( jvs_p1          ),
+    .player2_input_switch ( jvs_p2          ),
+    .player3_input_switch ( jvs_p3          ),
+    .player4_input_switch ( jvs_p4          ),
+    .analog_ch1           ( jvs_analog_ch1  ),
+    .analog_ch2           ( jvs_analog_ch2  ),
+    .analog_ch3           ( jvs_analog_ch3  ),
+    .analog_ch4           ( jvs_analog_ch4  ),
+    .analog_ch5           ( jvs_analog_ch5  ),
+    .analog_ch6           ( jvs_analog_ch6  ),
+    .analog_ch7           ( jvs_analog_ch7  ),
+    .analog_ch8           ( jvs_analog_ch8  ),
+    .node_analog          (                 ),
+    .has_screen_pos       (                 ),
+    .screen_pos_x         (                 ),
+    .screen_pos_y         (                 ),
+    .coin_count           (                 ),
+    .coin1                ( jvs_coin1       ),
+    .coin2                ( jvs_coin2       ),
+    .coin3                ( jvs_coin3       ),
+    .coin4                ( jvs_coin4       ),
+    .coin_status          (                 ),
+    // JVS outputs (lamps, solenoids, analog outputs) not driven yet
+    .p1_output_digital    ( 24'h0           ),
+    .p2_output_digital    ( 24'h0           ),
+    .p3_output_digital    ( 24'h0           ),
+    .p4_output_digital    ( 24'h0           ),
+    .output_analog        ( jvs_aout_test_en ? {8{16'h8000}} : 128'h0 ),  // test, see above
+    .output_node          ( 8'd0            ),  // 0 = every node declaring outputs
+    .jvs_data_ready       ( jvs_data_ready  ),
+    .jvs_nodes            ( jvs_nodes       ),
+    .node_name_rd_data    ( jvs_node_name_rd_data ),
+    .node_name_rd_addr    ( '0              ),  // node name RAM not used
+    // Vendor init table (MAINID + vendor frames) from the JVS profile
+    .vendor_rd_addr       ( jvs_vendor_addr ),
+    .vendor_rd_data       ( jvs_vendor_data )
+);
+
+// PSX analog sticks {RY, RX, LY, LX}, unsigned with 80h = center, to JTFRAME {Y, X} signed
+function [15:0] psx2joyana(input [15:0] yx);
+    psx2joyana = yx ^ 16'h8080;
+endfunction
+
+// Two JVS analog channels (16-bit unsigned, 8000h = center) to JTFRAME {Y, X} signed
+function [15:0] jvs2joyana(input [15:0] x, input [15:0] y);
+    jvs2joyana = { y[15:8] ^ 8'h80, x[15:8] ^ 8'h80 };
+endfunction
+
 always @(*) begin
     cart_bk0_out = 4'hZ;
-    p1_joy_state = 32'h80808080; //analog stick neutral position value
-    p2_joy_state = 32'h80808080; //analog stick neutral position value
+    // analog sticks centered unless the controller has them
+    {joyana_l1, joyana_r1, joyana_l2, joyana_r2} = 64'd0;
+    {joyana_l3, joyana_r3, joyana_l4, joyana_r4} = 64'd0;
 
     case(game_cont_type)
     GC_DISABLED: begin
@@ -364,11 +454,35 @@ always @(*) begin
         snac_out1 = PSX_snac_out1;
         snac_out2 = PSX_snac_out2;
         p1_btn_state = psx_key1;
-        p1_joy_state = psx_joy1;
         p2_btn_state = psx_key2;
-        p2_joy_state = psx_joy2;
         p3_btn_state = 16'h0;
         p4_btn_state = 16'h0;
+        if( game_cont_type==GC_PSX_ANALOG || game_cont_type==GC_PSX_ANALOG_FAST ) begin
+            joyana_l1 = psx2joyana(psx_joy1[15: 0]);
+            joyana_r1 = psx2joyana(psx_joy1[31:16]);
+            joyana_l2 = psx2joyana(psx_joy2[15: 0]);
+            joyana_r2 = psx2joyana(psx_joy2[31:16]);
+        end
+    end
+    GC_JVS: begin
+        snac_out1 = JVS_snac_out1;
+        snac_out2 = JVS_snac_out2;
+        // JVS coins are mapped to the SELECT button (bit 14) of each player
+        p1_btn_state = {jvs_p1[15], jvs_coin1, jvs_p1[13:0]};
+        p2_btn_state = {jvs_p2[15], jvs_coin2, jvs_p2[13:0]};
+        p3_btn_state = {jvs_p3[15], jvs_coin3, jvs_p3[13:0]};
+        p4_btn_state = {jvs_p4[15], jvs_coin4, jvs_p4[13:0]};
+        // Analog channels, two per stick (X = odd channel, Y = even channel)
+        if (jvs_nodes.node_players[0] == 1) begin
+            // Single player board (light gun, driving...): every channel goes to P1
+            joyana_l1 = jvs2joyana(jvs_analog_ch1, jvs_analog_ch2);
+            joyana_r1 = jvs2joyana(jvs_analog_ch3, jvs_analog_ch4);
+        end else begin
+            joyana_l1 = jvs2joyana(jvs_analog_ch1, jvs_analog_ch2);
+            joyana_l2 = jvs2joyana(jvs_analog_ch3, jvs_analog_ch4);
+            joyana_l3 = jvs2joyana(jvs_analog_ch5, jvs_analog_ch6);
+            joyana_l4 = jvs2joyana(jvs_analog_ch7, jvs_analog_ch8);
+        end
     end
     default: begin
         snac_out1 = 1'b0;
