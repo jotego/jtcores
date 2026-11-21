@@ -1,4 +1,5 @@
 bublbobl:
 tokio:
+  # MiSTer captures freeze from frame 400, after 1P starts the game
   skip: true
   inputs: reg.cab

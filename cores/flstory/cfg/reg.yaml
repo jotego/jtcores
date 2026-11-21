@@ -8,5 +8,4 @@ rumba:
 flstory:
   inputs: reg.cab
 victnine:
-  skip: true
   inputs: reg.cab
