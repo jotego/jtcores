@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/color"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -128,8 +129,20 @@ func TestCapturePrecisionUsesWireTruncationAtCodeBoundaries(t *testing.T) {
 	}
 }
 
-func TestMameCapturePrecisionUsesCoreAndTargetMacros(t *testing.T) {
+// test_jtroot is $JTROOT or the checkout that holds this package
+func test_jtroot(t *testing.T) string {
 	root := os.Getenv("JTROOT")
+	if root == "" {
+		root, _ = filepath.Abs("../../../../..")
+	}
+	if _, e := os.Stat(filepath.Join(root, "cores", "gng", "cfg", "macros.def")); e != nil {
+		t.Skip("no jtcores checkout:", e)
+	}
+	return root
+}
+
+func TestMameCapturePrecisionUsesCoreAndTargetMacros(t *testing.T) {
+	root := test_jtroot(t)
 	for _, tc := range []struct {
 		core, target string
 		want         int

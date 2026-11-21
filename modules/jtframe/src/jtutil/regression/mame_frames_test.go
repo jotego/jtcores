@@ -624,7 +624,7 @@ func TestValidatePublishedCapturePrecisionRejectsMixedOrInvalidFormat(t *testing
 func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 	root := t.TempDir()
 	if err := GuardCaptureTarget(root, "sidi128"); err != nil { t.Fatal(err) }
-	source := os.Getenv("JTROOT")
+	source := test_jtroot(t)
 	for _, set := range []string{"first", "second"} {
 		new_dir := filepath.Join(root, "gng", set, "new")
 		if err := os.MkdirAll(new_dir, 0700); err != nil {

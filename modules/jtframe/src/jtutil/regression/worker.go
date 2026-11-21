@@ -213,12 +213,7 @@ func (r *runner) record(j *job, board string, seconds float64, outcome Outcome, 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.progress.Games[j.core+"/"+j.set] = &progress_game{Result: outcome, Board: board, Seconds: seconds, Message: msg}
-	line := fmt.Sprintf("%s %-12s %-20s %5.0fs %-5s %s", LogTime(time.Now()), board, j.core+"/"+j.set, seconds, strings.ToUpper(string(outcome)), msg)
-	fmt.Fprintln(r.Out, line)
-	if f, e := os.OpenFile(filepath.Join(r.Root, "log", r.key+".log"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0640); e == nil {
-		fmt.Fprintln(f, line)
-		f.Close()
-	}
+	r.logline(fmt.Sprintf("%-12s %-20s %5.0fs %-5s %s", board, j.core+"/"+j.set, seconds, strings.ToUpper(string(outcome)), msg))
 	if e := r.save_locked(); e != nil {
 		fmt.Fprintln(r.Out, "Cannot save the progress:", e)
 	}
@@ -227,5 +222,15 @@ func (r *runner) record(j *job, board string, seconds float64, outcome Outcome, 
 func (r *runner) printf(format string, args ...any) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	fmt.Fprintf(r.Out, format+"\n", args...)
+	r.logline(fmt.Sprintf(format, args...))
+}
+
+// logline prints a time-stamped line and appends it to the text log. Call with r.mu held
+func (r *runner) logline(line string) {
+	line = LogTime(time.Now()) + " " + strings.ReplaceAll(line, "\n", " ")
+	fmt.Fprintln(r.Out, line)
+	if f, e := os.OpenFile(filepath.Join(r.Root, "log", r.key+".log"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0640); e == nil {
+		fmt.Fprintln(f, line)
+		f.Close()
+	}
 }
