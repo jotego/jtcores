@@ -1,0 +1,31 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report wwfss <set>
+bustest:
+  wwfsstar:
+    board: "WWF Superstars (Europe), Technos TA-0024-P1-05 / TA-0024-P2-23"
+    cpu: m68k
+    cpu_hz: 10000000
+    rom:
+      cpu_base: 0x0
+      even: "IC34"
+      odd: "IC35"
+      chip: "27C010 (KiCad symbol 27C1000 with JEDEC pinout: pin 2 = A16 (CPU A17), 22 = /CE (/ROM), 24 = /OE (/UDR or /LDR), 1 and 31 to VCC, 30 NC); MAME 24ac-0_j-1.34 / 24ad-0_j-1.35"
+      pins: 32
+      rom_offset: 0
+      word_swap: true
+    ram: {base: 0x1c0000, size: 0x4000}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w", expect: "IC48 /ROM; DTACK through IC18/IC36 (IC3 input of that path is not fully drawn in KiCad). Core: SDRAM only, no wait"}
+      - {name: "ram", addr: 0x1c0100, access: "write.w", expect: "/RAM work RAM 6264 pair, immediate DTACK, core no wait"}
+      - {name: "fix_rd", addr: 0x80100, access: "read.w", expect: "/CHAR text RAM (8-bit, LDS): DTACK waits for the char sequencer slot (IC26 latch, IC40 ~CHDTACK). Core: no wait (bus_legit commented out)"}
+      - {name: "fix_wr", addr: 0x80100, access: "write.w", expect: "same char slot wait as fix_rd"}
+      - {name: "scr_rd", addr: 0xc0100, access: "read.w", expect: "/SCR scroll RAM (8-bit): IC26 D = NAND(/CHAR,/SCR), so probably the same slot wait. Core: no wait"}
+      - {name: "obj_rd", addr: 0x100100, access: "read.w", expect: "/OBJ object RAM (8-bit) through IC59, core no wait"}
+      - {name: "pal_wr", addr: 0x140000, access: "write.w", expect: "/PAL palette through IC59 (/MPAL), core no wait. Written, not read: MAME maps it write-only"}
+    checklist:
+      - "Jumpers: none: pins 1 and 31 tied to VCC, pin 30 not connected"
+      - "Program pair on the top board TA-0024-P1-05, next to the 68000 and the two 6264 RAMs: IC34 (24AC, D15-D8, even) and IC35 (24AD, D7-D0, odd)."
+      - "The labels tell the version: 24ac-0_j-1/24ad-0_j-1 = Europe (wwfsstar, the core set); 24ac-06/24ad-07 = US rev 7, 24ac-04 = US rev 4, *_japan = Japan; all use the same sockets."
+      - "No watchdog in MAME, the core or the KiCad sheets."
+      - "Do not write 0x180000-0x180003 (IRQ acks), 0x180004-0x180007 (scroll, harmless but unneeded), 0x180009 (sound latch), 0x18000A (flip/coin lock)."
+      - "Object, char and scroll RAMs are 8-bit (D7-D0). .rom has no header: SSP=0x001C3FF0, PC=0x00000E00 byte-swapped at offset 0."

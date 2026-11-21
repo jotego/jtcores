@@ -1,0 +1,34 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report prmr <set>
+bustest:
+  prmrsocr:
+    board: "Premier Soccer GX101"
+    cpu: m68k
+    cpu_hz: 16000000
+    rom:
+      cpu_base: 0x0
+      even: "1H"
+      odd: "4H"
+      chip: "27C020"
+      pins: 32
+      rom_offset: 16
+      word_swap: true
+    ram: {base: 0x100000, size: 0x4000}
+    watchdog: {addr: 0x280000, access: "write.w", why: "0x280000: 3G 74LS139 O1 (/3GA_P5) clocks U56 051550 CLK, whose /RESET drives /WDRST -> 7H 74F74 -> board reset. MAME reset16_w. Any access in 0x280000-0x2FFFFF kicks it; it takes 2 wait states (9G LS175 chain). Timeout set by the 051550 CT capacitor, not measured; kick between every test loop."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "0 wait (8J LS10 DTACK with AS)"}
+      - {name: "ram", addr: 0x100100, access: "write.w", expect: "0 wait"}
+      - {name: "tile_rd", addr: 0x200000, access: "read.w", expect: "PQ wait (7G 74LS74 latched on PQ rise, DTACK when PQ low)"}
+      - {name: "tile_wr", addr: 0x200000, access: "write.w", expect: "PQ wait"}
+      - {name: "psacrom", addr: 0x300000, access: "read.w", expect: "2 wait states (9G LS175 chain)"}
+      - {name: "wdog", addr: 0x280000, access: "write.w", expect: "2 wait states (9G LS175 chain)"}
+      - {name: "pal", addr: 0x108000, access: "read.w", expect: "0 wait"}
+    checklist:
+      - "Jumpers: None on the ROM sockets: pin 31 tied to VCC, pin 1 (VPP) to GND, pin 30 = CPU A18. U56 051550 watchdog has JP1 between VREF and RES; leave as found."
+      - "KiCad: 1H/4H drawn as M27C4001 but MAME dumps are 2 Mbit (0x40000) each; pin 31 is tied to VCC so the board uses them as 27C020-class 32-pin DIP."
+      - "1H D0-D7 -> CPU D8-D15 (even, 101eab08), 4H -> D0-D7 (odd, 101eab07), OE = /ROM_CS (3G 2Y0)."
+      - "Verified rom/prmrsocr.rom[16:] == byte-swapped interleave of 101eab08.1h/101eab07.4h (SSP=0x00104000 PC=0x00000B80)."
+      - "Tile RAM 0x200000 (A12 unused, k052109_word_noA12) is the fixed-layer tilemap; never write 0x206000-0x207FFF (052109 scroll/control)."
+      - "PSAC ROM readback at 0x300000 is read-only and harmless (data depends on 0x122000 bank bits, irrelevant for timing)."
+      - "Do not write 0x122000 (EEPROM/video control), 0x121000 (054321 sound latch), 0x123000 (sound IRQ), 0x11xxxx chip registers."
+      - "Keep the 68000 interrupt mask at 7."

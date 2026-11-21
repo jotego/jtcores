@@ -1,0 +1,32 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report xmen <set>
+bustest:
+  xmen:
+    board: "X-Men 4 Players (GX065, Europe ver. EBA)"
+    cpu: m68k
+    cpu_hz: 16000000
+    rom:
+      cpu_base: 0x0
+      even: "10D (KiCad D10)"
+      odd: "10F (KiCad F10)"
+      chip: "27C010"
+      pins: 32
+      rom_offset: 16
+      word_swap: true
+    ram: {base: 0x110000, size: 0x4000}
+    watchdog: {addr: 0x10a000, access: "write.w", why: "MAME xmen.cpp 0x10a000 watchdog reset16_w; kick at least once per frame (e.g. every outer loop iteration)"}
+    init:
+      - {addr: 0x108000, access: "write.w", why: "control_w: clears 052109 RMRD (bit 9) so 0x18xxxx hits tile RAM, keeps sound IRQ (bit 10) and EEPROM lines low"}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w"}
+      - {name: "ram", addr: 0x110100, access: "write.w"}
+      - {name: "tile_rd", addr: 0x18c101, access: "read.b", expect: "052109 PQ slot wait (E18A latch on PQ rise, DTACK when PQ low)"}
+      - {name: "tile_wr", addr: 0x18c101, access: "write.b", expect: "052109 PQ slot wait"}
+      - {name: "obj", addr: 0x100000, access: "read.w"}
+      - {name: "pal", addr: 0x104000, access: "read.w"}
+    checklist:
+      - "Jumpers: none; sockets are wired for 27C020 (pin 30 = CPU A18, pins 1/31 = VCC), OE = PROMOE1 (A19 | decoder) so the pair covers CPU 0x00000-0x7FFFF"
+      - "Program pair 065-eba04.10d (D15-D8, even) / 065-eba05.10f (D7-D0, odd), 128 KiB each; the other main ROMs 065-a02.9d/065-a03.9f (KiCad D9/F9) hold 0x80000-0xFFFFF and can stay."
+      - "052109 is on D7-D0 only: use odd byte addresses."
+      - "Tile address 0x18C101 = 052109 offset 0x080 (tile code RAM, away from the 0x1800-0x1FFF scroll/register area)."
+      - "Core decoder: rom ~A20, obj 0x100000-0x103FFF, pal 0x104000-0x105FFF, ram 0x110000-0x113FFF, vram A20&A19 (0x180000+). .rom: 16-byte JTFRAME header, reset vector SSP=0x00114000 PC=0x00000800 stored byte-swapped at 0x10."

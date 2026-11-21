@@ -1,0 +1,58 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report s16b <set>
+bustest:
+  shinobi5:
+    board: "Shinobi (Sega System 16B, 837-6500-01 main board, 171-5358 ROM board, 315-5195 mapper)"
+    cpu: m68k
+    cpu_hz: 10000000
+    rom:
+      cpu_base: 0x0
+      even: "A4 (ROM board 171-5358)"
+      odd: "A1 (ROM board 171-5358)"
+      chip: "27C512 (MAME epr-11299.a4 / epr-11298.a1)"
+      pins: 28
+      rom_offset: 32
+      word_swap: true
+    ram: {base: 0xff0000, size: 0x4000}
+    init:
+      - {addr: 0xfe0020, access: "write.w", value: 0x9, why: "mapper reg 0x10: region 0 (program ROM pair A4/A1) 128 KiB, DTACK 10 -> DTACK_SEL 1, 0 waits (game uses 00)"}
+      - {addr: 0xfe0022, access: "write.w", why: "mapper reg 0x11: region 0 base 0x000000"}
+      - {addr: 0xfe0024, access: "write.w", value: 0x5, why: "mapper reg 0x12: region 1 (2nd ROM pair A5/A2) 128 KiB, DTACK 01 -> DTACK_SEL 2, 1 wait (game uses 00)"}
+      - {addr: 0xfe0026, access: "write.w", value: 0x2, why: "mapper reg 0x13: region 1 base 0x020000 (as the game)"}
+      - {addr: 0xfe0028, access: "write.w", value: 0x1, why: "mapper reg 0x14: region 2 (3rd ROM pair, empty on Shinobi) 128 KiB, DTACK 00 -> DTACK_SEL 3, 2 waits (as the game)"}
+      - {addr: 0xfe002a, access: "write.w", value: 0x4, why: "mapper reg 0x15: region 2 base 0x040000 (as the game)"}
+      - {addr: 0xfe002c, access: "write.w", why: "mapper reg 0x16: region 3 (work RAM) 64 KiB, DTACK 00 -> 2 waits (as the game)"}
+      - {addr: 0xfe002e, access: "write.w", value: 0xff, why: "mapper reg 0x17: region 3 base 0xFF0000 (as the game)"}
+      - {addr: 0xfe0030, access: "write.w", value: 0x4, why: "mapper reg 0x18: region 4 (object RAM) 64 KiB, DTACK 01 -> 1 wait (as the game)"}
+      - {addr: 0xfe0032, access: "write.w", value: 0x44, why: "mapper reg 0x19: region 4 base 0x440000 (as the game)"}
+      - {addr: 0xfe0034, access: "write.w", value: 0xd, why: "mapper reg 0x1A: region 5 (tile + text RAM) 128 KiB, DTACK 11 -> EDAK (as the game)"}
+      - {addr: 0xfe0036, access: "write.w", value: 0x40, why: "mapper reg 0x1B: region 5 base 0x400000 (as the game)"}
+      - {addr: 0xfe0038, access: "write.w", why: "mapper reg 0x1C: region 6 (palette) 64 KiB, DTACK 00 -> 2 waits (as the game)"}
+      - {addr: 0xfe003a, access: "write.w", value: 0x84, why: "mapper reg 0x1D: region 6 base 0x840000 (as the game)"}
+      - {addr: 0xfe003c, access: "write.w", why: "mapper reg 0x1E: region 7 (I/O) 64 KiB, DTACK 00 (as the game, not tested)"}
+      - {addr: 0xfe003e, access: "write.w", value: 0xc4, why: "mapper reg 0x1F: region 7 base 0xC40000 (as the game)"}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "region 0 DTACK 10 (DTACK_SEL 1): 0 waits -> 42"}
+      - {name: "ram", addr: 0xff0100, access: "write.w", expect: "region 3 DTACK 00 (DTACK_SEL 3): 2 waits -> 50"}
+      - {name: "rom2", addr: 0x2f000, access: "read.w", expect: "region 1 DTACK 01 (DTACK_SEL 2): 1 wait -> 46, same kind of EPROM as rom"}
+      - {name: "rom3", addr: 0x4f000, access: "read.w", expect: "region 2 DTACK 00 (DTACK_SEL 3): 2 waits -> 50 (empty sockets on Shinobi: data floats, DTACK from mapper)"}
+      - {name: "obj", addr: 0x440000, access: "read.w", expect: "region 4 DTACK 01: 1 wait -> 46"}
+      - {name: "pal", addr: 0x840000, access: "read.w", expect: "region 6 DTACK 00: 2 waits -> 50"}
+      - {name: "tile", addr: 0x400000, access: "read.w", expect: "region 5 DTACK 11 (EDAK): DTACK from the tile-RAM arbitration logic on the PCB; the core adds no mapper wait"}
+    checklist:
+      - "The program sockets take 27C512 (MAME epr-11299.a4 / epr-11298.a1) (28-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: 171-5358 ROM board: check the 27C256/27C512 size jumpers next to the program sockets (not in our schematics). If the board is a 171-5521 instead (shinobi4/shinobi6: epr-11360.a7 / epr-11359.a5), the program pair is 27C010 32-pin at A7 (even) / A5 (odd) and a 32-pin PicoROM fits directly."
+      - "MAIN PURPOSE: check the 315-5195 DTACK_SEL rule of cores/s16b/README.md (D[3:2] 10/01/00 -> 0/1/2 waits, 11 -> EDAK). rom/rom2/rom3 read the same kind of EPROM through regions 0/1/2 with DTACK 10/01/00, so they should read 42/46/50 if the rule holds."
+      - "BOARD VERSION: box 44 is not identified."
+      - "MAME Shinobi System 16B sets: shinobi5 (171-5358, plain 68000, 27C512 at A4/A1+A5/A2) -- the spec target; shinobi3 (171-5358, MC-8123 sound CPU only, main 68000 plain); shinobi2 (171-5358, FD1094 317-0049 main CPU: firmware will not run unless a plain 68000 is fitted); shinobi4/shinobi6 (171-5521, 27C010 epr-11360.a7/epr-11359.a5)."
+      - "The firmware image is identical for all of them (region 0 at 0, code in the lower 64 KiB); only the socket names and the ROM chip change."
+      - "28-PIN: on a 171-5358 the program sockets are 28-pin 27C512, so the 32-pin PicoROMs do not fit directly; the never-tried 28-pin PicoROMs or a 32-to-28 adapter are needed (VCC on 28-pin pin 28, A15 on pin 1)."
+      - "On a 171-5521 the 32-pin PicoROMs fit."
+      - "FD1094: if a large epoxy/battery module sits in the 68000 socket (shinobi2), replace it with a plain 68000 for the test."
+      - "The game (MAME shinobi5, frame 100) programs r0 01/00, r1 01/02, r2 01/04, r3 00/ff, r4 04/44, r5 0d/40, r6 00/84, r7 00/c4 (size/dtack, base); init only changes r0 to DTACK 10 and r1 to DTACK 01."
+      - "Mapper registers are written as words at 0xFE0020+2n (unmapped area), like the game."
+      - "No watchdog in MAME."
+      - "Do not touch: mapper regs 0x02-0x05 (CPU reset/halt, sound latch, IRQ, bus master), I/O writes at 0xC40000 (video enable, coin counters, 8255 sound latch)."
+      - "The EDAK tile case is last so a hang there still leaves the other brackets."
+    sim:
+      ms: 120

@@ -24,21 +24,24 @@ Simulation (about 3 minutes): overlay the image with `prepare_timing.py` and run
 `jtsim -load -d NOSOUND -video 100 -norotate -fast timing.cab` with `timing.cab`
 set to `=100`. Work RAM `F00100` holds two 32-bit slots per case.
 
-PCB: with the board off, load both PicoROMs at 64 KiB and capture:
+PCB: with the board off, load both PicoROMs at 64 KiB and capture. The units are
+named in `$JOTEGO/picorom.yaml` (see `$JTFRAME/doc/picorom.md`):
 
 ```sh
-python3 picorom_load.py load SUPERMAN-A10=timing_a10_even_high.bin \
-    SUPERMAN-A5=timing_a5_odd_low.bin --size 64k --out <load-dir>
+jtutil picorom load <A10 unit>=timing_a10_even_high.bin \
+    <A5 unit>=timing_a5_odd_low.bin --size 64k --out <load-dir>
 python3 timing_capture.py --preparation-report <load-dir>/report.json \
     --protocol-doc timing_protocol.md --output-dir <capture-dir> \
-    --shelly-url http://192.168.68.52 --timeout 60 --power-on
+    --shelly-url <plug URL> --timeout 60 --power-on
 ```
 
-Both need PyUSB and the PicoROM client in `modules/jtkcpu/ver/pcb/tools`. The
-capture arms the A10 recorder at `0x0dc00`, powers the board through the Shelly,
-checks the 28 marker events, retrieves the CRC-checked result frames and powers
-the board off. `picorom_load.py` also offers `list`, `--xgecu` readback through a
-TL866II+ and an A0–A16 `pattern` test.
+The capture arms the A10 recorder at `0x0dc00`, powers the board through the
+Shelly, checks the 28 marker events, retrieves the CRC-checked result frames and
+powers the board off. `timing_capture.py` predates `jtutil picorom`: it needs
+PyUSB, the PicoROM client in `modules/jtkcpu/ver/pcb/tools` and the #230 task
+helper `tasks/jtcores-230/scripts/superman_pcb.py`, and it expects the units named
+`SUPERMAN-A10` and `SUPERMAN-A5`. New PCB tests use `jtutil picorom bustest`
+(the Superman board is `taitox superman` there).
 
 Result: ROM and work RAM take 38/42/50 CPU clocks per loop for 1/2/4 accesses
 on both PCB and core. X1-001 video RAM (`D0xxxx`, `E0xxxx`) takes 40/44/52 on the
