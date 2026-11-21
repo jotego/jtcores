@@ -22,6 +22,13 @@ module jtframe_pocket_joystick(
     input      [15:0] cont1,     cont2,     cont3,     cont4,
     input      [31:0] cont1_joy, cont2_joy, cont3_joy, cont4_joy,
     input      [ 3:0] analog_en,
+    // SNAC analog sticks (jtframe_analogizer, JTFRAME joyana format) and the controller
+    // paired with each player (jtframe_pocket_ctrlmux): a player paired with SNAC
+    // controller n gets its sticks instead of the Pocket controller ones
+    input      [15:0] snac_joyana_l1, snac_joyana_r1, snac_joyana_l2, snac_joyana_r2,
+                      snac_joyana_l3, snac_joyana_r3, snac_joyana_l4, snac_joyana_r4,
+    input      [11:0] act_plyr,     // { player 4 .. player 1 }, bit 2 = SNAC, [1:0] = SNAC index
+    input      [ 3:0] paired_plyr,
     output reg [15:0] joystick1, joystick2, joystick3, joystick4,
                       joyana_l1, joyana_l2, joyana_l3, joyana_l4,
                       joyana_r1, joyana_r2, joyana_r3, joyana_r4
@@ -49,15 +56,37 @@ function [31:0] joyanaconv( input [31:0] cont_joy, input en );
     if(!en) joyanaconv = 0;
 endfunction
 
+// Pocket controller sticks, or the SNAC ones for a player paired with a SNAC controller.
+// Every signal used is an argument (functions in continuous logic, see Questa)
+function [31:0] plyrana( input [31:0] pocket, input [31:0] snac1, input [31:0] snac2,
+                         input [31:0] snac3, input [31:0] snac4, input [2:0] act, input paired );
+    if( !paired || !act[2] ) plyrana = pocket;
+    else case( act[1:0] )
+        0: plyrana = snac1;
+        1: plyrana = snac2;
+        2: plyrana = snac3;
+        3: plyrana = snac4;
+    endcase
+endfunction
+
+wire [31:0] snac_joy1 = { snac_joyana_r1, snac_joyana_l1 },  // {right, left} of each SNAC player
+            snac_joy2 = { snac_joyana_r2, snac_joyana_l2 },
+            snac_joy3 = { snac_joyana_r3, snac_joyana_l3 },
+            snac_joy4 = { snac_joyana_r4, snac_joyana_l4 };
+
 always @(posedge clk_sys) begin
     joystick1 <= joyconv(cont1,button_map);
     joystick2 <= joyconv(cont2,button_map);
     joystick3 <= joyconv(cont3,button_map);
     joystick4 <= joyconv(cont4,button_map);
-    { joyana_r1, joyana_l1 } <= joyanaconv(cont1_joy, analog_en[0]);
-    { joyana_r2, joyana_l2 } <= joyanaconv(cont2_joy, analog_en[1]);
-    { joyana_r3, joyana_l3 } <= joyanaconv(cont3_joy, analog_en[2]);
-    { joyana_r4, joyana_l4 } <= joyanaconv(cont4_joy, analog_en[3]);
+    { joyana_r1, joyana_l1 } <= plyrana( joyanaconv(cont1_joy, analog_en[0]),
+                                snac_joy1, snac_joy2, snac_joy3, snac_joy4, act_plyr[ 2:0], paired_plyr[0] );
+    { joyana_r2, joyana_l2 } <= plyrana( joyanaconv(cont2_joy, analog_en[1]),
+                                snac_joy1, snac_joy2, snac_joy3, snac_joy4, act_plyr[ 5:3], paired_plyr[1] );
+    { joyana_r3, joyana_l3 } <= plyrana( joyanaconv(cont3_joy, analog_en[2]),
+                                snac_joy1, snac_joy2, snac_joy3, snac_joy4, act_plyr[ 8:6], paired_plyr[2] );
+    { joyana_r4, joyana_l4 } <= plyrana( joyanaconv(cont4_joy, analog_en[3]),
+                                snac_joy1, snac_joy2, snac_joy3, snac_joy4, act_plyr[11:9], paired_plyr[3] );
 end
 
 endmodule

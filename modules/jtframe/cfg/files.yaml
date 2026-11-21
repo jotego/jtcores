@@ -125,8 +125,22 @@ jtframe:
       - jtframe_st2mono.v
       - jtframe_gainmux.v
   # Analogizer support (for Pocket platform with analog video output)
+  # JVS packages first: imported by jvs_ctrl and the SNAC module
+  - from: analogizer/jvs/rtl
+    when: [ POCKET ]
+    get:
+      - jvs_defs_pkg.sv
+      - jvs_node_info_pkg.sv
+  - from: analogizer/jvs
+    when: [ POCKET ]
+    get:
+      - jvs_com.sv
+      - jvs_ctrl.sv
+      - uart_rx.v
+      - uart_tx.v
   - from: analogizer
     when: [ POCKET ]
     get:
+      - openFPGA_Pocket_Analogizer_SNAC.sv
       - analogizer_psx.sv
       - dualshock_controller.v

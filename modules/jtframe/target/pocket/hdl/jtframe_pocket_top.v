@@ -277,6 +277,11 @@ wire [ 1:0] anv_en;
 // SNAC interface (Analogizer)
 wire [15:0] snac_p1, snac_p2, snac_p3, snac_p4;
 wire [ 7:0] snac_cont;
+wire [15:0] snac_joyana_l1, snac_joyana_r1, snac_joyana_l2, snac_joyana_r2,  // SNAC analog
+            snac_joyana_l3, snac_joyana_r3, snac_joyana_l4, snac_joyana_r4;  // sticks
+wire        jvs_we, jvs_game;   // JVS profiles from data slots 24/25 (clk_rom)
+wire [ 5:0] jvs_addr;
+wire [31:0] jvs_data;
 // wire [ 7:6] cart1_out;
 wire [ 7:4] cart0_out;
 wire        cart0_dir, cartp30_dir,cartp31_dir;
@@ -515,10 +520,22 @@ u_frame(
     .yc_en          ( yc_en          ),
     // SNAC Controller inputs
     .snac_cfg       ( snac_cont      ),
+    .jvs_we         ( jvs_we         ),
+    .jvs_game       ( jvs_game       ),
+    .jvs_addr       ( jvs_addr       ),
+    .jvs_data       ( jvs_data       ),
     .snac_p1        ( snac_p1        ),
     .snac_p2        ( snac_p2        ),
     .snac_p3        ( snac_p3        ),
     .snac_p4        ( snac_p4        ),
+    .snac_joyana_l1 ( snac_joyana_l1 ),
+    .snac_joyana_r1 ( snac_joyana_r1 ),
+    .snac_joyana_l2 ( snac_joyana_l2 ),
+    .snac_joyana_r2 ( snac_joyana_r2 ),
+    .snac_joyana_l3 ( snac_joyana_l3 ),
+    .snac_joyana_r3 ( snac_joyana_r3 ),
+    .snac_joyana_l4 ( snac_joyana_l4 ),
+    .snac_joyana_r4 ( snac_joyana_r4 ),
 //////////// board
     .rst            ( rst            ),
     .rst_n          ( rst_n          ), // unused
@@ -597,6 +614,19 @@ jtframe_analogizer u_analogizer(
     .snac_p2      ( snac_p2         ),
     .snac_p3      ( snac_p3         ),
     .snac_p4      ( snac_p4         ),
+    .joyana_l1    ( snac_joyana_l1  ),
+    .joyana_r1    ( snac_joyana_r1  ),
+    .joyana_l2    ( snac_joyana_l2  ),
+    .joyana_r2    ( snac_joyana_r2  ),
+    .joyana_l3    ( snac_joyana_l3  ),
+    .joyana_r3    ( snac_joyana_r3  ),
+    .joyana_l4    ( snac_joyana_l4  ),
+    .joyana_r4    ( snac_joyana_r4  ),
+    .clk_rom      ( clk_rom         ),
+    .jvs_we       ( jvs_we          ),
+    .jvs_game     ( jvs_game        ),
+    .jvs_addr     ( jvs_addr        ),
+    .jvs_data     ( jvs_data        ),
     .cart0_in     ( cart_tran_bank0 ),
     .cartp30_in   ( cart_tran_pin30 ),
     .cartp31_in   ( cart_tran_pin31 ),

@@ -35,6 +35,10 @@ module jtframe_pocket_ctrlmux(
     output reg [15:0] plyr2,
     output reg [15:0] plyr3,
     output reg [15:0] plyr4,
+    // Source of each player, bit 2 set for a SNAC controller ([1:0] = SNAC index),
+    // only valid when the player is paired. Used to route the SNAC analog sticks
+    output     [11:0] act_plyr,     // { player 4, player 3, player 2, player 1 }
+    output     [ 3:0] paired_plyr,
     // Debug
     input      [ 7:0] debug_bus
     // output     [ 7:0] debug_show
@@ -53,6 +57,9 @@ reg   [2:0] act_p1, act_p2, act_p3, act_p4;
 reg   [3:0] paired;
 reg         cont1_set, cont2_set, cont3_set, cont4_set,
             snac1_set, snac2_set, snac3_set, snac4_set;
+
+assign act_plyr    = { act_p4, act_p3, act_p2, act_p1 };
+assign paired_plyr = paired;
 
 always @( posedge clk or posedge rst) begin
     if( rst) begin

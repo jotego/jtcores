@@ -148,7 +148,18 @@ module jtframe_pocket_base #(parameter
 
     // SNAC Controller inputs
     input      [15:0]  snac_p1, snac_p2, snac_p3, snac_p4,
-    output reg [ 7:0]  snac_cfg
+    // SNAC analog sticks (jtframe_analogizer, JTFRAME joyana format), l = left stick,
+    // r = right stick, 1..4 = SNAC player
+    input      [15:0]  snac_joyana_l1, snac_joyana_r1, snac_joyana_l2, snac_joyana_r2,
+                       snac_joyana_l3, snac_joyana_r3, snac_joyana_l4, snac_joyana_r4,
+    output reg [ 7:0]  snac_cfg,
+    // JVS profiles (Analogizer SNAC), clk_rom domain. Captured from the bridge
+    // as 32-bit words, first file byte in [31:24]. They do not go through
+    // ioctl_wr, so the game never sees them
+    output reg         jvs_we,
+    output reg         jvs_game,  // 0 = common profile (slot 24), 1 = game profile (slot 25)
+    output reg [ 5:0]  jvs_addr,  // word address, 256-byte profile
+    output reg [31:0]  jvs_data
 );
 
 localparam [7:0] IDX_ROM     = 1,
@@ -156,7 +167,9 @@ localparam [7:0] IDX_ROM     = 1,
                  IDX_CART    = 4,
                  IDX_CHEAT   = 16,
                  IDX_LOCK    = 17,
-                 IDX_CRT     = 18;
+                 IDX_CRT     = 18,
+                 IDX_JVS     = 24,  // common JVS profile (jvs.bin, jtpatreon platform)
+                 IDX_JVSGAME = 25;  // game JVS profile (<setname>.jvs, from the instance file)
 
 localparam [25:0] CART_OFFSET = `ifdef JTFRAME_CART_OFFSET `JTFRAME_CART_OFFSET `else 26'd0 `endif ;
 
@@ -183,6 +196,8 @@ wire [15:0] cont1_key,  cont2_key,  cont3_key,  cont4_key,
 wire [31:0] cont1_joy,  cont2_joy,  cont3_joy,  cont4_joy;
 wire [23:0] button_map_rom, button_map;
 wire [ 3:0] analog_en;
+wire [11:0] act_plyr;     // controller assigned to each player (jtframe_pocket_ctrlmux)
+wire [ 3:0] paired_plyr;
 
 // bridge host commands
 wire        ds_done;
@@ -287,6 +302,14 @@ always @(posedge clk_sys) if( ioctl_crt && ioctl_wr )begin
     snac_cfg <= sys_dout[19:12];
 end
 
+always @(posedge clk_rom) begin
+    jvs_we <= sys_wr && sys_addr[31:24]<8'hf8 && sys_addr[31:8]==0 &&
+              (ioctl_index==IDX_JVS || ioctl_index==IDX_JVSGAME);
+    jvs_game <= ioctl_index==IDX_JVSGAME;
+    jvs_addr <= sys_addr[7:2];
+    jvs_data <= sys_dout;
+end
+
 `ifndef SIMULATION
 pocket_id u_id(
     .reset      ( rst       ),
@@ -317,6 +340,16 @@ jtframe_pocket_joystick u_joystick(
     .cont3_joy  ( cont3_joy ),
     .cont4_joy  ( cont4_joy ),
     .analog_en  ( analog_en ),
+    .snac_joyana_l1( snac_joyana_l1 ),
+    .snac_joyana_r1( snac_joyana_r1 ),
+    .snac_joyana_l2( snac_joyana_l2 ),
+    .snac_joyana_r2( snac_joyana_r2 ),
+    .snac_joyana_l3( snac_joyana_l3 ),
+    .snac_joyana_r3( snac_joyana_r3 ),
+    .snac_joyana_l4( snac_joyana_l4 ),
+    .snac_joyana_r4( snac_joyana_r4 ),
+    .act_plyr   ( act_plyr  ),
+    .paired_plyr( paired_plyr ),
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
     .joystick3  ( joystick3 ),
@@ -474,6 +507,8 @@ jtframe_pocket_ctrlmux u_controllers(
     .plyr2      ( cont2      ),
     .plyr3      ( cont3      ),
     .plyr4      ( cont4      ),
+    .act_plyr   ( act_plyr   ),
+    .paired_plyr( paired_plyr),
     .debug_bus  ( debug_bus  )
 );
 

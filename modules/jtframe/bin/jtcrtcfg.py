@@ -142,6 +142,7 @@ Letter | Option
    E   | PCE 2BTN/6BTN                              |
    F   | PCE Multitap                               |
    G   | PSX Digital Normal                         |
+   I   | JVS                                        |
 ----------------------------------------------------|
 
 Your selection:    """
@@ -162,6 +163,7 @@ snac.replace = {
     "f":"ec",
     "g":"a",
     "h":"ac",
+    "i":"ae",
 }
 
 filepath  = create_in_pocket(do=sd)
