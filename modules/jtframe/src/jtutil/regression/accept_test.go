@@ -35,4 +35,13 @@ func TestAcceptPromotesSetnamesAndCores(t *testing.T) {
 	}
 	if e := Accept(root, []string{"vulgus"}, io.Discard); e == nil { t.Error("accepting a game with nothing pending did not fail") }
 	if e := Accept(root, []string{"../x"}, io.Discard); e == nil { t.Error("a path was accepted as a name") }
+	if e := Unaccept(root, []string{"vulgus"}, io.Discard); e != nil { t.Fatal(e) }
+	if _, e := os.Stat(filepath.Join(root, "1942", "vulgus", "new", "frame_00000100.png")); e != nil { t.Error(e) }
+	if _, e := os.Stat(filepath.Join(root, "1942", "vulgus", "ref")); e == nil { t.Error("vulgus ref is still there") }
+	if log, _ := os.ReadFile(filepath.Join(root, "1942", "vulgus", "log")); !strings.HasSuffix(string(log), " manual        UNACCEPT    --------\n") {
+		t.Errorf("vulgus log is %q", log)
+	}
+	if e := Unaccept(root, []string{"vulgus"}, io.Discard); e == nil { t.Error("a game without ref was taken back") }
+	write(filepath.Join(root, "cps1", "sf2", "new", "frame_00000300.png"))
+	if e := Unaccept(root, []string{"sf2"}, io.Discard); e == nil { t.Error("ref replaced pending new frames") }
 }

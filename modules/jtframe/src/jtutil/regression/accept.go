@@ -16,26 +16,37 @@ import (
 // and adds an ACCEPT line with the CRC of ref/ to the game's log.
 // A name is a setname or a core; a core accepts all of its pending games
 func Accept(root string, names []string, out io.Writer) error {
+	return each_game(root, names, out, "accepted", "no new or fail frames to accept", accept_game)
+}
+
+// Unaccept turns the ref/ of each named game back into new/, so it awaits review
+// again, and adds an UNACCEPT line to the game's log. A game with new/ or fail/
+// frames is left as it is
+func Unaccept(root string, names []string, out io.Writer) error {
+	return each_game(root, names, out, "back to new", "no ref frames to take back", unaccept_game)
+}
+
+func each_game(root string, names []string, out io.Writer, done, none string, action func(string) (bool, error)) error {
 	lock, e := lock_regression(root); if e != nil { return e }
 	defer lock.Close()
 	for _, name := range names {
 		if name == "" || strings.ContainsAny(name, "/.") {
-			return fmt.Errorf("--accept takes setnames or cores, not %q", name)
+			return fmt.Errorf("takes setnames or cores, not %q", name)
 		}
 		games, _ := filepath.Glob(filepath.Join(root, "*", name))
 		if len(games) == 0 {
 			games, _ = filepath.Glob(filepath.Join(root, name, "*"))
 		}
-		accepted := 0
+		count := 0
 		for _, game := range games {
-			ok, e := accept_game(game); if e != nil { return e }
+			ok, e := action(game); if e != nil { return e }
 			if ok {
-				accepted++
-				fmt.Fprintf(out, "%s: accepted\n", strings.TrimPrefix(game, root+"/"))
+				count++
+				fmt.Fprintf(out, "%s: %s\n", strings.TrimPrefix(game, root+"/"), done)
 			}
 		}
-		if accepted == 0 {
-			return fmt.Errorf("%s has no new or fail frames to accept", name)
+		if count == 0 {
+			return fmt.Errorf("%s has %s", name, none)
 		}
 	}
 	return nil
@@ -65,8 +76,26 @@ func accept_game(game string) (bool, error) {
 	}
 	if e := os.RemoveAll(old); e != nil { return false, e }
 	crc, e := reference_crc(ref); if e != nil { return false, e }
-	log, e := os.OpenFile(filepath.Join(game, "log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0640); if e != nil { return false, e }
-	_, e = fmt.Fprintf(log, "%s %-13s %-11s %s\n", LogTime(time.Now()), "manual", "ACCEPT", crc)
+	return true, manual_log(game, "ACCEPT", crc)
+}
+
+func unaccept_game(game string) (bool, error) {
+	ref := filepath.Join(game, "ref")
+	if _, e := os.Stat(ref); e != nil {
+		return false, nil
+	}
+	for _, slot := range []string{"new", "fail"} {
+		if _, e := os.Stat(filepath.Join(game, slot)); e == nil {
+			return false, fmt.Errorf("%s has %s frames: accept or remove them first", game, slot)
+		}
+	}
+	if e := os.Rename(ref, filepath.Join(game, "new")); e != nil { return false, e }
+	return true, manual_log(game, "UNACCEPT", "--------") // no reference left
+}
+
+func manual_log(game, verdict, crc string) error {
+	log, e := os.OpenFile(filepath.Join(game, "log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0640); if e != nil { return e }
+	_, e = fmt.Fprintf(log, "%s %-13s %-11s %s\n", LogTime(time.Now()), "manual", verdict, crc)
 	if close_error := log.Close(); e == nil { e = close_error }
-	return true, e
+	return e
 }

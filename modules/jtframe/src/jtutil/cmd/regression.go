@@ -17,7 +17,7 @@ import (
 )
 
 var regression_opts regression.Options
-var regression_accept []string
+var regression_accept, regression_unaccept []string
 
 var regressionCmd = &cobra.Command{
 	Use:   "regression",
@@ -51,7 +51,8 @@ progress to $JOTEGO/regression/log/<hash>.json (manual-<hash>[-dirty].json for
 resumes it; --commit also reruns its ERROR games.
 
 --accept <names> makes the new/ or fail/ frames of each setname, or of all the
-pending games of each core, the new ref/. It runs no capture.`,
+pending games of each core, the new ref/. --unaccept <names> turns ref/ back into
+new/ for review. Both log a manual line in the game's log and run no capture.`,
 	Args: cobra.NoArgs,
 	RunE: run_regression_cmd,
 }
@@ -65,6 +66,7 @@ func init() {
 	flag.DurationVar(&regression_opts.LoadLimit, "load-limit", 30*time.Second, "Time limit to load a game")
 	flag.StringVar(&regression_opts.PublishTo, "publish-to", "github", "Report destination for full runs: github, gitea (GITEA_SERVER_URL, GITEA_REPOSITORY, GITEA_TOKEN) or none")
 	flag.StringSliceVar(&regression_accept, "accept", nil, "Make the new or fail frames of these setnames or cores the reference")
+	flag.StringSliceVar(&regression_unaccept, "unaccept", nil, "Turn the reference of these setnames or cores back into new frames")
 	rootCmd.AddCommand(regressionCmd)
 }
 
@@ -79,6 +81,9 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	cmd.SilenceUsage = true
 	if len(regression_accept) > 0 {
 		return regression.Accept(filepath.Join(jotego, "regression"), regression_accept, cmd.OutOrStdout())
+	}
+	if len(regression_unaccept) > 0 {
+		return regression.Unaccept(filepath.Join(jotego, "regression"), regression_unaccept, cmd.OutOrStdout())
 	}
 	opts := regression_opts
 	opts.Root, opts.Builds = filepath.Join(jotego, "regression"), filepath.Join(jotego, "core-builds")

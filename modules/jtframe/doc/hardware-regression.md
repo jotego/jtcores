@@ -573,6 +573,7 @@ jtutil regression --busy
 jtutil regression --status
 jtutil regression --accept splatter
 jtutil regression --accept cps1,cps2
+jtutil regression --unaccept bodyslam
 jtutil regression --reject splatter --reason "reviewed against MAME"
 ```
 
@@ -593,6 +594,10 @@ per-game `log` gets an ACCEPT row with the resulting reference CRC. Acceptance
 validation exits use distinct codes:
 2 no frames, 3 invalid PNG, 4 all black, 5 majority-identical frames, 6
 missing/ambiguous source slot, and 7 unsafe setname or core name.
+
+`--unaccept <setname>[,...]` turns `ref/` back into `new/` so the game awaits
+review again, and appends an UNACCEPT row with `--------` as CRC. It refuses a
+game that already has `new/` or `fail/` frames.
 
 `--reject <setname>` removes existing `new/` and/or `fail/` slots and appends a
 REJECT row with the current reference CRC. `--reason` adds a single-line reason
