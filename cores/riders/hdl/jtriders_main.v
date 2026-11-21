@@ -100,6 +100,7 @@ wire [ 2:0] lgtnfght_dim;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn, adc=0;
 wire        dtac_mux, lgtnfght_son, lgtnfght_rmrd, vq_cs, bus_legit, dma_owns;
 wire        vq_rnw, pq_ok;
+wire [ 1:0] adc_wait;
 reg         pq_l, pq_rd_ok;
 reg  [ 1:0] pq_cnt;
 
@@ -116,6 +117,7 @@ assign pq_ok    = vq_rnw ? pq_rd_ok : pq_cnt[1];
 assign bus_cs   = rom_cs | vq_cs;
 assign bus_busy = (rom_cs & ~ok_dly) | (vq_cs & ~pq_ok);
 assign bus_legit= vq_cs;
+assign adc_wait = {1'b0, glfgreat & adc_cs};
 assign dma_owns = ~BGACKn;
 assign BUSn     = asn_mx | &ram_dsn;
 
@@ -408,7 +410,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .waitn      ( 2'd0      ),
+    .waitn      ( adc_wait  ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )
