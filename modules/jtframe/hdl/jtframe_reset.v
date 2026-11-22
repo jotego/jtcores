@@ -13,8 +13,6 @@ module jtframe_reset(
     input       soft_rst,
     input       rst_req,
     input       pll_locked,
-    input       ph24,       // toggles at every clk24 rising edge
-    input       rfsh_safe,  // no SDRAM refresh pending
 
     // clk_sys:
     output  reg rst,
@@ -32,9 +30,6 @@ reg [GAME_RSTW-1:0] game_rst_cnt;
 reg [MAIN_RSTW-1:0] rst_rom; // rst in clk_rom domain
 reg                 rst_rom_sync;
 reg [1:0]           rst_req_sync;
-reg [1:0]           ph24_s=0;
-reg [2:0]           align_wait=0;
-wire                rst_align;
 
 always @(posedge clk_sys, negedge pll_locked) begin
     if( !pll_locked ) begin
@@ -76,30 +71,19 @@ always @(negedge clk_rom) begin
     rst_rom_sync <= rst_rom[0];
 end
 
-// game_rst is released on a fixed clk24 phase, so the clk24, clk48 and clk_rom
-// logic of the game always start with the same relative phase, and when no SDRAM
-// refresh is pending. Otherwise, the game would not repeat exactly from one run
-// to the next. If clk24 is not running, the release waits a few cycles instead
-assign rst_align = rfsh_safe && (ph24_s[1]!=ph24_s[0] || &align_wait);
-
 always @(negedge clk_rom) begin
-    ph24_s <= { ph24_s[0], ph24 };
     if( rst_rom_sync ) begin
         game_rst_cnt   <= {GAME_RSTW{1'b1}};
         game_rst_n     <= 0;
         game_rst       <= 1;
-        align_wait     <= 0;
     end else begin
         if( game_rst_cnt[0] ) begin
             game_rst_cnt <= game_rst_cnt >> 1;
             game_rst_n   <= 0;
             game_rst     <= 1;
-        end else if( game_rst ) begin
-            if( rfsh_safe ) align_wait <= align_wait + 1'd1;
-            if( rst_align ) begin
-                game_rst_n <= 1;
-                game_rst   <= 0;
-            end
+        end else begin
+            game_rst_n <= 1;
+            game_rst   <= 0;
         end
     end
 end

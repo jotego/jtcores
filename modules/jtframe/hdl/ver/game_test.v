@@ -238,8 +238,7 @@ jtframe_board_sdram #(
 ) u_sdram(
     .rst        ( sdram_rst     ),
     .clk        ( clk_rom       ),
-    .game_rst   ( rst           ),
-    .rfsh_safe  (               ),
+    .lvbl       ( LVBL          ),
     .init       ( sdram_init    ),
     .prog_en    ( prog_en       ),
 
@@ -730,8 +729,12 @@ u_game(
 
 `ifdef JTFRAME_PXLCLK
     /* verilator tracing_off */
+    reg ph24=0;
+    always @(posedge clk24) ph24 <= ~ph24;
+
     jtframe_pxlcen u_pxlcen(
         .clk        ( clk_rom   ),
+        .ph24       ( ph24      ),
         .pxl_cen    ( pxl_cen   ),
         .pxl2_cen   ( pxl2_cen  )
     );

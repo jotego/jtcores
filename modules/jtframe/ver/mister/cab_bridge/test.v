@@ -208,14 +208,8 @@ jtframe_mister_uio transport(.rst(rst), .clk(clk_rom), .io_enable(EXT_BUS[34] &&
         .cab_state(cab_state),.cab_error(cab_error)
     );
 
-    reg ph24=0, clk24=0; // clk24 = clk_rom/2
-    always @(posedge clk_rom) begin
-        clk24 <= ~clk24;
-        if( clk24 ) ph24 <= ~ph24;
-    end
-
     jtframe_reset u_reset(
-        .clk_sys(clk_sys),.clk_rom(clk_rom),.pxl_cen(1'b1),.ph24(ph24),.rfsh_safe(1'b1),
+        .clk_sys(clk_sys),.clk_rom(clk_rom),.pxl_cen(1'b1),
         .sdram_init(1'b0),.ioctl_rom(1'b0),.dip_flip(1'b0),.soft_rst(1'b0),
         .rst_req(cab_hold_reset | cab_inputs[12]),.pll_locked(pll_locked),
         .rst(rst),.rst_n(rst_n),.game_rst(game_rst),.game_rst_n(game_rst_n)

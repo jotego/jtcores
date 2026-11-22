@@ -8,8 +8,8 @@ module jtshouse_cenloop(
     input      [ 2:0] busy,
 
     output            cen_main, cen_sub, cen_mcu, cen_sndq,
-    output reg        snd_sel,
-    output reg        cen_snd,
+    output            snd_sel,
+    output            cen_snd,
 
     output     [15:0] fave, fworst // average cpu_cen frequency in kHz
 );
@@ -20,27 +20,35 @@ parameter FCLK = 49152,
           DEN  = FCLK/FCPU,
           CW   = $clog2(FCLK/FCPU)+4;
 
-reg     [3:0] cpu_cen;
-reg     [1:0] clk4;
+reg     [3:0] cpu_cen=0;
+reg     [1:0] clk4=0;
+reg           rst_l=0;
+wire          restart = rst_l & ~rst;
 wire          over;
 wire [  CW:0] cencnt_nx;
 reg  [CW-1:0] cencnt=0;
 reg     [1:0] blank=0;
-reg           aux_snd;
+reg           aux_snd=0, cen_snd_r=0, snd_sel_r=0;
 wire          bsyg = busy==0 || rst;
 
 assign over      = &blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
                    (over && bsyg ? DEN[CW:0] : {CW+1{1'b0}});
 
-assign cen_main = cpu_cen[0];
-assign cen_sub  = cpu_cen[1];
-assign cen_mcu  =|cpu_cen[3:0];
-assign cen_sndq = cpu_cen[1];
+// The CPU clocks keep running during reset, but they restart when the reset
+// is released, so the CPUs start with the same phases in every run.
+// A pulse set before the restart is dropped
+assign cen_main = cpu_cen[0] & ~restart;
+assign cen_sub  = cpu_cen[1] & ~restart;
+assign cen_mcu  =|cpu_cen[3:0] & ~restart;
+assign cen_sndq = cpu_cen[1] & ~restart;
+assign cen_snd  = cen_snd_r & ~restart;
+assign snd_sel  = snd_sel_r & ~restart;
 
 always @(posedge clk) begin
-   {cen_snd,aux_snd} <= {aux_snd,cpu_cen[3]};
-    snd_sel <= cen_mcu & cen_sub;
+    rst_l <= rst;
+   {cen_snd_r,aux_snd} <= restart ? 2'd0 : {aux_snd,cpu_cen[3]};
+    snd_sel_r <= cen_mcu & cen_sub;
 end
 
 `ifdef SIMULATION
@@ -65,6 +73,12 @@ always @(posedge clk) begin
         cpu_cen[2] <= clk4==1;
         cpu_cen[3] <= clk4==3;
     end else begin
+        cpu_cen <= 0;
+    end
+    if( restart ) begin
+        clk4    <= 0;
+        cencnt  <= 0;
+        blank   <= 0;
         cpu_cen <= 0;
     end
 end

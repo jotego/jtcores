@@ -234,6 +234,7 @@ assign base_rgb  = { cross_r, cross_g, cross_b };
 `ifdef JTFRAME_PXLCLK
     jtframe_pxlcen u_pxlcen(
         .clk        ( clk_rom   ),
+        .ph24       ( ph24      ),
         .pxl_cen    ( pxl_cen   ),
         .pxl2_cen   ( pxl2_cen  )
     );
@@ -246,8 +247,6 @@ always @(posedge clk_rom) begin
     else if(ioctl_wr&&!ioctl_cart) rom_rst <= 1;
 end
 
-wire rfsh_safe;
-
 jtframe_reset u_reset(
     .clk_sys    ( clk_sys       ),
     .clk_rom    ( clk_rom       ),
@@ -259,8 +258,6 @@ jtframe_reset u_reset(
     .soft_rst   ( soft_rst      ),
     .rst_req    ( rst_req       ),
     .pll_locked ( pll_locked    ),
-    .ph24       ( ph24          ),
-    .rfsh_safe  ( rfsh_safe     ),
 
     .rst        ( rst           ),
     .rst_n      ( rst_n         ),
@@ -800,8 +797,7 @@ jtframe_board_sdram #(
 ) u_sdram(
     .rst        ( rst           ),
     .clk        ( clk_rom       ),
-    .game_rst   ( game_rst      ),
-    .rfsh_safe  ( rfsh_safe     ),
+    .lvbl       ( LVBL          ),
     .init       ( sdram_init    ),
     .prog_en    ( prog_en       ),
 

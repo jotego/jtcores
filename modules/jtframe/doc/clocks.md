@@ -61,13 +61,15 @@ You can specify several clock domains, clk24, clk48, etc. If you move _cen_ sign
 
 ## Repeatable start
 
-A game must run the same way every time it leaves reset, so hardware regressions can compare frames. Three JTFRAME mechanisms remove the phase differences that would otherwise depend on how long the FPGA ran before the reset:
+A game must run the same way every time it leaves reset, so hardware regressions can compare frames. Most video timers run freely, also during reset, and CAB START releases the reset request at the start of a frame. The game reset is then released a fixed number of clock cycles later. Any other phase that keeps running during reset must either be locked to that timing or restart when the reset is released:
 
+- `jtframe_pxlcen` (**JTFRAME_PXLCLK**) keeps the pixel clock locked to the clk24 phase (`ph24` toggle of the target), so frames, and so the reset release, always start on the same clk24 phase. This works when the pixel period is a multiple of the clk24 period: 6 and 8 MHz pixels. With **JTFRAME_PXLCLK**=16 (narc) or with pixel clocks defined in mem.yaml (cps3), the clk24 and clk48 phases at the release may still change from one run to the next
+- the SDRAM refresh period restarts at every frame, with a refresh request, so refresh requests keep a fixed timing with respect to the video
 - _cen_ signals defined in mem.yaml keep running during reset, but their phase restarts when the reset is released
-- the SDRAM refresh also restarts, with an immediate refresh, when the game reset is released
-- `game_rst` is released on a fixed clk24 phase (the `ph24` toggle of the target), so the clk24, clk48 and clk96 logic of the game always start with the same relative phase
+- the E/Q phase of `jtframe_sys6809` restarts when the reset is released
+- the sound chip timing of jt12, jtopl and jt6295 restarts with the reset too
 
-Clock enables generated inside the game module by free-running counters, such as `jtframe_frac_cen` instances, which have no reset input, are not covered. Reset such counters in the game module if the game needs to repeat exactly.
+Clock enables generated inside the game module by free-running counters, such as `jtframe_frac_cen` instances, which have no reset input, are not covered. Restart such counters when the game reset is released if the game needs to repeat exactly. Check that a new CPU wrapper or clock divider does not keep a phase across the reset either.
 
 # Internal JTFRAME Clocks
 

@@ -45,6 +45,7 @@ end
 
 jtframe_pxlcen uut(
     .clk        ( clk      ),
+    .ph24       ( 1'b0     ),
     .pxl_cen    ( pxl_cen  ),
     .pxl2_cen   ( pxl2_cen )
 );
