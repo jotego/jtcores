@@ -4,4 +4,8 @@
 
 jtframe:
   - from: cpu
+    unless: [ VERILATOR, IVERILOG, JTFRAME_VZ80 ]
     get: [ T80.yaml ]
+  - from: cpu/t80
+    when: [ VERILATOR, IVERILOG, JTFRAME_VZ80 ]
+    get: [ T8080s.v ]

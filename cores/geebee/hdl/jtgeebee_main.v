@@ -134,9 +134,17 @@ always @(posedge clk or posedge rst) begin
     end
 end
 
+`ifdef VERILATOR
+T8080s u_cpu(
+`elsif IVERILOG
+T8080s u_cpu(
+`elsif JTFRAME_VZ80
+T8080s u_cpu(
+`else
 T80s #(
     .Mode   ( 2 )
 ) u_cpu(
+`endif
     .RESET_n( ~rst    ),
     .CLK    ( clk     ),
     .CEN    ( cen_cpu ),

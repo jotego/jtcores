@@ -1,1 +1,1 @@
-$JTFRAME/hdl/cpu/t80/T80s.v
+$JTFRAME/hdl/cpu/t80/T8080s.v

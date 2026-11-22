@@ -141,8 +141,7 @@ architecture rtl of T80s is
             REGS       : out std_logic_vector(211 downto 0); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
 
             DIRSet     : in  std_logic := '0';
-            DIR        : in  std_logic_vector(211 downto 0) := (others => '0'); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
-            Mode_Sel   : in  integer range 0 to 3 := Mode
+            DIR        : in  std_logic_vector(211 downto 0) := (others => '0') -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
         );
     end component;
 
@@ -182,8 +181,7 @@ begin
 		MC => MCycle,
 		TS => TState,
 		OUT0 => OUT0,
-		IntCycle_n => IntCycle_n,
-		Mode_Sel => Mode
+		IntCycle_n => IntCycle_n
 	);
 
 	process (RESET_n, CLK)

@@ -18,9 +18,7 @@ wire [7:0] din = iorq_n ? mem[addr] : 8'ha5;
 reg seen_in = 0;
 reg seen_out = 0;
 
-T80s #(
-    .Mode   ( 2       )
-) uut(
+T8080s uut(
     .RESET_n( reset_n ),
     .CLK    ( clk     ),
     .CEN    ( 1'b1    ),
