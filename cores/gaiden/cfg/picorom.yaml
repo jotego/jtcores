@@ -1,0 +1,32 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report gaiden <set>
+bustest:
+  gaiden:
+    board: "Ninja Gaiden (US), Tecmo 0210-A/0210-B (MG-Y.VO) two-board set"
+    cpu: m68k
+    cpu_hz: 9216000
+    rom:
+      cpu_base: 0x0
+      even: "3S"
+      odd: "4S"
+      chip: "27C010-size EPROM (MAME gaiden_1.3s / gaiden_2.4s, 128 KiB), 32-pin DIP assumed"
+      pins: 32
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0x60000, size: 0x4000}
+    watchdog: {addr: 0x7a800, access: "write.w", why: "MAME gaiden.cpp 0x07a800 watchdog reset16_w (default MAME timeout, frames-long). The core does not decode it. Kick once per case is plenty"}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w", expect: "program ROM 0x00000-0x3FFFF, core: SDRAM only"}
+      - {name: "ram", addr: 0x60100, access: "write.w", expect: "work RAM 0x060000-0x063FFF (6264 pair), no wait"}
+      - {name: "txt_rd", addr: 0x70100, access: "read.w", expect: "text VRAM 0x070000-0x070FFF, core BRAM, no wait; PCB may arbitrate with the text layer"}
+      - {name: "scr_rd", addr: 0x72100, access: "read.w", expect: "foreground VRAM 0x072000-0x073FFF (bottom board TECMO-3/4), core BRAM, no wait"}
+      - {name: "obj_rd", addr: 0x76100, access: "read.w", expect: "sprite RAM 0x076000-0x077FFF, core BRAM, no wait"}
+      - {name: "pal_rd", addr: 0x78100, access: "read.w", expect: "palette RAM 0x078000-0x079FFF, core BRAM, no wait"}
+      - {name: "io_rd", addr: 0x7a000, access: "read.w", expect: "SYSTEM inputs 0x07A000, no wait"}
+    checklist:
+      - "Jumpers: none known (no schematic available)"
+      - "Program pair gaiden_1.3s (3S, D15-D8, even) / gaiden_2.4s (4S, D7-D0, odd) on the top board 0210-A, next to the two 6264 work RAMs."
+      - "Other versions use the same sockets: shadoww (World), ryukendn (Japan); check the labels on the board in box 72 (gaiden_1/gaiden_2 = US)."
+      - "No schematic is available: confirm that 3S/4S are 32-pin JEDEC 27C010/27C1001 and not 27C1000/27C301 (non-JEDEC pin 2 = /OE, pin 24 = A16) before inserting the PicoROMs."
+      - "Do not write 0x07A100-0x07A30D scroll registers (harmless but unneeded), 0x07A802 (sound latch/NMI), 0x07A806 (IRQ ack), 0x07A808 (flip)."
+      - "The .rom maincpu starts at byte 8 (byte-swapped SSP=0x00064000, PC=0x000004C6)."

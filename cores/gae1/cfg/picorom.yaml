@@ -1,0 +1,66 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report gae1 <set>
+bustest:
+  thoop:
+    board: "Thunder Hoop (Gaelco REF.922804/1 or /2, TPC1020 video FPGAs)"
+    cpu: m68k
+    cpu_hz: 12000000
+    rom:
+      cpu_base: 0x0
+      even: "D18 (MAME program.d18 on REF.922804/2)"
+      odd: "D16 (MAME program.d16 on REF.922804/2)"
+      chip: "even th18dea1.040 = 27C040, odd th161eb4.020 = 27C020"
+      pins: 32
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0xff8000, size: 0x4000}
+    watchdog: {addr: 0x10800c, access: "write.w", why: "MAME thoop_map 0x10800C: INT 6 ACK / watchdog timer (write). Timeout unknown; the test kicks it once per case and every ~5 ms while waiting."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "program EPROM, core adds only SDRAM latency -> 42"}
+      - {name: "vram_rd", addr: 0x100000, access: "read.w", expect: "video RAM 0x100000 inside the TPC1020 video system; PCB may add an access-slot wait"}
+      - {name: "vram_wr", addr: 0x100000, access: "write.w", expect: "video RAM write goes through the write decryption (key P1=0x0e) in the TPC1020; PCB may add waits"}
+      - {name: "pal", addr: 0x200000, access: "read.w", expect: "palette RAM 0x200000"}
+      - {name: "spr", addr: 0x440000, access: "read.w", expect: "sprite RAM 0x440000"}
+      - {name: "io", addr: 0x700000, access: "read.w", expect: "DSW2 port 0x700000"}
+      - {name: "ramtop_rd", addr: 0xfff000, access: "read.w", expect: "work RAM near the game's stack. Core: no wait"}
+      - {name: "ramtop_wr", addr: 0xfff000, access: "write.w", expect: "same, write. Core: no wait"}
+      - {name: "ram_rd", addr: 0xff8100, access: "read.w", expect: "work RAM. Core: no wait"}
+      - {name: "ram_wr", addr: 0xff8100, access: "write.w", expect: "work RAM. Core: no wait"}
+    checklist:
+      - "Jumpers: unknown (no board-level schematic: gaelco-gae1.pdf only covers the FPGA logic). The odd socket holds a 27C020 next to a 27C040: check for a 2M/4M jumper on pin 1 (VPP/A18) of D16"
+      - "Plain MC68000P10 at 12 MHz, no protection MCU on Thunder Hoop (only the video RAM write encryption, which only scrambles data)."
+      - "Box 18 lists two Thunder Hoop entries; one is described as a 5-title multigame: that board may be a different PCB with another ROM layout, so check the program ROM labels (th18dea1.040 / th161eb4.020, 'program.d18' / 'program.d16') before removing chips. vram_wr writes 0x5A5A to tile 0 of the video RAM (harmless, the screen is not set up)."
+      - "Do not touch: 0x108000-0x108007 (scroll registers, harmless but unneeded), 0x70000B (coin lockout/counters via 74LS259), 0x70000D (OKI bank), 0x70000F (OKI6295 commands)."
+      - "Core decoder: ROM 0x000000-0x0FFFFF, VRAM 0x100000-0x103FFF, palette 0x200000-0x2007FF, sprites 0x440000-0x440FFF, I/O 0x7000xx, RAM 0xFF0000-0xFFFFFF; no core wait states besides SDRAM. .rom: 8-byte JTFRAME header, reset vector SSP=0 PC=0x400 stored byte-swapped at 0x08."
+      - "PCB 2026-11-21: every work RAM access hung because the odd-lane PicoROM had pin 2 (ROM A16) shorted to ground, holding CPU A17 low (0xFFxxxx became 0xFDxxxx). Video RAM, palette, sprite and I/O cases (A17 = 0) were valid. Re-measure the RAM cases with healthy units."
+  wrally:
+    board: "World Rally (Gaelco REF.930217 / REF.930705, DS5002FP protection)"
+    cpu: m68k
+    cpu_hz: 12000000
+    rom:
+      cpu_base: 0x0
+      even: "C23"
+      odd: "C22"
+      chip: "M27C4001 (MAME invers_taula_c23_coche_8-11-93_e.bin / ..._c22_..._o.bin)"
+      pins: 32
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0xfec000, size: 0x4000}
+    watchdog: {addr: 0x10800c, access: "write.w", why: "MAME wrally maps 0x10800C as 'CLR INT Video' (nopw); no watchdog is documented. Kicking it is harmless."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "program EPROM through PAL20L8 B23 DTACK"}
+      - {name: "ram", addr: 0xfec100, access: "write.w", expect: "work RAM 0xFEC000 = MS6264A D14/D15 shared with the DS5002FP through 74LS157 muxes: may wait for the DS5002FP"}
+      - {name: "vram_rd", addr: 0x100000, access: "read.w", expect: "video RAM 0x100000 in the TPC1020 video system"}
+      - {name: "vram_wr", addr: 0x100000, access: "write.w", expect: "encrypted video RAM write path"}
+      - {name: "pal", addr: 0x200000, access: "read.w", expect: "palette RAM 0x200000"}
+      - {name: "spr", addr: 0x440000, access: "read.w", expect: "sprite RAM 0x440000"}
+      - {name: "io", addr: 0x700000, access: "read.w", expect: "DSW port 0x700000"}
+    checklist:
+      - "Jumpers: unknown (no schematic); MAME lists no jumpers next to C22/C23"
+      - "NOT SIMULATED: World Rally is in MAME gaelco/wrally.cpp, not gaelco.cpp, and the gae1 core does not support it (mame2mra.toml only builds squash, thoop, biomtoy and bigkarnk; no rom/wrally.rom; the core has work RAM at 0xFF0000 while wrally uses 0xFEC000-0xFEFFFF shared with the DS5002FP)."
+      - "PROTECTION: a DS5002FP security processor (D12, battery-backed encrypted code in C11) shares the work RAM."
+      - "If its battery is dead the game does not boot, but this firmware does not depend on it."
+      - "The firmware writes the stack/scratch area 0xFEC100-0xFEFFFF, which the DS5002FP also uses: harmless to the hardware, but power-cycle before running the game again."
+      - "Do not touch: 0x70000B (coin lockout/counters, mute, flip via 74LS259), 0x70000D (OKI bank), 0x70000F (OKI6295)."
+      - "The cpu_ram base 0xFEC000 is only 16 KiB; the stack sits at its top (0xFF0000)."
+      - "If the core gets wrally support later, check mra_offset and mra_word_swap against its .rom."

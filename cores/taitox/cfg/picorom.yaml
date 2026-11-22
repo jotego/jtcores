@@ -1,0 +1,25 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report taitox <set>
+bustest:
+  superman:
+    board: "Superman Taito X P0-039A"
+    cpu: m68k
+    cpu_hz: 8000000
+    rom:
+      cpu_base: 0x0
+      even: "A10"
+      odd: "A5"
+      chip: "27C1001"
+      pins: 32
+      rom_offset: 16
+      word_swap: true
+    ram: {base: 0xf00000, size: 0x4000}
+    watchdog: {addr: 0x400000, access: "write.w", value: 0x10, why: "0x400000"}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w"}
+      - {name: "ram", addr: 0xf00200, access: "write.w"}
+      - {name: "yram", addr: 0xd003fe, access: "read.w", expect: "slot"}
+      - {name: "oram", addr: 0xe03ffe, access: "write.w", expect: "slot"}
+    checklist:
+      - "Jumpers: 27C1001 setting"
+      - "framework validation board (already measured)"

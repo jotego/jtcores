@@ -1,0 +1,59 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report s18 <set>
+bustest:
+  astorm:
+    board: "Alien Storm (Sega System 18, 171-5873B main board, 5874-type ROM layout, 315-5360 mapper)"
+    cpu: m68k
+    cpu_hz: 10000000
+    rom:
+      cpu_base: 0x0
+      even: "A6"
+      odd: "A5"
+      chip: "27C020 (MAME epr-13182.a6 / epr-13181.a5)"
+      pins: 32
+      rom_offset: 32
+      word_swap: true
+    ram: {base: 0xff0000, size: 0x4000}
+    init:
+      - {addr: 0xfe0020, access: "write.w", value: 0xa, why: "mapper reg 0x10: region 0 (program ROM A6/A5) 512 KiB, DTACK bits 10 -> DTACK_SEL 1, 0 waits (game uses 00)"}
+      - {addr: 0xfe0022, access: "write.w", why: "mapper reg 0x11: region 0 base 0x000000"}
+      - {addr: 0xfe0024, access: "write.w", value: 0x6, why: "mapper reg 0x12: region 1 (ROM board / 2nd ROM bank) 512 KiB, DTACK 01 -> 1 wait (game uses 00)"}
+      - {addr: 0xfe0026, access: "write.w", value: 0x8, why: "mapper reg 0x13: region 1 base 0x080000 (as the game)"}
+      - {addr: 0xfe0028, access: "write.w", value: 0xc, why: "mapper reg 0x14: region 2 (315-5313 VDP) 64 KiB, DTACK 11 -> external (VDP ~DTAK into 315-5360 pin 36), as the game"}
+      - {addr: 0xfe002a, access: "write.w", value: 0xc0, why: "mapper reg 0x15: region 2 base 0xC00000 (as the game)"}
+      - {addr: 0xfe002c, access: "write.w", why: "mapper reg 0x16: region 3 (work RAM K11/L11) 64 KiB, DTACK 00 -> 2 waits (as the game)"}
+      - {addr: 0xfe002e, access: "write.w", value: 0xff, why: "mapper reg 0x17: region 3 base 0xFF0000 (as the game)"}
+      - {addr: 0xfe0030, access: "write.w", value: 0x4, why: "mapper reg 0x18: region 4 (sprite RAM) 64 KiB, DTACK 01 -> 1 wait (as the game)"}
+      - {addr: 0xfe0032, access: "write.w", value: 0x20, why: "mapper reg 0x19: region 4 base 0x200000 (as the game)"}
+      - {addr: 0xfe0034, access: "write.w", value: 0xd, why: "mapper reg 0x1A: region 5 (tile + text RAM) 128 KiB, DTACK 11 -> external (as the game)"}
+      - {addr: 0xfe0036, access: "write.w", value: 0x10, why: "mapper reg 0x1B: region 5 base 0x100000 (as the game)"}
+      - {addr: 0xfe0038, access: "write.w", why: "mapper reg 0x1C: region 6 (palette) 64 KiB, DTACK 00 -> 2 waits (as the game)"}
+      - {addr: 0xfe003a, access: "write.w", value: 0x14, why: "mapper reg 0x1D: region 6 base 0x140000 (as the game)"}
+      - {addr: 0xfe003c, access: "write.w", why: "mapper reg 0x1E: region 7 (315-5296 I/O) 64 KiB, DTACK 00 (as the game, not tested)"}
+      - {addr: 0xfe003e, access: "write.w", value: 0xa0, why: "mapper reg 0x1F: region 7 base 0xA00000 (as the game)"}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "region 0 DTACK 10 (DTACK_SEL 1): 0 waits -> 42"}
+      - {name: "ram", addr: 0xff0100, access: "write.w", expect: "region 3 DTACK 00 (DTACK_SEL 3): 2 waits -> 50"}
+      - {name: "rom1", addr: 0x8f000, access: "read.w", expect: "region 1 DTACK 01 (DTACK_SEL 2): 1 wait -> 46; sockets for this bank are empty on Alien Storm, data floats but DTACK comes from the mapper"}
+      - {name: "obj", addr: 0x200000, access: "read.w", expect: "region 4 DTACK 01: 1 wait -> 46"}
+      - {name: "pal", addr: 0x140000, access: "read.w", expect: "region 6 DTACK 00: 2 waits -> 50"}
+      - {name: "tile", addr: 0x100000, access: "read.w", expect: "region 5 DTACK 11 (EDAK): board/video-chip DTACK; core adds nothing beyond SDRAM"}
+      - {name: "vdp_hv", addr: 0xc00008, access: "read.w", expect: "region 2 DTACK 11: VDP HV counter read, DTACK from the 315-5313"}
+    checklist:
+      - "Jumpers: none on A6/A5: KiCad cpurom sheet ties pins 1 (VPP) and 31 (PGM) to VCC, pin 30 = CPU A18, /CE = 315-5360 pin 70 MAIN_~CE, /OE = MAIN_~OE"
+      - "FD1094 WARNING: every Sega Alien Storm set (astorm 317-0154, astorm3 317-0148, astormu 317-0147, astormj 317-0146) uses an FD1094 encrypted CPU."
+      - "If box 48 still has the FD1094 module in the 68000 socket, this plain firmware will be decrypted into garbage and nothing runs (fatal/start markers never appear)."
+      - "Either fit a plain 68000 in that socket for the test (the FD1094 key battery sits on the module; handle with ESD care) or check first whether the board was already converted to a plain 68000 with decrypted ROMs (MAME astorm3d/astormud/astormjd labels)."
+      - "ROM labels to check on A6/A5: epr-13182/13181 (astorm), 13165/13164 (astorm3), 13095/13094 (astormu), 13085/13084 (astormj); the firmware is the same for all."
+      - "The jtsim run disables the core's FD1094 (header byte 0x11 cleared) through scripts/sim_s18_plain.py."
+      - "MAPPER: System 18 uses the 315-5360, not a discrete 315-5195; the core reuses jts16b_mapper, so this test also checks that the 315-5360 follows the same DTACK_SEL rule."
+      - "The only external DTACK input visible on 315-5360 in the KiCad is pin 36 VDP~DTAK (315-5313 pin 114)."
+      - "The game (MAME, frame 100) programs: r0 02/00, r1 02/08, r2 0c/c0, r3 00/ff, r4 04/20, r5 0d/10, r6 00/14, r7 00/a0 (size/dtack, base)."
+      - "Init only changes r0 to DTACK 10 and r1 to DTACK 01 so all four DTACK_SEL values are exercised."
+      - "Mapper registers are written as words at 0xFE0020+2n (unmapped area), like the game."
+      - "No watchdog in MAME for System 18."
+      - "Risky cases (tile EDAK, VDP) are last: if one hangs, the earlier brackets are still recorded."
+      - "Do not touch: mapper regs 0x02-0x05 (reset/IRQ/sound latch/bus master), VDP control/data ports, I/O writes (coin counters, video enables, ROM bank port H)."
+    sim:
+      rom_patch:
+        - {offset: 0x10, bytes: [0, 0, 0]}

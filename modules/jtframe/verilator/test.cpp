@@ -23,6 +23,12 @@
 #include "sim_utils.h"
 #include "sdram.h"
 #include "wavewritter.h"
+#ifdef _SIM_HOOK
+// Tool-provided verification hook in the simulation folder (jtsim -d SIM_HOOK).
+// It defines static void sim_hook(UUT& game, vluint64_t simtime), called once
+// per clock period after the second half-period evaluation.
+#include "sim_hook.h"
+#endif
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -880,6 +886,9 @@ void JTSim::clock(int n) {
         sdram2.update(simtime + multi_clock->get_semi_period());
 #endif
         simtime += multi_clock->get_semi_period();
+#ifdef _SIM_HOOK
+        sim_hook(game, simtime);
+#endif
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
 #endif

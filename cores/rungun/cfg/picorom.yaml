@@ -1,0 +1,33 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report rungun <set>
+bustest:
+  rungun:
+    board: "Run and Gun (GX247, PWB 353344C)"
+    cpu: m68k
+    cpu_hz: 16000000
+    rom:
+      cpu_base: 0x0
+      even: "18N"
+      odd: "16N"
+      chip: "27C040"
+      pins: 32
+      rom_offset: 0
+      word_swap: true
+    ram: {base: 0x380000, size: 0x20000}
+    watchdog: {addr: 0x7c0000, access: "write.w", why: "MAME rungun.cpp: 0x7c0000 nopw 'watchdog'; schematic CPU page: U58 F138 Y7 = AFE at 0x7C0000 (AFE/AFR is Konami's watchdog strobe naming; destination not traced). Not decoded by the core (acked by default). Kick every loop iteration"}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w"}
+      - {name: "ram", addr: 0x380100, access: "write.w"}
+      - {name: "psac_rom", addr: 0x400000, access: "read.w", expect: "PSCH: 2 wait states (LS175 2WDT AND PSDT from 053936); core waitn=2"}
+      - {name: "pal", addr: 0x300000, access: "read.w"}
+      - {name: "fix", addr: 0x740000, access: "read.w", expect: "FIXCS: DTACK from FIXDT (core jtrungun_dtack: 3 pixel-clock shift on LDS accesses)"}
+      - {name: "obj", addr: 0x600000, access: "read.w"}
+    checklist:
+      - "Jumpers: JP0-JP12 next to the ROM sockets 16N/18N/21N/23N select ROM size (silkscreen EP1M/2M/4M for 16N/18N, Mask1M/2M/4M/8M for 21N/23N). Leave as found (4M); PicoROM 64 KiB mode ignores upper address pins"
+      - "Program pair 247eaa03.bin (D15-D8, even, 18N) / 247eaa04.bin (D7-D0, odd, 16N), 512 KiB each, 8-bit EPROM sockets labelled EP1M/2M/4M, i.e."
+      - "32-pin JEDEC 27C010/020/040, not 40-pin 16-bit, so PicoROM is fine."
+      - "Data ROMs 247b01.23n/247b02.21n (mask, 0x100000-0x2FFFFF) stay."
+      - "KiCad cores/rungun/sch only covers sound/PSAC RAM (no CPU), CPU decode taken from PDF page 3 (PAL 056541 U85 + F138 U58/U66) and core: rom <0x300000, pal 0x300000-0x37FFFF, ram 0x380000-0x3FFFFF (MAME 0x380000-0x39FFFF), psch 0x400000-0x47FFFF, obj RAM 0x600000, fix 0x740000."
+      - "PSAC readback is harmless and needs no init (bank only affects data, MAME umask 0x00ff; word read is used, use read.b at 0x400001 if word reads misbehave)."
+      - "Core returns 0 for psch data."
+      - "Do not touch 0x480000 sysregs, 0x540000 sound IRQ, 0x580000 054321. .rom: no header, vector SSP=0x003A0000 PC=0x0000072C byte-swapped at offset 0."
