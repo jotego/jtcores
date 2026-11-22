@@ -51,6 +51,13 @@ module jtttnose_main(
     input [15:0] dipsw,
     output [7:0] debug_view
 );
+localparam [6:0] CPU_NUM = `ifdef JTFRAME_PLL5369
+                           `ifdef JTFRAME_SDRAM96 7'd22 `else 7'd44 `endif
+                           `else 7'd11 `endif;
+localparam [7:0] CPU_DEN = `ifdef JTFRAME_PLL5369 8'd189
+                           `elsif JTFRAME_SDRAM96 8'd126
+                           `else 8'd63 `endif;
+
 wire [23:1] a;
 wire [2:0] fc;
 wire asn,ldsn,udsn,rnw,dtackn,cen,cenb,ready;
@@ -175,7 +182,7 @@ jtframe_m68k u_cpu(
     .FC       ( fc        )
 );
 jtframe_68kdtack_cen #(
-    .W ( 7 )
+    .W ( 8 )
 ) u_dtack(
     .rst       ( rst                           ),
     .clk       ( clk                           ),
@@ -185,12 +192,13 @@ jtframe_68kdtack_cen #(
     .bus_busy  ( ~ready                        ),
     .bus_legit ( 1'b0                          ),
     .bus_ack   ( 1'b0                          ),
+    .RnW       ( rnw                           ),
+    .BGACKn    ( 1'b1                          ),
     .ASn       ( asn                           ),
     .DSn       ( dsn                           ),
-    .num       ( 6'd11                         ),
-    .den       ( 7'd63                         ),
-    .wait2     ( 1'b0                          ),
-    .wait3     ( 1'b0                          ),
+    .num       ( CPU_NUM                       ),
+    .den       ( CPU_DEN                       ),
+    .waitn     ( 2'd0                          ),
     .DTACKn    ( dtackn                        ),
     .fave      (                               ),
     .fworst    (                               )
