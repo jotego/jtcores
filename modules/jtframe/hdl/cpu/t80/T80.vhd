@@ -123,7 +123,8 @@ entity T80 is
 		REGS       : out std_logic_vector(211 downto 0); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
 
 		DIRSet     : in  std_logic := '0';
-		DIR        : in  std_logic_vector(211 downto 0) := (others => '0') -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
+		DIR        : in  std_logic_vector(211 downto 0) := (others => '0'); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
+		Mode_Sel   : in  integer range 0 to 3 := Mode
 	);
 end T80;
 
@@ -196,7 +197,8 @@ architecture rtl of T80 is
           Halt        : out std_logic;
           NoRead      : out std_logic;
           Write       : out std_logic;
-          XYbit_undoc : out std_logic
+          XYbit_undoc : out std_logic;
+          Mode_Sel    : in  integer range 0 to 3 := Mode
        );
     end component;
 
@@ -224,7 +226,8 @@ architecture rtl of T80 is
             BusB            : in  std_logic_vector(7 downto 0);
             F_In            : in  std_logic_vector(7 downto 0);
             Q               : out std_logic_vector(7 downto 0);
-            F_Out           : out std_logic_vector(7 downto 0)
+            F_Out           : out std_logic_vector(7 downto 0);
+            Mode_Sel        : in  integer range 0 to 3 := Mode
         );
     end component;
 
@@ -452,7 +455,8 @@ begin
 			Halt        => Halt,
 			NoRead      => NoRead,
 			Write       => Write,
-			XYbit_undoc => XYbit_undoc);
+			XYbit_undoc => XYbit_undoc,
+			Mode_Sel    => Mode_Sel);
 
 	u_alu : T80_ALU
 		generic map(
@@ -477,7 +481,8 @@ begin
 			BusB    => BusB,
 			F_In    => F,
 			Q       => ALU_Q,
-			F_Out   => F_Out);
+			F_Out   => F_Out,
+			Mode_Sel=> Mode_Sel);
 
 	ClkEn <= CEN and not BusAck;
 
@@ -563,7 +568,7 @@ begin
 				-- MCycle = 1 and TState = 1, 2, or 3
 
 					if TState = 2 and Wait_n = '1' then
-						if Mode < 2 then
+						if Mode_Sel < 2 then
 							A(7 downto 0) <= std_logic_vector(R);
 							A(15 downto 8) <= I;
 							R(6 downto 0) <= R(6 downto 0) + 1;
@@ -646,10 +651,10 @@ begin
 									end if;
 								end if;
 							when aIOA =>
-								if Mode = 3 then
+								if Mode_Sel = 3 then
 									-- Memory map I/O on GBZ80
 									A(15 downto 8) <= (others => '1');
-								elsif Mode = 2 then
+								elsif Mode_Sel = 2 then
 									-- Duplicate I/O address on 8080
 									A(15 downto 8) <= DI_Reg;
 								else
@@ -660,7 +665,7 @@ begin
 							when aSP =>
 								A <= std_logic_vector(SP);
 							when aBC =>
-								if Mode = 3 and IORQ_i = '1' then
+								if Mode_Sel = 3 and IORQ_i = '1' then
 									-- Memory map I/O on GBZ80
 									A(15 downto 8) <= (others => '1');
 									A(7 downto 0) <= RegBusC(7 downto 0);
@@ -842,7 +847,7 @@ begin
 				end if;
 
 				if (I_DJNZ = '0' and Save_ALU_r = '1') or ALU_Op_r = "1001" then
-					if Mode = 3 then
+					if Mode_Sel = 3 then
 						F(6) <= F_Out(6);
 						F(5) <= F_Out(5);
 						F(7) <= F_Out(7);
@@ -965,7 +970,7 @@ begin
 					RegAddrC <= XY_State(1) & "11";
 				end if;
 
-				if I_DJNZ = '1' and Save_ALU_r = '1' and Mode < 2 then
+				if I_DJNZ = '1' and Save_ALU_r = '1' and Mode_Sel < 2 then
 					IncDecZ <= F_Out(Flag_Z);
 				end if;
 				if (TState = 2 or (TState = 3 and MCycle = "001")) and IncDec_16(2 downto 0) = "100" then
@@ -1260,10 +1265,10 @@ begin
 								if NextIs_XY_Fetch = '1' then
 									MCycle <= "110";
 									Pre_XY_F_M <= MCycle;
-									if IR = "00110110" and Mode = 0 then
+									if IR = "00110110" and Mode_Sel = 0 then
 										Pre_XY_F_M <= "010";
 									end if;
-								elsif (MCycle = "111") or (MCycle = "110" and Mode = 1 and ISet /= "01") then
+								elsif (MCycle = "111") or (MCycle = "110" and Mode_Sel = 1 and ISet /= "01") then
 									MCycle <= std_logic_vector(unsigned(Pre_XY_F_M) + 1);
 								elsif (MCycle = MCycles) or No_BTR = '1' or (MCycle = "010" and I_DJNZ = '1' and IncDecZ = '1') then
 									M1_n <= '0';

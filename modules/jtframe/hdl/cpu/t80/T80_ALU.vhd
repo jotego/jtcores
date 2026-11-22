@@ -95,7 +95,8 @@ entity T80_ALU is
 		BusB            : in  std_logic_vector(7 downto 0);
 		F_In            : in  std_logic_vector(7 downto 0);
 		Q               : out std_logic_vector(7 downto 0);
-		F_Out           : out std_logic_vector(7 downto 0)
+		F_Out           : out std_logic_vector(7 downto 0);
+		Mode_Sel        : in  integer range 0 to 3 := Mode
 	);
 end T80_ALU;
 
@@ -149,16 +150,16 @@ begin
 	AddSub(BusA(7 downto 7), BusB(7 downto 7), ALU_Op(1), Carry7_v, Q_v(7 downto 7), Carry_v);
 
 	-- bug fix - parity flag is just parity for 8080, also overflow for Z80
-	process (Carry_v, Carry7_v, Q_v)
+	process (Carry_v, Carry7_v, Q_v, Mode_Sel)
 	begin
-		if(Mode=2) then
+		if(Mode_Sel=2) then
 			OverFlow_v <= not (Q_v(0) xor Q_v(1) xor Q_v(2) xor Q_v(3) xor
 					   Q_v(4) xor Q_v(5) xor Q_v(6) xor Q_v(7));  else
 			OverFlow_v <= Carry_v xor Carry7_v;
 		end if;
 	end process;
 
-	process (Arith16, ALU_OP, F_In, BusA, BusB, IR, Q_v, Carry_v, HalfCarry_v, OverFlow_v, BitMask, ISet, Z16, WZ, XY_State)
+	process (Arith16, ALU_OP, F_In, BusA, BusB, IR, Q_v, Carry_v, HalfCarry_v, OverFlow_v, BitMask, ISet, Z16, WZ, XY_State, Mode_Sel)
 		variable Q_t : std_logic_vector(7 downto 0);
 		variable DAA_Q : unsigned(8 downto 0);
 	begin
@@ -333,7 +334,7 @@ begin
 				Q_t(0) := '0';
 				F_Out(Flag_C) <= BusA(7);
 			when "110" => -- SLL (Undocumented) / SWAP
-				if Mode = 3 then
+				if Mode_Sel = 3 then
 					Q_t(7 downto 4) := BusA(3 downto 0);
 					Q_t(3 downto 0) := BusA(7 downto 4);
 					F_Out(Flag_C) <= '0';

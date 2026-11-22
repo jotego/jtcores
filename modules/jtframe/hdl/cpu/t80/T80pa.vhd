@@ -130,7 +130,8 @@ architecture rtl of T80pa is
             REG        : out std_logic_vector(211 downto 0); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
 
             DIRSet     : in  std_logic := '0';
-            DIR        : in  std_logic_vector(211 downto 0) := (others => '0') -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
+            DIR        : in  std_logic_vector(211 downto 0) := (others => '0'); -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
+            Mode_Sel   : in  integer range 0 to 3 := Mode
         );
     end component;
     signal IntCycle_n       : std_logic;
@@ -182,7 +183,8 @@ begin
             OUT0    => OUT0,
             IntCycle_n => IntCycle_n,
             DIRSet  => DIRSet,
-            DIR     => DIR
+            DIR     => DIR,
+            Mode_Sel=> Mode
         );
 
     process(CLK)

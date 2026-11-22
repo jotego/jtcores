@@ -143,7 +143,8 @@ entity T80_MCode is
       Halt        : out std_logic;
       NoRead      : out std_logic;
       Write       : out std_logic;
-      XYbit_undoc : out std_logic
+      XYbit_undoc : out std_logic;
+      Mode_Sel    : in  integer range 0 to 3 := Mode
    );
 end T80_MCode;
 
@@ -159,10 +160,11 @@ architecture rtl of T80_MCode is
 
 	function is_cc_true(
 		F : std_logic_vector(7 downto 0);
-		cc : bit_vector(2 downto 0)
+		cc : bit_vector(2 downto 0);
+		cpu_mode : integer
 		) return boolean is
 	begin
-		if Mode = 3 then
+		if cpu_mode = 3 then
 			case cc is
 			when "000" => return F(Flag_S) = '0'; -- NZ
 			when "001" => return F(Flag_S) = '1'; -- Z
@@ -189,7 +191,7 @@ architecture rtl of T80_MCode is
 
 begin
 
-	process (IR, ISet, MCycle, F, NMICycle, IntCycle, XY_State)
+	process (IR, ISet, MCycle, F, NMICycle, IntCycle, XY_State, Mode_Sel)
 		variable DDD   : std_logic_vector(2 downto 0);
 		variable SSS   : std_logic_vector(2 downto 0);
 		variable DPair : std_logic_vector(1 downto 0);
@@ -343,7 +345,7 @@ begin
 			when others => null;
 			end case;
 		when "00111010" =>
-			if Mode = 3 then
+			if Mode_Sel = 3 then
 				-- LDD A,(HL)
 				MCycles <= "010";
 				case to_integer(unsigned(MCycle)) is
@@ -394,7 +396,7 @@ begin
 			when others => null;
 			end case;
 		when "00110010" =>
-			if Mode = 3 then
+			if Mode_Sel = 3 then
 				-- LDD (HL),A
 				MCycles <= "010";
 				case to_integer(unsigned(MCycle)) is
@@ -450,7 +452,7 @@ begin
 			when others => null;
 			end case;
 		when "00101010" =>
-			if Mode = 3 then
+			if Mode_Sel = 3 then
 				-- LDI A,(HL)
 				MCycles <= "010";
 				case to_integer(unsigned(MCycle)) is
@@ -484,7 +486,7 @@ begin
 				end case;
 			end if;
 		when "00100010" =>
-			if Mode = 3 then
+			if Mode_Sel = 3 then
 				-- LDI (HL),A
 				MCycles <= "010";
 				case to_integer(unsigned(MCycle)) is
@@ -582,12 +584,12 @@ begin
 
 -- EXCHANGE, BLOCK TRANSFER AND SEARCH GROUP
 		when "11101011" =>
-			if Mode /= 3 then
+			if Mode_Sel /= 3 then
 				-- EX DE,HL
 				ExchangeDH <= '1';
 			end if;
 		when "00001000" =>
-			if Mode = 3 then
+			if Mode_Sel = 3 then
 				-- LD (nn),SP
 				MCycles <= "101";
 				case to_integer(unsigned(MCycle)) is
@@ -608,12 +610,12 @@ begin
 					Write <= '1';
 				when others => null;
 				end case;
-			elsif Mode < 2 then
+			elsif Mode_Sel < 2 then
 				-- EX AF,AF'
 				ExchangeAF <= '1';
 			end if;
 		when "11011001" =>
-			if Mode = 3 then
+			if Mode_Sel = 3 then
 				-- RETI
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -630,12 +632,12 @@ begin
 					SetEI <= '1';
 				when others => null;
 				end case;
-			elsif Mode < 2 then
+			elsif Mode_Sel < 2 then
 				-- EXX
 				ExchangeRS <= '1';
 			end if;
 		when "11100011" =>
-			if Mode /= 3 then
+			if Mode_Sel /= 3 then
 				-- EX (SP),HL
 				MCycles <= "101";
 				case to_integer(unsigned(MCycle)) is
@@ -929,7 +931,7 @@ begin
 			when others => null;
 			end case;
 		when "11000010"|"11001010"|"11010010"|"11011010"|"11100010"|"11101010"|"11110010"|"11111010" =>
-			if IR(5) = '1' and Mode = 3 then
+			if IR(5) = '1' and Mode_Sel = 3 then
 				case IRB(4 downto 3) is
 				when "00" =>
 					-- LD ($FF00+C),A
@@ -994,14 +996,14 @@ begin
 				when 3 =>
 					LDW <= '1';
 					Inc_PC <= '1';
-					if is_cc_true(F, to_bitvector(IR(5 downto 3))) then
+					if is_cc_true(F, to_bitvector(IR(5 downto 3)), Mode_Sel) then
 						Jump <= '1';
 					end if;
 				when others => null;
 				end case;
 			end if;
 		when "00011000" =>
-			if Mode /= 2 then
+			if Mode_Sel /= 2 then
 				-- JR e
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -1015,7 +1017,7 @@ begin
 				end case;
 			end if;
 		when "00111000" =>
-			if Mode /= 2 then
+			if Mode_Sel /= 2 then
 				-- JR C,e
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -1032,7 +1034,7 @@ begin
 				end case;
 			end if;
 		when "00110000" =>
-			if Mode /= 2 then
+			if Mode_Sel /= 2 then
 				-- JR NC,e
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -1049,7 +1051,7 @@ begin
 				end case;
 			end if;
 		when "00101000" =>
-			if Mode /= 2 then
+			if Mode_Sel /= 2 then
 				-- JR Z,e
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -1066,7 +1068,7 @@ begin
 				end case;
 			end if;
 		when "00100000" =>
-			if Mode /= 2 then
+			if Mode_Sel /= 2 then
 				-- JR NZ,e
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -1086,9 +1088,9 @@ begin
 			-- JP (HL)
 			JumpXY <= '1';
 		when "00010000" =>
-			if Mode = 3 then
+			if Mode_Sel = 3 then
 				I_DJNZ <= '1';
-			elsif Mode < 2 then
+			elsif Mode_Sel < 2 then
 				-- DJNZ,e
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -1137,7 +1139,7 @@ begin
 			when others => null;
 			end case;
 		when "11000100"|"11001100"|"11010100"|"11011100"|"11100100"|"11101100"|"11110100"|"11111100" =>
-			if IR(5) = '0' or Mode /= 3 then
+			if IR(5) = '0' or Mode_Sel /= 3 then
 				-- CALL cc,nn
 				MCycles <= "101";
 				case to_integer(unsigned(MCycle)) is
@@ -1147,7 +1149,7 @@ begin
 				when 3 =>
 					Inc_PC <= '1';
 					LDW <= '1';
-					if is_cc_true(F, to_bitvector(IR(5 downto 3))) then
+					if is_cc_true(F, to_bitvector(IR(5 downto 3)), Mode_Sel) then
 						IncDec_16 <= "1111";
 						Set_Addr_TO <= aSP;
 						TStates <= "100";
@@ -1183,7 +1185,7 @@ begin
 			when others => null;
 			end case;
 		when "11000000"|"11001000"|"11010000"|"11011000"|"11100000"|"11101000"|"11110000"|"11111000" =>
-			if IR(5) = '1' and Mode = 3 then
+			if IR(5) = '1' and Mode_Sel = 3 then
 				case IRB(4 downto 3) is
 				when "00" =>
 					-- LD ($FF00+nn),A
@@ -1255,7 +1257,7 @@ begin
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
 				when 1 =>
-					if is_cc_true(F, to_bitvector(IR(5 downto 3))) then
+					if is_cc_true(F, to_bitvector(IR(5 downto 3)), Mode_Sel) then
 						Set_Addr_TO <= aSP;
 					else
 						MCycles <= "001";
@@ -1293,7 +1295,7 @@ begin
 
 -- INPUT AND OUTPUT GROUP
 		when "11011011" =>
-			if Mode /= 3 then
+			if Mode_Sel /= 3 then
 				-- IN A,(n)
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -1307,7 +1309,7 @@ begin
 				end case;
 			end if;
 		when "11010011" =>
-			if Mode /= 3 then
+			if Mode_Sel /= 3 then
 				-- OUT (n),A
 				MCycles <= "011";
 				case to_integer(unsigned(MCycle)) is
@@ -1329,17 +1331,17 @@ begin
 ------------------------------------------------------------------------------
 
 		when "11001011" =>
-			if Mode /= 2 then
+			if Mode_Sel /= 2 then
 				Prefix <= "01";
 			end if;
 
 		when "11101101" =>
-			if Mode < 2 then
+			if Mode_Sel < 2 then
 				Prefix <= "10";
 			end if;
 
 		when "11011101"|"11111101" =>
-			if Mode < 2 then
+			if Mode_Sel < 2 then
 				Prefix <= "11";
 			end if;
 
@@ -1983,7 +1985,7 @@ begin
 
 		end case;
 
-		if Mode = 1 then
+		if Mode_Sel = 1 then
 			if MCycle = "001" then
 --				TStates <= "100";
 			else
@@ -1991,7 +1993,7 @@ begin
 			end if;
 		end if;
 
-		if Mode = 3 then
+		if Mode_Sel = 3 then
 			if MCycle = "001" then
 --				TStates <= "100";
 			else
@@ -1999,10 +2001,10 @@ begin
 			end if;
 		end if;
 
-		if Mode < 2 then
+		if Mode_Sel < 2 then
 			if MCycle = "110" then
 				Inc_PC <= '1';
-				if Mode = 1 then
+				if Mode_Sel = 1 then
 					Set_Addr_To <= aXY;
 					TStates <= "100";
 					Set_BusB_To(2 downto 0) <= SSS;
@@ -2013,7 +2015,7 @@ begin
 				end if;
 			end if;
 			if MCycle = "111" then
-				if Mode = 0 then
+				if Mode_Sel = 0 then
 					TStates <= "101";
 				end if;
 				if ISet /= "01" then

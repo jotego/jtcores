@@ -72,6 +72,22 @@ ghdl -a -fsynopsys @gatherfile
 ghdl synth --out=verilog toplevel_name > toplevel_name.v
 ```
 
+The checked-in `hdl/cpu/t80/T80s.v` wraps one Verilog datapath for all T80
+modes. The wrapper passes its `Mode` parameter to the datapath's
+`mode_sel` input. To regenerate the datapath with GHDL 4.1.0, run the
+following from a temporary directory with `JTFRAME` set.
+
+```sh
+for source in T80_ALU.vhd T80_Reg.vhd T80_MCode.vhd T80.vhd; do
+    cp "$JTFRAME/hdl/cpu/t80/$source" .
+    ghdl -a -fsynopsys -fexplicit "$source"
+done
+ghdl --synth --out=verilog -fsynopsys -fexplicit -gIOWait=1 T80 > T80-datapath.v
+```
+
+Replace the generated modules before `module T80s` in the checked-in file.
+Retain the license, the `T80s` wrapper, and its debugger signals.
+
 To use `ghdl` in Ubuntu declare this function:
 
 ```

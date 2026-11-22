@@ -5,10 +5,3 @@
 jtframe:
   - from: cpu
     get: [ T80.yaml ]
-  - from: cpu/t80
-    when: [ VERILATOR, IVERILOG, JTFRAME_VZ80 ]
-    get:
-      - t80_8080.v
-      - t80_8080_alu.v
-      - t80_8080_mcode.v
-      - t80_8080_reg.v
