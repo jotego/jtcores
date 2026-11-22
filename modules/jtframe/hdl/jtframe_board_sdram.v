@@ -28,6 +28,8 @@ module jtframe_board_sdram #(
 )(
     input                   rst,
     input                   clk,
+    input                   game_rst, // refresh restarts when it is released
+    output reg              rfsh_safe=0, // no refresh pending: game_rst can be released
     output                  init,
     input                   prog_en,
 
@@ -144,16 +146,31 @@ localparam
     HF = 0;
 `endif
 
-wire rfsh, nc_rfsh;
+reg  [`JTFRAME_RFSH_WC:0] rfsh_cnt=0;
+reg  game_rst_l=0, rfsh=0;
+wire [`JTFRAME_RFSH_WC:0] rfsh_nx = rfsh_cnt + {1'b0,`JTFRAME_RFSH_N};
+wire game_start = game_rst_l & ~game_rst;
 
 // Automatic JTFRAME macros set a 64us refresh period
-jtframe_frac_cen #(.WC(`JTFRAME_RFSH_WC)) u_rfsh(
-    .clk    ( clk               ),
-    .n      ( `JTFRAME_RFSH_N   ),
-    .m      ( `JTFRAME_RFSH_M   ),
-    .cen    ( {nc_rfsh, rfsh }  ),
-    .cenb   (                   )
-);
+// The refresh phase restarts when the game reset is released, so the SDRAM
+// timing seen by the game does not depend on how long the FPGA ran before it.
+// jtframe_reset only releases the game in the second half of the refresh period
+// (rfsh_safe), when the SDRAM controller has no refresh pending. The new period
+// starts with a refresh, so the game always meets the same SDRAM state
+always @(posedge clk) begin
+    game_rst_l <= game_rst;
+    rfsh_safe  <= rfsh_cnt >= ({1'b0,`JTFRAME_RFSH_M}>>1);
+    rfsh <= 0;
+    if( game_start ) begin
+        rfsh_cnt <= 0;
+        rfsh     <= 1;
+    end else if( rfsh_nx >= {1'b0,`JTFRAME_RFSH_M} ) begin
+        rfsh_cnt <= rfsh_nx - {1'b0,`JTFRAME_RFSH_M};
+        rfsh     <= 1;
+    end else begin
+        rfsh_cnt <= rfsh_nx;
+    end
+end
 
 `ifdef JTFRAME_SDRAM_CACHE
     assign ba_ack    = 4'd0;

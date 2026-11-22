@@ -229,7 +229,7 @@ wire [3:0] gfx_en;
 wire data_rdy, sdram_ack;
 
 // PLL's
-wire pll_locked, clk_pico;
+wire pll_locked, clk_pico, ph24;
 
 `ifndef JTFRAME_STEREO
 assign snd_right = snd_left;
@@ -273,6 +273,7 @@ jtframe_mist_clocks u_clocks(
     .clk96      ( clk96          ),
     .clk48      ( clk48          ),
     .clk24      ( clk24          ),
+    .ph24       ( ph24           ),
     .pll_locked ( pll_locked     ),
 
     // System clocks
@@ -320,6 +321,7 @@ u_frame(
     .clk_rom        ( clk_rom        ),
     .clk_pico       ( clk_pico       ),
     .pll_locked     ( pll_locked     ),
+    .ph24           ( ph24           ),
     .status         ( status         ),
     .dipsw          ( dipsw          ),
     // Base video

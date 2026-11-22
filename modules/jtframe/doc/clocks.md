@@ -59,6 +59,16 @@ For each output listed, the result frequency is divided by 2. Thus cpu4_cen will
 
 You can specify several clock domains, clk24, clk48, etc. If you move _cen_ signals from one domain to another, make sure the right clock is used in the _game_ module too for each respective _cen_.
 
+## Repeatable start
+
+A game must run the same way every time it leaves reset, so hardware regressions can compare frames. Three JTFRAME mechanisms remove the phase differences that would otherwise depend on how long the FPGA ran before the reset:
+
+- _cen_ signals defined in mem.yaml keep running during reset, but their phase restarts when the reset is released
+- the SDRAM refresh also restarts, with an immediate refresh, when the game reset is released
+- `game_rst` is released on a fixed clk24 phase (the `ph24` toggle of the target), so the clk24, clk48 and clk96 logic of the game always start with the same relative phase
+
+Clock enables generated inside the game module by free-running counters, such as `jtframe_frac_cen` instances, which have no reset input, are not covered. Reset such counters in the game module if the game needs to repeat exactly.
+
 # Internal JTFRAME Clocks
 
 The clocks passed to the target subsystem (jtframe_mist, jtframe_mister or jtframe_neptuno) are three:

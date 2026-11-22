@@ -31,6 +31,7 @@ module jtframe_pocket #(parameter
     input               clk48,
     input               clk_pico,
     input               pll_locked,
+    input               ph24, // toggles at every clk24 rising edge
     output              rst_req,
     // interface with microcontroller
     output      [63:0]  status,
@@ -425,6 +426,7 @@ jtframe_board #(
     .rst_req        ( rst_req         ),
     .sdram_init     ( sdram_init      ),
     .pll_locked     ( pll_locked      ),
+    .ph24           ( ph24            ),
     .ioctl_cart     ( ioctl_cart      ),
     .ioctl_ram      ( ioctl_ram       ),
     .dwnld_busy     ( dwnld_busy      ), // use busy signal from game module

@@ -289,6 +289,10 @@ pll pll(
 `endif
 );
 
+// ph24 lets JTFRAME release the game reset on a fixed clk24 phase
+reg ph24=0;
+always @(posedge clk24) ph24 <= ~ph24;
+
 jtframe_rst_sync u_reset96(
     .rst        ( game_rst  ),
     .clk        ( clk96     ),
@@ -481,6 +485,7 @@ u_frame(
     .clk_rom        ( clk_rom        ),
     .clk_pico       ( clk_pico       ),
     .pll_locked     ( pll_locked     ),
+    .ph24           ( ph24           ),
     // interface with microcontroller
     .status         ( status         ),
     .HPS_BUS        ( HPS_BUS        ),

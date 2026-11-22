@@ -238,6 +238,8 @@ jtframe_board_sdram #(
 ) u_sdram(
     .rst        ( sdram_rst     ),
     .clk        ( clk_rom       ),
+    .game_rst   ( rst           ),
+    .rfsh_safe  (               ),
     .init       ( sdram_init    ),
     .prog_en    ( prog_en       ),
 

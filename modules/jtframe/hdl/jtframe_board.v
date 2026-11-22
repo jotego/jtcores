@@ -22,6 +22,7 @@ module jtframe_board #(parameter
     // reset forcing signals:
     input               rst_req,
     input               pll_locked,
+    input               ph24,       // toggles at every clk24 rising edge
 
     input               clk_sys,
     input               clk_rom,
@@ -245,6 +246,8 @@ always @(posedge clk_rom) begin
     else if(ioctl_wr&&!ioctl_cart) rom_rst <= 1;
 end
 
+wire rfsh_safe;
+
 jtframe_reset u_reset(
     .clk_sys    ( clk_sys       ),
     .clk_rom    ( clk_rom       ),
@@ -256,6 +259,8 @@ jtframe_reset u_reset(
     .soft_rst   ( soft_rst      ),
     .rst_req    ( rst_req       ),
     .pll_locked ( pll_locked    ),
+    .ph24       ( ph24          ),
+    .rfsh_safe  ( rfsh_safe     ),
 
     .rst        ( rst           ),
     .rst_n      ( rst_n         ),
@@ -795,6 +800,8 @@ jtframe_board_sdram #(
 ) u_sdram(
     .rst        ( rst           ),
     .clk        ( clk_rom       ),
+    .game_rst   ( game_rst      ),
+    .rfsh_safe  ( rfsh_safe     ),
     .init       ( sdram_init    ),
     .prog_en    ( prog_en       ),
 

@@ -14,6 +14,7 @@ module jtframe_mister #(parameter
     input           clk_rom,
     input           clk_pico,
     input           pll_locked,
+    input           ph24, // toggles at every clk24 rising edge
     // interface with microcontroller
     output [63:0]   status,
     inout  [48:0]   HPS_BUS,
@@ -1022,6 +1023,7 @@ jtframe_board #(
     .sdram_init     (                 ),
 
     .pll_locked     ( pll_locked      ),
+    .ph24           ( ph24            ),
 
     .ioctl_cart     ( ioctl_cart      ),
     .ioctl_ram      ( ioctl_ram       ),
