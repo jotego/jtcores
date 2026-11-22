@@ -4,18 +4,8 @@
 
 geebee:
   - get: [ "*.v" ]
-  - from: ../ver/geebee/build
-    when: [ VERILATOR, IVERILOG, JTFRAME_VZ80 ]
-    get: [ T80s.v ]
 jtframe:
+  - from: cpu
+    get: [ jtframe_8080.yaml ]
   - from: video
     get: [ jtframe_vtimer.v ]
-  - from: cpu/t80
-    unless: [ VERILATOR, IVERILOG, JTFRAME_VZ80 ]
-    get:
-      - T80pa.vhd
-      - T80s.vhd
-      - T80_Reg.vhd
-      - T80_MCode.vhd
-      - T80_ALU.vhd
-      - T80.vhd

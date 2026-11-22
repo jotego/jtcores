@@ -12,11 +12,8 @@ set_dir="$repo_root/cores/geebee/ver/geebee"
     echo "Missing scene $scene" >&2
     exit 1
 }
-"$repo_root/cores/geebee/ver/game/build_t80_8080.sh"
 mkdir -p "$set_dir/bin" "$set_dir/build" "$set_dir/sim_results"
-cp "$repo_root/modules/jtframe/src/jtframe/jtframe.linux-arm64" "$set_dir/bin/jtframe"
 cd "$set_dir"
-GEEBEE_SCENE_DIR="scenes/$scene" ../game/dump2bin.sh "scenes/$scene/dump.bin" > "build/scene_${scene}_prepare.log" 2>&1
 docker run --rm --pull=never --entrypoint /bin/bash \
     -v "$repo_root:$repo_root" -w "$set_dir" \
     jotego/simulator:arm64 -lc '
@@ -31,6 +28,11 @@ export RLS="$JTROOT/release"
 export MRA="$JTROOT/release/mra"
 export GEEBEE_SCENE_DIR="scenes/$1"
 export PATH="$PWD/bin:$JTFRAME/bin:$PATH"
+(cd "$JTFRAME/src/jtframe" && go build -o "$OLDPWD/bin/jtframe" .)
+{
+    jtframe mem geebee --target mister --local
+    ../game/dump2bin.sh "$GEEBEE_SCENE_DIR/dump.bin"
+} > "build/scene_${1}_prepare.log" 2>&1
 "$JTFRAME/bin/jtsim" -mister -setname geebee -skipROM -load \
     -d SIMSCENE -d NOMAIN -d NOSOUND -video 3 > "sim_results/$1.log" 2>&1
 ' _ "$scene"

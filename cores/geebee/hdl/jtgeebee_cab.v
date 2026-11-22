@@ -26,10 +26,10 @@ reg [7:0] paddle_pos_1p, paddle_pos_2p;
 reg [1:0] dial_x_last, dial_y_last;
 wire signed [8:0] analog_1p = {joyana_l1[7], joyana_l1[7:0]};
 wire signed [8:0] analog_2p = {joyana_l2[7], joyana_l2[7:0]};
-wire [7:0] analog_pos_1p = 9'sd88 - (analog_1p >>> 1) - (analog_1p >>> 4);
-wire [7:0] analog_pos_2p = 9'sd88 - (analog_2p >>> 1) - (analog_2p >>> 4);
-wire [7:0] active_pos_1p = |joyana_l1[7:0] ? analog_pos_1p : paddle_pos_1p;
-wire [7:0] active_pos_2p = |joyana_l2[7:0] ? analog_pos_2p : paddle_pos_2p;
+wire signed [8:0] analog_pos_1p = 9'sd88 - (analog_1p >>> 1) - (analog_1p >>> 4);
+wire signed [8:0] analog_pos_2p = 9'sd88 - (analog_2p >>> 1) - (analog_2p >>> 4);
+wire [7:0] active_pos_1p = |joyana_l1[7:0] ? analog_pos_1p[7:0] : paddle_pos_1p;
+wire [7:0] active_pos_2p = |joyana_l2[7:0] ? analog_pos_2p[7:0] : paddle_pos_2p;
 wire [7:0] paddle_pos = flip ? active_pos_2p : active_pos_1p;
 
 assign sw0 = {2'b11, service, joystick1[4], cab_1p, coin};

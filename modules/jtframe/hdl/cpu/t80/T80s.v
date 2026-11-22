@@ -20985,7 +20985,7 @@ module t80_0_1_0_1_2_3_4_5_6_7
       n2138_q <= n1256_o;
 endmodule
 
-module T80s
+module T80s #(parameter Mode = 0)
   (input  RESET_n,
    input  CLK,
    input  CEN,
@@ -21151,34 +21151,71 @@ module T80s
 wire [15:0] AF, BC, DE, HL, AF2, BC2, DE2, HL2,IX,IY,PC,SP;
 wire [ 7:0] I,R;
 assign {IY,HL2,DE2,BC2,IX,HL,DE,BC,PC,SP,R,I,AF2[7:0],AF2[15:8],AF[7:0],AF[15:8]} = regs[0+:208];
-  t80_0_1_0_1_2_3_4_5_6_7 u0 (
-    .reset_n(RESET_n),
-    .clk_n(CLK),
-    .cen(CEN),
-    .wait_n(WAIT_n),
-    .int_n(INT_n),
-    .nmi_n(NMI_n),
-    .busrq_n(BUSRQ_n),
-    .dinst(DI),
-    .di(di_reg),
-    .out0(OUT0),
-    .dirset(n25_o),
-    .dir(n26_o),
-    .m1_n(u0_m1_n),
-    .iorq(u0_iorq),
-    .noread(u0_noread),
-    .write(u0_write),
-    .rfsh_n(u0_rfsh_n),
-    .halt_n(u0_halt_n),
-    .busak_n(u0_busak_n),
-    .a(u0_a),
-    .dout(u0_dout),
-    .mc(u0_mc),
-    .ts(u0_ts),
-    .intcycle_n(u0_intcycle_n),
-    .inte(),
-    .stop(),
-    .regs(regs));
+  generate
+    if (Mode == 0) begin : z80
+      t80_0_1_0_1_2_3_4_5_6_7 u0 (
+        .reset_n     ( RESET_n       ),
+        .clk_n       ( CLK           ),
+        .cen         ( CEN           ),
+        .wait_n      ( WAIT_n        ),
+        .int_n       ( INT_n         ),
+        .nmi_n       ( NMI_n         ),
+        .busrq_n     ( BUSRQ_n       ),
+        .dinst       ( DI            ),
+        .di          ( di_reg        ),
+        .out0        ( OUT0          ),
+        .dirset      ( n25_o         ),
+        .dir         ( n26_o         ),
+        .m1_n        ( u0_m1_n       ),
+        .iorq        ( u0_iorq       ),
+        .noread      ( u0_noread     ),
+        .write       ( u0_write      ),
+        .rfsh_n      ( u0_rfsh_n     ),
+        .halt_n      ( u0_halt_n     ),
+        .busak_n     ( u0_busak_n    ),
+        .a           ( u0_a          ),
+        .dout        ( u0_dout       ),
+        .mc          ( u0_mc         ),
+        .ts          ( u0_ts         ),
+        .intcycle_n  ( u0_intcycle_n ),
+        .inte        (               ),
+        .stop        (               ),
+        .regs        ( regs          )
+      );
+    end else if (Mode == 2) begin : i8080
+      t80_8080 u0 (
+        .reset_n     ( RESET_n       ),
+        .clk_n       ( CLK           ),
+        .cen         ( CEN           ),
+        .wait_n      ( WAIT_n        ),
+        .int_n       ( INT_n         ),
+        .nmi_n       ( NMI_n         ),
+        .busrq_n     ( BUSRQ_n       ),
+        .dinst       ( DI            ),
+        .di          ( di_reg        ),
+        .out0        ( OUT0          ),
+        .dirset      ( n25_o         ),
+        .dir         ( n26_o         ),
+        .m1_n        ( u0_m1_n       ),
+        .iorq        ( u0_iorq       ),
+        .noread      ( u0_noread     ),
+        .write       ( u0_write      ),
+        .rfsh_n      ( u0_rfsh_n     ),
+        .halt_n      ( u0_halt_n     ),
+        .busak_n     ( u0_busak_n    ),
+        .a           ( u0_a          ),
+        .dout        ( u0_dout       ),
+        .mc          ( u0_mc         ),
+        .ts          ( u0_ts         ),
+        .intcycle_n  ( u0_intcycle_n ),
+        .inte        (               ),
+        .stop        (               ),
+        .regs        ( regs          )
+      );
+    end else begin : unsupported
+      initial $fatal(1, "Unsupported T80s Mode %0d", Mode);
+    end
+  endgenerate
   /* T80s.vhd:189:28  */
   assign n56_o = ~RESET_n;
   /* T80s.vhd:201:43  */
