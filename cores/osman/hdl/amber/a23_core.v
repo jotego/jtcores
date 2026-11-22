@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 //////////////////////////////////////////////////////////////////
 //                                                              //
 //  Amber 2 Core top-Level module                               //
@@ -136,6 +137,7 @@ wire     [3:0]            copro_crn;
 wire     [3:0]            copro_crm;
 wire     [3:0]            copro_num;
 wire     [1:0]            copro_operation;
+wire                      copro_busy;
 wire     [31:0]           copro_read_data;
 wire     [31:0]           copro_write_data;
 wire                      multiply_done;
@@ -180,7 +182,7 @@ a23_fetch u_fetch (
     .i_cache_flush                      ( cache_flush                       ), 
     .i_cacheable_area                   ( cacheable_area                    ),
 
-    .i_system_rdy                       ( i_system_rdy                      ),
+    .i_system_rdy                       ( i_system_rdy && !copro_busy       ),
     .o_fetch_stall                      ( fetch_stall                       ),
     .o_fetch_abort                      ( fetch_abort                       ),
     
@@ -364,6 +366,7 @@ a23_coprocessor u_coprocessor (
     .i_fault_status                     ( decode_fault_status               ),
     .i_fault_address                    ( decode_fault_address              ), 
     
+    .o_busy                             ( copro_busy                        ),
     .o_copro_read_data                  ( copro_read_data                   ),
     .o_cache_enable                     ( cache_enable                      ),
     .o_cache_flush                      ( cache_flush                       ),

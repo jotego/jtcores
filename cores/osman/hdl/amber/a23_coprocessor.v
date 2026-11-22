@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 //////////////////////////////////////////////////////////////////
 //                                                              //
 //  Co-processor module for Amber 2 Core                        //
@@ -56,6 +57,7 @@ input       [7:0]           i_fault_status,
 input       [31:0]          i_fault_address,  // the address that caused the fault
 
 output reg  [31:0]          o_copro_read_data,
+output                      o_busy,
 output                      o_cache_enable,
 output                      o_cache_flush,
 output      [31:0]          o_cacheable_area 
@@ -85,7 +87,23 @@ reg [31:0] disruptive_area = 32'h0;
 reg [7:0]  fault_status  = 'd0;
 reg [31:0] fault_address = 'd0;  // the address that caused the fault
 
-wire       copro15_reg1_write;
+wire copro15_reg1_write;
+wire copro15_write = i_copro_operation == 2'd2 && i_copro_num == 4'd15;
+wire cp0_selected = i_copro_num == 4'd0;
+wire cp0_write = !i_fetch_stall && cp0_selected && i_copro_operation==2'd2;
+wire cp0_divide = !i_fetch_stall && cp0_selected && i_copro_operation==2'd3;
+wire [31:0] cp0_data;
+
+jtosman_de156_copro u_cp0(
+    .clk    ( i_clk              ),
+    .rst    ( i_reset            ),
+    .wr     ( cp0_write          ),
+    .divide ( cp0_divide         ),
+    .addr   ( i_copro_crn        ),
+    .din    ( i_copro_write_data ),
+    .dout   ( cp0_data           ),
+    .busy   ( o_busy             )
+);
 
 
 // ---------------------------
@@ -129,7 +147,7 @@ always @ ( posedge i_clk )
     end else 
     if ( !i_fetch_stall )         
         begin
-        if ( i_copro_operation == 2'd2 )
+        if ( copro15_write )
             case ( i_copro_crn )
                 4'd2: cache_control   <= i_copro_write_data[2:0];
                 4'd3: cacheable_area  <= i_copro_write_data[31:0];
@@ -139,7 +157,7 @@ always @ ( posedge i_clk )
         end
 
 // Flush the cache
-assign copro15_reg1_write = !i_fetch_stall && i_copro_operation == 2'd2 && i_copro_crn == 4'd1;
+assign copro15_reg1_write = !i_fetch_stall && copro15_write && i_copro_crn == 4'd1;
 
 
 // ---------------------------
@@ -147,7 +165,8 @@ assign copro15_reg1_write = !i_fetch_stall && i_copro_operation == 2'd2 && i_cop
 // ---------------------------
 always @ ( posedge i_clk )        
     if ( !i_fetch_stall )
-        case ( i_copro_crn )
+        if(cp0_selected) o_copro_read_data <= cp0_data;
+        else case ( i_copro_crn )
             // ID Register - [31:24] Company id, [23:16] Manuf id, [15:8] Part type, [7:0] revision
             4'd0:    o_copro_read_data <= 32'h4156_0300;
             4'd2:    o_copro_read_data <= {29'd0, cache_control}; 
@@ -180,7 +199,7 @@ always @( posedge i_clk )
 always @( posedge i_clk )
     if ( !i_fetch_stall )
         begin
-        if ( i_copro_operation == 2'd2 )  // mcr
+        if ( copro15_write )  // mcr
             case ( i_copro_crn )
                 4'd 1: begin `TB_DEBUG_MESSAGE $display ("Write 0x%08h to   Co-Pro 15 #1, Flush Cache", i_copro_write_data); end
                 4'd 2: begin `TB_DEBUG_MESSAGE $display ("Write 0x%08h to   Co-Pro 15 #2, Cache Control", i_copro_write_data); end

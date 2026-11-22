@@ -15,6 +15,7 @@ $JTROOT/cores/osman/hdl/amber/a23_execute.v
 $JTROOT/cores/osman/hdl/amber/a23_fetch.v
 $JTROOT/cores/osman/hdl/amber/a23_cache.v
 $JTROOT/cores/osman/hdl/amber/a23_coprocessor.v
+$JTROOT/cores/osman/hdl/jtosman_de156_copro.v
 $JTROOT/cores/osman/hdl/amber/a23_register_bank.v
 $JTROOT/cores/osman/hdl/amber/a23_ram_register_bank.v
 $JTROOT/cores/osman/hdl/amber/a23_alu.v

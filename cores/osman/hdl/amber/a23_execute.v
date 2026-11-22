@@ -317,7 +317,23 @@ assign interrupt_vector = // Reset vector
 
 // If rd is the pc, then seperate the address bits from the status bits for
 // generating the next address to fetch
-assign alu_out_pc_filtered = pc_wen && i_pc_sel == 2'd1 ? pcf(alu_out) : alu_out;
+reg [31:0] loaded_pc_data;
+always @* begin
+    case(i_read_data_alignment[4:3])
+        2'd0: loaded_pc_data = i_read_data;
+        2'd1: loaded_pc_data = {i_read_data[7:0],i_read_data[31:8]};
+        2'd2: loaded_pc_data = {i_read_data[15:0],i_read_data[31:16]};
+        2'd3: loaded_pc_data = {i_read_data[23:0],i_read_data[31:24]};
+    endcase
+end
+
+wire [23:0] loaded_pc_word = i_alu_function[3:0]==4'd3 ?
+                           {18'd0,loaded_pc_data[7:2]} : loaded_pc_data[25:2];
+wire [23:0] rounded_pc_word = loaded_pc_word+{23'd0,(|loaded_pc_data[1:0])};
+wire [31:0] loaded_pc = {6'd0,rounded_pc_word,2'd0};
+
+assign alu_out_pc_filtered = pc_wen && i_pc_sel == 2'd3 ? loaded_pc   :
+                             pc_wen && i_pc_sel == 2'd1 ? pcf(alu_out) : alu_out;
 
 // if current instruction does not execute because it does not meet the condition
 // then address advances to next instruction
@@ -364,6 +380,7 @@ assign adex_nxt = adex_address && !i_data_access_exec;
 assign pc_nxt = (!execute)       ? i_fetch_abort ? pc : pc_plus4              :
                 i_pc_sel == 2'd0 ? pc_plus4              :
                 i_pc_sel == 2'd1 ? alu_out               :
+                i_pc_sel == 2'd3 ? loaded_pc             :
                                    interrupt_vector      ;
 
 

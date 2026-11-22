@@ -10,6 +10,7 @@ $JTROOT/cores/osman/hdl/amber/a23_multiply.v
 $JTROOT/cores/osman/hdl/amber/a23_cache.v
 $JTROOT/cores/osman/hdl/amber/a23_wishbone.v
 $JTROOT/cores/osman/hdl/amber/a23_coprocessor.v
+$JTROOT/cores/osman/hdl/jtosman_de156_copro.v
 $JTROOT/cores/osman/hdl/amber/sram_line_en.v
 $JTROOT/cores/osman/hdl/amber/sram_byte_en.v
 $JTROOT/modules/jtframe/hdl/ram/jtframe_dual_ram.v

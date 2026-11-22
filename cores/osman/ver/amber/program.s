@@ -2,7 +2,7 @@
 .arm
 .global _start
 _start:
-    mov r0, #0x100
+    mov r0, #0x300
     mov r1, #0x12
     str r1, [r0]
     ldr r2, [r0]
@@ -46,6 +46,43 @@ _start:
     bvc fail
     movs r3, #0
     bvc fail
+    mov r1, #0x98
+    mcr p0, 0, r1, c0, c0, 0
+    mov r1, #0x12
+    mcr p0, 0, r1, c1, c1, 0
+    cmp r1, #0x12
+    mcrne p0, 0, r1, c0, c0, 0
+    mov r1, #0
+    mcreq p0, 0, r1, c2, c2, 0
+    mrc p0, 0, r2, c5, c5, 0
+    ldr r3, =0x110
+    cmp r2, r3
+    bne fail
+    mov r1, #3
+    mcr p0, 0, r1, c2, c2, 0
+    mrc p0, 0, r2, c5, c5, 0
+    cmp r2, #0x86
+    bne fail
+    mov r1, #1
+    mcr p0, 0, r1, c2, c2, 0
+    mrc p0, 0, r2, c5, c5, 0
+    ldr r3, =0x1176
+    cmp r2, r3
+    bne fail
+    mov r1, #100
+    mcr p0, 0, r1, c0, c0, 0
+    mov r1, #7
+    mcr p0, 0, r1, c1, c1, 0
+    cdp p0, 0, c0, c0, c0, 0
+    mrc p0, 0, r2, c3, c3, 0
+    cmp r2, #14
+    bne fail
+    mrc p0, 0, r2, c4, c4, 0
+    cmp r2, #2
+    bne fail
+    ldr pc, load_pc_pointer
+    b fail
+load_pc_target:
     mov r0, #0x200
     mov r1, #0x5a
     str r1, [r0]
@@ -56,3 +93,5 @@ fail:
     mov r1, #0xee
     str r1, [r0]
     b fail
+load_pc_pointer:
+    .word load_pc_target - _start - 2

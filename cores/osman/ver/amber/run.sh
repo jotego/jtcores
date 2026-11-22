@@ -7,7 +7,7 @@ OUT=$(mktemp -d "${TMPDIR:-/tmp}/osman-amber.XXXXXX")
 trap 'rm -rf "$OUT"' EXIT
 SOURCES=(a23_core a23_decode a23_execute a23_register_bank a23_fetch a23_alu a23_barrel_shift a23_barrel_shift_fpga a23_multiply a23_cache a23_wishbone a23_coprocessor sram_line_en sram_byte_en)
 FILES=(); for module in "${SOURCES[@]}"; do FILES+=("$HDL/amber/$module.v"); done
-iverilog -g2012 -I "$HDL" -s test -o "$OUT/test" "$HERE/test.v" "${FILES[@]}" \
+iverilog -g2012 -I "$HDL" -s test -o "$OUT/test" "$HERE/test.v" "${FILES[@]}" "$HDL/jtosman_de156_copro.v" \
     "$JTROOT/modules/jtframe/hdl/ram/jtframe_dual_ram.v" \
     "$JTROOT/modules/jtframe/hdl/clocking/jtframe_gated_cen.v" \
     "$JTROOT/modules/jtframe/hdl/clocking/jtframe_freqinfo.v" \

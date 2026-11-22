@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 //////////////////////////////////////////////////////////////////
 //                                                              //
 //  Decode stage of Amber 2 Core                                //
@@ -549,12 +550,11 @@ assign irq_request  = irq  && !i_execute_status_bits[27];
 assign swi_request  = itype == SWI;
 assign dabt_request = dabt_reg || i_dabt;
 
-// copro15 and copro13 only supports reg trans opcodes
-// all other opcodes involving co-processors cause an 
-// undefined instrution interrupt
-assign und_request  =   itype == CODTRANS || 
-                        itype == COREGOP  || 
-                      ( itype == CORTRANS && instruction[11:8] != 4'd15 );
+wire de156_copro = instruction[11:8]==4'd0;
+wire copro_exec = itype == CORTRANS || (itype == COREGOP && de156_copro);
+assign und_request = itype == CODTRANS ||
+                     (itype == COREGOP && !de156_copro) ||
+                     (itype == CORTRANS && !de156_copro && instruction[11:8]!=4'd15);
 
 
   // in order of priority !!                 
@@ -928,15 +928,15 @@ always @*
 
 
         // mcr & mrc - takes two cycles
-        if ( itype == CORTRANS && !und_request )
+        if ( copro_exec && !und_request )
             begin
             saved_current_instruction_wen   = 1'd1; // Save the memory access instruction to refer back to later
             pc_wen_nxt                      = 1'd0; // hold current PC value
             address_sel_nxt                 = 4'd3; // pc  (not pc + 4)
             
-            if ( instruction[20] ) // MRC
+            if ( itype == CORTRANS && instruction[20] ) // MRC
                 copro_operation_nxt         = 2'd1;  // Register transfer from Co-Processor
-            else // MCR
+            else if ( itype == CORTRANS ) // MCR
                 begin
                  // Don't enable operation to Co-Processor until next period
                  // So it gets the Rd value from the execution stage at the same time
@@ -1062,8 +1062,8 @@ always @*
             // Check if the load destination is the PC
             if (instruction[15:12]  == 4'd15)
                 begin
-                pc_sel_nxt      = 2'd1; // alu_out
-                address_sel_nxt = 4'd1; // alu_out
+                pc_sel_nxt      = 2'd3;
+                address_sel_nxt = 4'd1;
                 end
             else                     
                 reg_bank_wsel_nxt = instruction[15:12];
@@ -1349,7 +1349,9 @@ always @*
         begin
         pre_fetch_instruction_wen = 1'd1;
         
-        if ( instruction[20] ) // mrc instruction
+        if ( itype == COREGOP )
+            copro_operation_nxt = 2'd3;
+        else if ( instruction[20] ) // mrc instruction
             begin
             // Check is the load destination is the PC
             if ( instruction[15:12]  == 4'd15 )
@@ -1528,7 +1530,7 @@ assign instruction_valid = (control_state == EXECUTE || control_state == PRE_FET
         if ( itype == SWAP )        
                 control_state_nxt = SWAP_WRITE;
 
-        if ( itype == CORTRANS && !und_request )        
+        if ( copro_exec && !und_request )
                 control_state_nxt = COPRO_WAIT;
                 
          // interrupt overrides everything else so its last       
