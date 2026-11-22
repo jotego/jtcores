@@ -62,6 +62,10 @@ sudo apt install --yes libqwt-qt5-dev libsdl2-dev libfontconfig1-dev libsdl2-ttf
 sudo apt install --yes parallel locate python3-pip fatattr sshpass gawk libxml2-utils
 sudo updatedb
 
+# CI checks: nodejs runs jtcheck (affected cores), python3-pil the rotation suite
+sudo apt install --yes nodejs python3-pil
+install_yq
+
 # KiCAD
 sudo add-apt-repository --yes ppa:kicad/kicad-8.0-releases
 sudo apt update
@@ -144,30 +148,19 @@ fi
 sudo apt install --yes git help2man perl python3 make autoconf g++ flex bison ccache
 sudo apt install --yes libgoogle-perftools-dev numactl perl-doc
 
-if [ ! -d "$HOME/verilator/.git" ]; then
-    cd $HOME
-    unset VERILATOR_ROOT
-    git clone https://github.com/verilator/verilator.git --depth 1 || exit $?
-    cd $HOME/verilator
-    git checkout v5.050
-    autoconf
-    ./configure
-    # compile using 80% of available CPUs
-    make -j $((`nproc`*4/5))
-    export VERILATOR_ROOT=`pwd`
-    echo export VERILATOR_ROOT=`pwd` >> $HOME/.bashrc
-fi
+install_verilator
 
 # Icarus Verilog
-if [ ! -d "$VERILATOR_ROOT/iverilog/.git" ]; then
-    cd $VERILATOR_ROOT
-    git clone https://github.com/steveicarus/iverilog.git
+if ! iverilog -V 2>/dev/null | head -1 | grep -q "version 13"; then
+    cd "$install_tmp"
+    git clone --branch v13_0 --depth 1 https://github.com/steveicarus/iverilog.git
     cd iverilog
-    git checkout v13_0
     sh autoconf.sh
     ./configure
     make -j $((`nproc`*4/5))
     sudo make install
+    cd "$install_tmp"
+    rm -rf iverilog
 fi
 
 # nice to have
@@ -240,6 +233,52 @@ sudo apt install --yes mplayer audacity
 # m68k-linux-gnu-gcc
 sudo apt install --yes gcc-m68k-linux-gnu
 
+}
+
+# Use the Verilator release shared over NFS so all hosts run the same version.
+# Without /nobackup, build the same release locally.
+VERILATOR_VERSION=v5.050
+VERILATOR_SHARED=/nobackup/jtmisc/verilator/current
+
+install_verilator() {
+    local bindir="$VERILATOR_SHARED/bin"
+    if [ ! -x "$bindir/verilator" ]; then
+        build_verilator
+        bindir="$HOME/.local/verilator/$VERILATOR_VERSION/bin"
+    fi
+    # installed trees find their own data. VERILATOR_ROOT would override it
+    unset VERILATOR_ROOT
+    sed -i '/^export VERILATOR_ROOT=/d;/^export PATH=.*VERILATOR_ROOT/d' "$HOME/.bashrc"
+    if ! grep -qF "$bindir" "$HOME/.bashrc"; then
+        echo "export PATH=$bindir:\$PATH" >> "$HOME/.bashrc"
+    fi
+    export PATH="$bindir:$PATH"
+}
+
+build_verilator() {
+    local prefix="$HOME/.local/verilator/$VERILATOR_VERSION"
+    if [ -x "$prefix/bin/verilator" ]; then return; fi
+    unset VERILATOR_ROOT
+    cd "$install_tmp"
+    git clone --branch "$VERILATOR_VERSION" --depth 1 https://github.com/verilator/verilator.git
+    cd verilator
+    autoconf
+    ./configure --prefix="$prefix"
+    # compile using 80% of available CPUs
+    make -j $((`nproc`*4/5))
+    make install
+    cd "$install_tmp"
+    rm -rf verilator
+}
+
+# mikefarah yq, needed by beta-checks.sh. Ubuntu's yq package is a different tool
+install_yq() {
+    local version=v4.47.2
+    if yq --version 2>/dev/null | grep -q "mikefarah.*version $version"; then return; fi
+    local yqarch=amd64
+    if [[ "$arch" == "arch64" ]]; then yqarch=arm64; fi
+    wget -O "$install_tmp/yq" "https://github.com/mikefarah/yq/releases/download/$version/yq_linux_$yqarch"
+    sudo install -m 0755 "$install_tmp/yq" /usr/local/bin/yq
 }
 
 configure_go_cache() {
