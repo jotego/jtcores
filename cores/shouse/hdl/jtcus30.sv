@@ -107,6 +107,8 @@ always @(posedge clk, posedge rst ) begin
         raw_r <= 0;
         lfsr  <= {8{17'h1}};
         nbit  <= 0;
+        cnt   <= 0;  // the wave phases also restart with the reset, as
+        nacc  <= 0;  // the CPU can read them
     end else if(cen120) begin
         ch   <= ch+3'd1;
         ch_l <= ch;
@@ -151,9 +153,11 @@ jtframe_dcrm #(.SW(13),.SIGNED_INPUT(0)) u_dcrm_right(
     .dout   ( snd_r         )
 );
 
+// the divider stops during reset, so it has the same phase every time the
+// reset is released
 jtframe_cendiv #(.MDIV(8)) u_cendiv(
     .clk        ( clk       ),
-    .cen_in     ( cen       ),
+    .cen_in     ( cen & ~rst),
     .cen_div    ( cen120    ),
     .cen_da     (           )
 );
