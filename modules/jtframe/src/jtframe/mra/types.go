@@ -289,6 +289,9 @@ type Mame2MRA struct {
 	// }
 
 	Header HeaderCfg
+	Video struct {
+		Interleaved_MRAs *Selectable // Games receiving an additional interlaced-video MRA
+	}
 	Audio  struct {
 		Volume []VolumeCfg
 	}

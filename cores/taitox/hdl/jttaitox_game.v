@@ -29,7 +29,7 @@ wire [ 3:0] syt_dout;
 wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs, syt_rst, cchip_rst;
 
-wire        cchip, ym2151;
+wire        cchip, ym2151, vram_busy;
 `ifndef RAM_IN_SDRAM
 wire        ram_cs, ram_ok = 1'b1;   // work RAM is in BRAM: never busy
 `endif
@@ -52,6 +52,7 @@ jttaitox_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .LVBL       ( LVBL          ),
+    .vram_busy  ( vram_busy     ),
 
     .cchip      ( cchip         ),
 
@@ -177,6 +178,7 @@ jttaitox_video u_video(
     .HS         ( HS            ),
     .VS         ( VS            ),
     .flip       ( flip          ),
+    .vram_busy  ( vram_busy     ),
 
     .cpu_rnw    ( cpu_rnw       ),
     .cpu_dsn    ( cpu_dsn       ),

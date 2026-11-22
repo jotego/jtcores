@@ -20,6 +20,8 @@ JTFRAME_CHEAT_SCRAMBLE   |         | Enables cheat firmware encryption
 JTFRAME_CLK24            |         | Adds an additional clock input
 JTFRAME_CLK48            |         | Adds an additional clock input
 JTFRAME_COLORW           |         | Sets the number of bits per color component (default=4)
+JTFRAME_CRT480I          | MiSTer  | Includes the 15 kHz interlaced analog converter, selected by [core_mod bit 18](core_mod.md#interlaced-analog-video). Select games with `[video].interleaved_MRAs` in mame2mra.toml to generate separate interlaced MRAs
+JTFRAME_CRT480I_RING     | MiSTer  | Source-line buffer depth for JTFRAME_CRT480I (default=96; NARC uses 128)
 JTFRAME_DEBUG_VPOS       |         | Row (from the bottom) at which debug information is shown (default=4)
 JTFRAME_DIAL             |         | Adds dial_x and dial_y inputs to game module
 JTFRAME_DIALEMU_LEFT     |         | Defaults to 5. Button to use to rotate left. That button+1  for right
@@ -242,6 +244,29 @@ Macro                    | Target  |  Usage
 JTFRAME_CREDITS          |         | Adds credits screen. Enabled for releases in MiSTer, SiDi128 and Pocket target.def; cores can override it
 JTFRAME_CREDITS_AON      |         | credits screen is always on
 JTFRAME_CREDITS_PAGES    |         | Generated from the number of rows in cfg/msg
+
+### MiSTer regression transport
+
+`JTFRAME_REGRESSION` enables the MiSTer CAB replay bridge and exact native
+capture transport on normal full-HDMI builds. It is supplied by the MiSTer
+target default, so release builds and ordinary `jtcore <core> -mr` builds get
+the capability without per-core configuration. The default is target-only;
+MiST, SiDi/SiDi128, and Pocket builds do not acquire it. SiDi128's existing
+end-user screenshot path is unchanged.
+
+MiSTer quick builds that omit HDMI (`-mrq`, `-qq`, and credits builds) remove
+`JTFRAME_REGRESSION` after macro parsing, even if it was explicitly defined.
+Standalone `-q` retains HDMI and keeps regression support. Use
+`jtcore <core> -mr -u JTFRAME_REGRESSION` to disable it in a full-HDMI build;
+the usual presence semantics apply, so `JTFRAME_REGRESSION=0` is still enabled.
+Exact capture is unavailable for CRT480I and interlaced builds. Native vertical
+capture requires the existing Video Rotate screen option to be off; rotated,
+scan line, forced scan doubler and gamma modes are rejected at runtime.
+
+The capture writer uses the core's video DDR port, so MiSTer builds also remove
+`JTFRAME_REGRESSION` from cores that use DDR continuously for video: a
+`JTFRAME_LF_BUFFER` kept in DDR (vertical cores move it to BRAM) or
+`JTFRAME_MR_GAME_DDR`.
 
 ### JTFRAME_REMOTE
 

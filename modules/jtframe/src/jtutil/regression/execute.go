@@ -29,6 +29,7 @@ type GameSpec struct {
 	CAB                 string               `json:"cab,omitempty"`
 	SourceCAB           string               `json:"-"`
 	PreparedHashes      map[string]string    `json:"prepared_file_sha256,omitempty"`
+	MisterAssets        *MiSTerGameAssets    `json:"mister_assets,omitempty"`
 }
 
 type Hardware interface {
@@ -118,10 +119,19 @@ type Batch struct {
 	CaptureToolSHA256 string
 	RetryErrors       bool
 	Resume bool
+	Config Config
 	read_only_receipts bool
 }
 
 func (b *Batch) Run() error {
+	if !b.read_only_receipts {
+		if err := requireLegacySiDi128(b.Config); err != nil {
+			return err
+		}
+		if err := RequireCaptureTarget(b.Root, "sidi128"); err != nil {
+			return err
+		}
+	}
 	for _,result:=range b.State.Games {if result.RecordError!="" {b.Resume=true;break}}
 	identity, e := batchIdentity(b)
 	if e != nil {

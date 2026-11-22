@@ -1,0 +1,126 @@
+.TH JTUTIL-PICOROM "1" "November 2026" "jtutil-picorom manual" "User Commands"
+.SH NAME
+jtutil-picorom \- PicoROM-based PCB work: load, verify, probe, power and bus tests
+.SH SYNOPSIS
+.B jtutil picorom units
+.br
+.B jtutil picorom load
+\fINAME\fR=\fIIMAGE\fR... [\fB\-\-size\fR 64k|128k|256k] [\fB\-\-xgecu\fR] [\fB\-\-bench\fR] [\fB\-\-out\fR \fIDIR\fR]
+.br
+.B jtutil picorom read
+\fINAME FILE\fR [\fB\-\-length\fR \fIN\fR]
+.br
+.B jtutil picorom rename
+\fIOLD NEW\fR
+.br
+.B jtutil picorom probe
+\fINAME\fR [\fB\-\-seconds\fR 8s] [\fB\-\-interval\fR 50ms] [\fB\-\-out\fR \fIFILE\fR]
+.br
+.B jtutil picorom power
+status|on|off
+.br
+.B jtutil picorom bustest
+show|gen|sim|run|report \fIcore\fR [\fIset\fR]
+.SH DESCRIPTION
+Drives PicoROM ROM emulators plugged into the program ROM sockets of an arcade
+PCB. It talks to the units through Linux usbfs (no libusb), loads and verifies
+images, switches the PCB supply and runs CPU bus timing tests whose results can be
+compared with the FPGA core in
+.BR jtsim .
+.PP
+Every command accepts
+\fB\-\-json\fR
+for machine-readable output and
+\fB\-\-lab\fR \fIFILE\fR
+to use another laboratory file. Exit status: 0 done, 1 error, 3 a PCB run did not
+complete.
+.SH LABORATORY FILE
+\fB$JOTEGO/picorom.yaml\fR
+describes the local setup and is not part of the repository:
+.PP
+.nf
+units:                    # key: USB chip serial (see "units")
+  E6614103E7123456: {name: unit1, pins: 32, note: "diagnostic firmware"}
+  E6614103E7654321: {name: unit2, pins: 32, disabled: "pin 2 shorted to GND"}
+power:                    # omit for a manual switch
+  type: shelly-gen2
+  url: http://192.0.2.10
+  id: shellyplugsg3-0123456789ab
+  switch: 0
+  interface: wlo1         # optional: bind the HTTP requests to this NIC
+programmer:
+  minipro_device: "AM27C010@DIP32"
+.fi
+.PP
+A unit with a \fBdisabled\fR reason is never loaded. Without a power section the
+person at the bench is asked to switch the supply, which needs a terminal.
+.SH COMMANDS
+.TP
+.B units
+Lists connected units with their build, diagnostic firmware, address mask, whether
+they have the event recorder (diagnostic firmware) and the lab entry.
+.TP
+.B load
+Writes each image into the unit's volatile memory and reads every byte back. The
+PCB must be off: with a power switch this is checked; otherwise
+\fB\-\-yes\fR confirms it, and \fB\-\-bench\fR skips it when no unit is in a PCB.
+\fB\-\-size 64k\fR ignores A16 and up. \fB\-\-xgecu\fR also reads the single unit
+through the XGecu programmer socket. The report keeps the field names of the earlier
+picorom_load.py tool.
+.TP
+.B read
+Saves the unit's current image.
+.TP
+.B rename
+Changes the unit's name, kept in its flash. Replug its cable if it does not come back
+on USB.
+.TP
+.B probe
+Powers the PCB for a bounded time and samples the address, /CE and /OE pins of a unit
+with the diagnostic firmware. Constant address lines with the socket never selected
+mean a stuck CPU: all ones usually means a tri-stated bus (reset, halt, no clock);
+another value is a cycle waiting for DTACK.
+.TP
+.B power
+Reads or switches the PCB supply.
+.SH BUS TESTS
+The test for a set is defined in
+\fBcores/\fIcore\fB/cfg/picorom.yaml\fR
+under \fBbustest:\fR, and its files go to
+\fBcores/\fIcore\fB/ver/\fIset\fB_bustest/\fR
+(ignored by Git). The program times 256 iterations of a four-access loop per case,
+three times, between marker reads that the recorder unit timestamps.
+.TP
+.B show
+Describes the test, or lists the core's sets when only the core is given.
+.TP
+.B gen
+Generates the program (test.s), the ROM lane images and manifest.json.
+.TP
+.B sim
+Replaces the program ROM in a copy of the core's ROM, runs jtsim with
+\fB\-d SIM_HOOK\fR and a generated sim_hook.h that logs the marker reads, and writes
+sim_result.json. Needs rom/\fIset\fR.rom (jtframe mra \fIcore\fR).
+.TP
+.B run
+Prints the placement and checklist, waits for confirmation (\fB\-\-yes\fR once the
+board is ready), checks power is off, loads every lane, arms the recorder, powers the
+PCB, acknowledges each case and switches the PCB off. The recorder unit serves the
+marker lane; \fB\-\-unit\fR \fIlane\fR=\fINAME\fR overrides the choice.
+\fB\-\-stall\-probe\fR samples the recorder pins when the markers stop.
+\fB\-\-dry\-run\fR prints the plan only.
+.TP
+.B report
+Compares the latest PCB run with the jtsim result as a Markdown table.
+.SH EXAMPLES
+.nf
+jtutil picorom units
+jtutil picorom power status
+jtutil picorom bustest show riders glfgreat
+jtutil picorom bustest sim riders glfgreat
+jtutil picorom bustest run riders glfgreat --dry-run
+jtutil picorom bustest report riders glfgreat
+.fi
+.SH SEE ALSO
+$JTFRAME/doc/picorom.md,
+.BR jtsim (1)

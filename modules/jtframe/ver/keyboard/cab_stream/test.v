@@ -6,14 +6,18 @@ reg [7:0] rx_cmd=0, rx_byte=0;
 reg [4:0] rx_index=0;
 wire active, hold_reset;
 wire [20:0] inputs;
+wire [31:0] cab_epoch, frame_index;
+wire frame_start;
 wire [511:0] snapshot;
 wire dump_pause;
 wire dipsw_valid;
 wire [31:0] dipsw;
 integer k;
+integer frame_start_count=0;
 reg [31:0] epoch;
 
 always #5 clk=~clk;
+always @(posedge clk) if(frame_start) frame_start_count<=frame_start_count+1;
 `include "test_tasks.vh"
 
 task byte_in(input [7:0] cmd, input [4:0] idx, input [7:0] data);
@@ -79,8 +83,9 @@ initial begin
     frame(); snap();
     assert_msg(snapshot[23:16]==3 && snapshot[95:64]==5,"exact normal completion");
     assert_msg(!active && inputs==0,"completion releases all inputs");
-    arm(3,3); push(0,1,8); start(); frame(); snap();
+    arm(3,3); push(0,1,8); start(); k=frame_start_count; frame(); snap();
     assert_msg(snapshot[23:16]==4 && snapshot[31:24]==1,"underrun must fail explicitly");
+    assert_msg(frame_start_count==k,"underrun must not emit a tag for an input-less next frame");
     assert_msg(inputs==0 && !hold_reset,"underrun releases input and reset");
     arm(2,2); push(1,1,0); snap();
     assert_msg(snapshot[31:24]==3,"out of order event rejected");
@@ -211,15 +216,32 @@ initial begin
     arm(1,1); push(0,1,1); request_start(); capture_hold=1; frame();
     assert_msg(hold_reset && inputs==0,"capture hold cannot consume the starting boundary");
     capture_hold=0; frame(); assert_msg(inputs==1 && !hold_reset,"start waits for an eligible boundary"); frame();
+    // ARM coincident with a native frame boundary must suppress the boundary tag.
+    arm(2,2); push(0,1,1); push(1,1,2); request_start();
+    byte_in('h82,0,0);
+    byte_in('h82,1,3); byte_in('h82,2,0); byte_in('h82,3,0); byte_in('h82,4,0);
+    byte_in('h82,5,1); byte_in('h82,6,0); byte_in('h82,7,0); byte_in('h82,8,0);
+    @(negedge clk); lvbl=1; wait(uut.tick===1'b1);
+    @(negedge clk); rx_cmd='h82; rx_index=9; rx_byte=1; rx_strobe=1;
+    @(posedge clk); #1; rx_strobe=0;
+    assert_msg(hold_reset && inputs==0 && !frame_start && cab_epoch==epoch+1,
+               "simultaneous ARM must cancel frame start and hold controls reset");
     pass();
 end
 
 initial begin #5000000; fail(); end
 
-jtframe_cab_stream uut(
+jtframe_cab_stream #(
+`ifdef LEGACY_WITH_PARALLEL
+    .PARALLEL_V2(1)
+`else
+    .PARALLEL_V2(0)
+`endif
+) uut(
     .capture_hold(capture_hold), .capture_frame(),
+    .cab_epoch(cab_epoch), .frame_start(frame_start), .frame_index(frame_index),
     .rst(rst), .clk(clk), .lvbl(lvbl), .rx_strobe(rx_strobe),
-    .rx_cmd(rx_cmd), .rx_byte(rx_byte), .rx_index(rx_index),
+    .rx_cmd(rx_cmd), .rx_byte(rx_byte), .rx_index(rx_index), .rx_parallel(96'd0),
     .active(active), .hold_reset(hold_reset), .inputs(inputs),
     .dipsw_valid(dipsw_valid), .dipsw(dipsw), .dump_pause(dump_pause), .snapshot(snapshot)
 );

@@ -342,7 +342,7 @@ func read_png_capture_set(dir string, frames, startup, cadence int, firstFrame .
 	for _, path := range files {
 		name := filepath.Base(path)
 		checkpoint, actual, e := parse_png_capture_name(name)
-		if e != nil || checkpoint<first || checkpoint>frames || checkpoint%cadence!=0 || seen[checkpoint] || checkpoint>startup && actual!=checkpoint { return set, fmt.Errorf("invalid PNG checkpoint %s", name) }
+		if e != nil || actual < 1 || checkpoint<first || checkpoint>frames || checkpoint%cadence!=0 || seen[checkpoint] || checkpoint>startup && actual!=checkpoint { return set, fmt.Errorf("invalid PNG checkpoint %s", name) }
 		seen[checkpoint] = true
 		frame, e := decode_capture_image(path); if e != nil { return set, e }
 		if set.Width==0 { set.Width, set.Height = frame.width, frame.height }
@@ -365,7 +365,7 @@ func parse_png_capture_name(name string) (int, int, error) {
 	requested, err := strconv.Atoi(parts[0]); if err != nil { return 0, 0, err }
 	actual := requested
 	if len(parts)==2 { actual, err = strconv.Atoi(parts[1]); if err != nil { return 0, 0, err } }
-	if actual<1 { return 0, 0, fmt.Errorf("invalid actual PNG frame") }
+	if requested<1 || actual<0 { return 0, 0, fmt.Errorf("invalid PNG frame") }
 	return requested, actual, nil
 }
 

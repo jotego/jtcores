@@ -1,0 +1,33 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report gals <set>
+bustest:
+  galpanic:
+    board: "Gals Panic (Kaneko PAMERA-04 with PAMERA-SUB daughter card, unprotected ver. 2.0)"
+    cpu: m68k
+    cpu_hz: 12000000
+    rom:
+      cpu_base: 0x0
+      even: "SUBIC5 (PAMERA-SUB)"
+      odd: "SUBIC6 (PAMERA-SUB)"
+      chip: "27C010-size EPROM (MAME ver.2.0_pm_112-subic5 / ver.2.0_pm_111-subic6, 128 KiB), 32-pin assumed"
+      pins: 32
+      rom_offset: 4
+      word_swap: true
+    ram: {base: 0x53c000, size: 0x4000}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w", expect: "program ROM, core: SDRAM only"}
+      - {name: "ram", addr: 0x53c100, access: "write.w", expect: "background bitmap RAM 0x520000-0x53FFFF that doubles as work RAM (core: SDRAM ram_cs plus BRAM)"}
+      - {name: "fg_rd", addr: 0x500100, access: "read.w", expect: "foreground bitmap RAM 0x500000-0x51FFFF, core BRAM, no wait; the PCB may share it with the video scan"}
+      - {name: "bg_rd", addr: 0x520100, access: "read.w", expect: "background bitmap RAM read (core SDRAM), PCB may share it with the video scan"}
+      - {name: "pal_rd", addr: 0x600100, access: "read.w", expect: "palette RAM 0x600000-0x6007FF, core BRAM, no wait"}
+      - {name: "obj_rd", addr: 0x700100, access: "read.w", expect: "PANDORA (CG24173) sprite RAM 0x700000-0x701FFF, core BRAM, no wait; the custom chip may hold DTACK"}
+      - {name: "io_rd", addr: 0x800000, access: "read.w", expect: "DSW1 0x800000, no wait"}
+    checklist:
+      - "Jumpers: unknown (no schematic). The PAMERA-SUB card overlays CPU 0x000000-0x03FFFF on the main board program sockets"
+      - "Board version decides the sockets; check box 83 first. galpanic (ver."
+      - "2.0, the core default) has the program on the PAMERA-SUB daughter card: MAME puts subic5 at even (D15-D8) and subic6 at odd, but the galpanica entry names them the other way round (pm112.subic6 even), so confirm which chip drives D15-D8 (68000 DIP pins 54-61 = D15-D8) with a continuity tester before placing the blue PicoROM."
+      - "ULA-protected boards without the sub card: galpanicc has pm109p in IC6 (even) / pm110p in IC5 (odd), 27C010; galpanicb has pm110.4m2 (even) / pm109.4m1 (odd), 4-Mbit 32-pin 27C040 (64 KiB mode still works there)."
+      - "Protected boards (CALC1 ULA present) have a ULA watchdog: then add watchdog read.w 0xE00000 (the core models it, 180 frames, only for galpanicb/c) and run the matching core set."
+      - "On the unprotected galpanic the CALC1 socket is empty, so the spec does not touch 0xE00000 (unknown DTACK there)."
+      - "Do not write 0x400001 (OKI), 0x900000 (OKI bank/flip/framebuffer), 0xA00000 (coin counters/lockout)."
+      - "No schematic available: socket pin count and pinout are not verified. .rom: 4-byte header, maincpu byte-swapped at offset 4 (SSP=0x0053FFFE, PC=0x000004A2)."

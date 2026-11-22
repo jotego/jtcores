@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -123,5 +125,24 @@ func TestGiteaCompletionIsIndependentOfGitHub(t *testing.T) {
 	record.Save()
 	if !campaign_complete(record.Root, record.Progress.Commit, cfg) {
 		t.Fatal("Gitea completion not remembered")
+	}
+}
+
+func TestMiSTerCampaignDoesNotTrustLegacyAutomaticComplete(t *testing.T) {
+	record, _, _, _ := compact_fixture(t)
+	record.Progress.AutomaticComplete = true
+	record.Progress.Games = map[string]ProgressGame{"fake/test": {Result: Pass}}
+	if err := record.Save(); err != nil {
+		t.Fatal(err)
+	}
+	mainSHA := strings.Repeat("c", 64)
+	evidencePath := filepath.Join(t.TempDir(), "qualification.json")
+	evidence, _ := json.Marshal(miSTerQualificationEvidence{Schema: 1, Target: "mister", Generation: "gen-new", Convention: CaptureNativeNonRotatedRGB888, QualificationID: "qual-new", MainSHA256: mainSHA, Qualified: true})
+	if err := os.WriteFile(evidencePath, evidence, 0600); err != nil {
+		t.Fatal(err)
+	}
+	cfg := Config{Target: "mister", CaptureContract: &MiSTerCaptureContract{Generation: "gen-new", Convention: CaptureNativeNonRotatedRGB888, QualificationID: "qual-new", QualificationEvidence: evidencePath, MainSHA256: mainSHA}}
+	if campaign_complete(record.Root, record.Progress.Commit, cfg) {
+		t.Fatal("legacy top-level completion skipped an unrun MiSTer lane")
 	}
 }

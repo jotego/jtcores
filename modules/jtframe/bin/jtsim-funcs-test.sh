@@ -10,6 +10,7 @@ main() {
     test_verilator_optimization_long
     test_verilator_optimization_fast
     test_verilator_optimization_override
+    test_verilator_make_parallelism
     test_compare_scene_snapshot_match
     test_compare_scene_snapshot_mismatch
     test_compare_scene_snapshot_size_mismatch
@@ -17,6 +18,29 @@ main() {
     if [ "$FAIL" = 1 ]; then
         exit 1
     fi
+}
+
+test_verilator_make_parallelism() {
+    local bad
+    JTFRAME_REGRESSION=1
+    unset JTFRAME_SIM_REGRESSION
+    local sim_regression
+    sim_regression=$(resolve_sim_regression)
+    set_simulation_make_jobs "$sim_regression"
+    if [ "$MAKEJOBS" != "-j" ]; then
+        fail "compiler regression macro disabled normal parallel simulation"
+        bad=1
+    fi
+    JTFRAME_SIM_REGRESSION=1
+    sim_regression=$(resolve_sim_regression)
+    set_simulation_make_jobs "$sim_regression"
+    if [ -n "$MAKEJOBS" ]; then
+        fail "explicit simulation scheduler retained parallel make"
+        bad=1
+    fi
+    unset JTFRAME_SIM_REGRESSION
+    unset JTFRAME_REGRESSION
+    pass "$bad"
 }
 
 fail() {

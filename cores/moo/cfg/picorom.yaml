@@ -1,0 +1,34 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report moo <set>
+bustest:
+  moomesa:
+    board: "Wild West C.O.W.-Boys of Moo Mesa (Konami GX151; box 23 is a BOOTLEG, see notes)"
+    cpu: m68k
+    cpu_hz: 16000000
+    rom:
+      cpu_base: 0x0
+      even: "Q5 (original board, KiCad Q5)"
+      odd: "Q6 (original board, KiCad Q6)"
+      chip: "27C020 (MAME 151b01.q5 / 151eab02.q6; KiCad symbol says 27C010)"
+      pins: 32
+      rom_offset: 16
+      word_swap: true
+    ram: {base: 0x180000, size: 0x4000}
+    watchdog: {addr: 0xde000, access: "write.w", value: 0x402, why: "control2 0x0DE000 (MAME moo control2_w): bit 10 = watchdog, bit 1 = EEPROM /CS (kept high = deselected), IRQ enables (bits 5, 11) and sprite ROM readout (bit 8) kept 0. Unknown whether the watchdog needs bit 10 to toggle; gen_test always writes the same value once per case and every ~5 ms."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "program ROM (055373 PAL ~OE1) -> 42"}
+      - {name: "ram", addr: 0x180100, access: "write.w", expect: "work RAM 0x180000"}
+      - {name: "obj", addr: 0x190000, access: "read.w", expect: "sprite RAM 0x190000 (053247 side)"}
+      - {name: "pal", addr: 0x1c0000, access: "read.w", expect: "palette RAM 0x1C0000 (054338/RAMCS)"}
+      - {name: "io", addr: 0xda000, access: "read.w", expect: "P1/P3 inputs 0x0DA000"}
+      - {name: "tile", addr: 0x1a0000, access: "read.w", expect: "056832 tile RAM 0x1A0000; may wait for the 056832 slot on the PCB"}
+    checklist:
+      - "The program sockets take 27C020 (MAME 151b01.q5 / 151eab02.q6; KiCad symbol says 27C010) (32-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: original board: none known on Q5/Q6. Bootleg (box 23): single 16-bit program EPROM moo03.rom (MAME ROM_LOAD16_WORD_SWAP, 512 KiB), see notes"
+      - "BOX 23 IS A BOOTLEG (placas.ods: 'Bootleg'), i.e."
+      - "MAME moomesabl: its 68000 program is ONE 16-bit EPROM moo03.rom (ROM_LOAD16_WORD_SWAP, 512 KiB, probably 40-pin 27C4002-style) plus moo04.rom at 0x100000, so the PicoROM pair cannot replace it directly: a 40-pin 16-bit to two-PicoROM adapter is needed (even lane = D15-D8, odd = D7-D0), with the board's A1.. driving PicoROM A0..."
+      - "The bootleg also replaces the Z80/054539 sound with an OKI6295 and MAME marks it NOT_WORKING."
+      - "Its main memory map (moobl_map) matches the original for every address used here (ROM 0x000000, control2 0x0DE000, inputs 0x0DA000, RAM 0x180000, sprites 0x190000, tile RAM 0x1A0000, palette 0x1C0000), so the same image applies."
+      - "The original board (box 81, borrowed) has Q5/Q6 27C020 32-pin sockets where the PicoROMs fit directly."
+      - "The jtsim reference uses the original moomesa set (the core skips bootlegs) and the moo core is still in development."
+      - "Do not touch: 0x0CE000 (protection, triggers DMA), 0x0D4000 (sound IRQ), 0x0D6000 (054321 sound latches), 0x0C0000/0x0D8000 (056832 regs), 0x0C2000 (053246 regs, OBJ DMA)."

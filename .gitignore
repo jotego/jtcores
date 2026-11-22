@@ -155,3 +155,6 @@ DEEPSEEK.md
 !/cores/monacogp/ver/hdl/gtest_trigger/gather.f
 !/cores/monacogp/ver/hdl/gtest_trigger/test.v
 !/cores/monacogp/ver/hdl/gtest_trigger/tb_gtest_trigger.v
+# cabinet parser native test binaries
+modules/jtframe/verilator/tests/cabinet/cabinet_test
+modules/jtframe/verilator/tests/cabinet/cabinet_pack

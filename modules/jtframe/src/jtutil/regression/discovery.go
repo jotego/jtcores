@@ -139,7 +139,7 @@ func discover_build(ctx context.Context, repository, runID, dataRoot string, cfg
 		if err != nil {
 			return BuildIdentity{}, fmt.Errorf("run id %q must be a GitHub Actions numeric run id", runID)
 		}
-		if identity, e := getEligibleRun(ctx, repository, id); e == nil {
+		if identity, e := getEligibleRunForTarget(ctx, repository, id, cfg.Target); e == nil {
 			return identity, nil
 		} else if !isRunIDNotFound(e) {
 			// A real database ID may fail eligibility, artifact lookup, or API
@@ -147,7 +147,7 @@ func discover_build(ctx context.Context, repository, runID, dataRoot string, cfg
 			// human run-number selector.
 			return BuildIdentity{}, e
 		}
-		return getEligibleRunByNumber(ctx, repository, id)
+		return getEligibleRunByNumberForTarget(ctx, repository, id, cfg.Target)
 	}
 	runs, err := listWorkflowRuns(ctx, repository)
 	if err != nil {
@@ -162,13 +162,14 @@ func discover_build(ctx context.Context, repository, runID, dataRoot string, cfg
 	})
 	for _, r := range runs {
 		if r.CreatedAt.Before(since) { continue }
-		if r.DatabaseID == 0 || workflow_file(r.WorkflowName)=="" || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) {
+		workflow := workflow_file(r.WorkflowName)
+		if r.DatabaseID == 0 || workflow=="" || cfg.Target == "mister" && workflow != compileAllWorkflow || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) {
 			continue
 		}
 		if campaign_complete(dataRoot, r.HeadSHA, cfg) {
 			continue
 		}
-		id, err := getEligibleRun(ctx, repository, r.DatabaseID)
+		id, err := getEligibleRunForTarget(ctx, repository, r.DatabaseID, cfg.Target)
 		if err != nil {
 			if errors.Is(err, errNoBuildArtifact) {
 				// A successful run with no artifact is reconsidered on the next poll.
@@ -182,6 +183,10 @@ func discover_build(ctx context.Context, repository, runID, dataRoot string, cfg
 }
 
 func getEligibleRun(ctx context.Context, repository string, runID int64) (BuildIdentity, error) {
+	return getEligibleRunForTarget(ctx, repository, runID, "")
+}
+
+func getEligibleRunForTarget(ctx context.Context, repository string, runID int64, target string) (BuildIdentity, error) {
 	// The run-level conclusion avoids querying a large compile-all job inventory,
 	// which can fail independently of the completed workflow and its artifacts.
 	data, err := ghCommand(ctx, "run", "view", strconv.FormatInt(runID, 10), "--repo", repository, "--json", "databaseId,workflowName,workflowDatabaseId,number,attempt,status,conclusion,headSha,headBranch,event,createdAt")
@@ -195,7 +200,8 @@ func getEligibleRun(ctx context.Context, repository string, runID int64) (BuildI
 	if r.DatabaseID != runID {
 		return BuildIdentity{}, fmt.Errorf("workflow run lookup for %d returned database id %d", runID, r.DatabaseID)
 	}
-	if workflow_file(r.WorkflowName)=="" || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) || r.Attempt <= 0 {
+	workflow := workflow_file(r.WorkflowName)
+	if workflow=="" || target == "mister" && workflow != compileAllWorkflow || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) || r.Attempt <= 0 {
 		return BuildIdentity{}, fmt.Errorf("workflow run %d is not a completed successful Compile all or Compile SiDi128 attempt", runID)
 	}
 	artifactData, err := ghCommand(ctx, "api", "--paginate", "--slurp", fmt.Sprintf("repos/%s/actions/runs/%d/artifacts?per_page=100", repository, runID))
@@ -308,17 +314,23 @@ func isRunIDNotFound(err error) bool {
 }
 
 func getEligibleRunByNumber(ctx context.Context, repository string, number int64) (BuildIdentity, error) {
+	return getEligibleRunByNumberForTarget(ctx, repository, number, "")
+}
+
+func getEligibleRunByNumberForTarget(ctx context.Context, repository string, number int64, target string) (BuildIdentity, error) {
     runs, err := listWorkflowRuns(ctx, repository)
     if err != nil { return BuildIdentity{}, err }
     var match int64
     for _, r := range runs {
         if r.RunNumber != number { continue }
+        if target == "mister" && workflow_file(r.WorkflowName) != compileAllWorkflow { continue }
         if match!=0 && match!=r.DatabaseID {
             return BuildIdentity{},fmt.Errorf("run number %d occurs in both build workflows; use the GitHub run ID",number)
         }
         match=r.DatabaseID
     }
-    if match!=0 { return getEligibleRun(ctx,repository,match) }
+    if match!=0 { return getEligibleRunForTarget(ctx,repository,match,target) }
+    if target == "mister" { return BuildIdentity{}, fmt.Errorf("no successful Compile all workflow has run number %d", number) }
     return BuildIdentity{},fmt.Errorf("no supported build workflow has run number %d",number)
 }
 

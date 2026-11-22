@@ -89,6 +89,7 @@ module jtframe_board #(parameter
     output              uart_tx,
     // joystick
     input        [15:0] board_joystick1, board_joystick2, board_joystick3, board_joystick4,
+    input               joy_aux_en,
     input               cab_active,
     input        [20:0] cab_inputs,
     input               cab_dump_pause,
@@ -526,6 +527,7 @@ jtframe_inputs #(
     .lhbl           ( LHBLs           ),
     .lvbl           ( LVBLs           ),
     .ioctl_rom      ( dwnld_busy      ),
+    .joy_aux_en     ( joy_aux_en      ),
     .joy1_pos       ( joy1_pos        ),
     .rot            ( rot_control     ),
     .rotate         ( rotate          ),

@@ -14,11 +14,12 @@ func compact_fixture(t *testing.T)(*CommitLog,Manifest,Config,*qualityHardware) 
     t.Helper()
     batch,game,hardware:=qualityBatch(t,[]uint16{1,2,3})
     root:=t.TempDir()
+    if err:=GuardCaptureTarget(root,"sidi128");err!=nil{t.Fatal(err)}
     if err:=InitializeLog(root);err!=nil{t.Fatal(err)}
     record,err:=OpenCommitLog(root,strings.Repeat("a",40));if err!=nil{t.Fatal(err)}
     t.Cleanup(func(){record.Close()})
     manifest:=Manifest{Build:BuildIdentity{SHA:record.Progress.Commit},Cores:[]CoreManifest{{Core:"fake",Games:[]GameSpec{game}}}}
-    cfg:=Config{Source:batch.CorePath,GlobalProfile:batch.GlobalProfile,Firmware:batch.Firmware,FirmwareSHA256:batch.FirmwareSHA256,CaptureToolSHA256:batch.CaptureToolSHA256}
+    cfg:=Config{Target:"sidi128",LegacySiDi128:true,Source:batch.CorePath,GlobalProfile:batch.GlobalProfile,Firmware:batch.Firmware,FirmwareSHA256:batch.FirmwareSHA256,CaptureToolSHA256:batch.CaptureToolSHA256}
     return record,manifest,cfg,hardware
 }
 

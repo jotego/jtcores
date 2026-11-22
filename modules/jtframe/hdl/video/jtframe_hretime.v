@@ -41,6 +41,7 @@
 module jtframe_hretime #(parameter
     DW    = 24,     // colour bus width
     DIV   = 8,      // clk cycles per input pixel
+    DIV_ALT_X2 = DIV << 1, // alternate pixel period in half-clocks (e.g. 9 = 4.5 clocks)
     STEP  = 64,     // scale denominator, must be a power of two
     DEPTH = 64,     // FIFO depth, must be a power of two
     HW    = 10      // active pixel counter width
@@ -48,6 +49,7 @@ module jtframe_hretime #(parameter
     input               clk,
     input               ce_in,      // input pixel clock enable
     input               enable,
+    input               div_alt,   // select DIV_ALT_X2, latched at HSync
     input signed [ 3:0] scale,      // -8..+7 in 1/STEP units. 0 = 1:1
 
     input      [DW-1:0] din,
@@ -62,12 +64,16 @@ module jtframe_hretime #(parameter
     output              de_out
 );
 
-localparam SLOG = $clog2(STEP),                  // log2(STEP), shift replaces divide
+localparam MAXDIV = DIV > ((DIV_ALT_X2+1)>>1) ? DIV : ((DIV_ALT_X2+1)>>1),
+           SLOG = $clog2(STEP),                  // log2(STEP), shift replaces divide
            AW   = $clog2(DEPTH),
-           ACCW = $clog2(DIV*(STEP+8))+1,        // rate accumulator width
+           ACCW = $clog2(MAXDIV*(STEP+8))+1,     // rate accumulator width
            PW   = SLOG+HW,                       // nactive * |scale| product width
-           SDEP = 1<<$clog2((DEPTH*DIV)/2+1),    // sync delay line depth
+           SDEP = 1<<$clog2((DEPTH*MAXDIV)/2+1), // sync delay line depth
            SAW  = $clog2(SDEP);
+localparam [ACCW:0] DIV_X2 = {DIV[ACCW-1:0], 1'b0}, ALT_X2 = DIV_ALT_X2[ACCW:0];
+localparam [HW+5:0] DLY_DIV_X2 = {DIV[HW+4:0], 1'b0}, DLY_ALT_X2 = DIV_ALT_X2[HW+5:0];
+localparam [HW:0] ALT_GUARD = DIV_ALT_X2 != (DIV<<1) ? 2 : 0;
 
 (* ramstyle = "no_rw_check" *) reg [DW-1:0] mem[0:DEPTH-1];
 reg [DW-1:0] mem_rd;                    // registered M10K read output
@@ -81,6 +87,7 @@ reg  [SAW-1:0] sync_wp=0;
 reg  hs_l=0, ce_slow=0, started=0, fifo_de=0, de_l=0, hs_dly=0, vs_dly=0;
 // OSD parameters latched at hsync, aligned with FIFO/accumulator reset
 reg               enable_l=0;
+reg               div_alt_l=0;
 reg  signed [3:0] scale_l=0;
 // effective scale: non-negative inputs get +1 so range is -8..+8 (skip 0)
 wire signed [4:0] escale = {scale_l[3], scale_l} + {4'd0, ~scale_l[3]};
@@ -91,19 +98,29 @@ wire [ACCW-1:0] nxt = acc + STEP[ACCW-1:0];
 reg  [ ACCW-1:0] period;
 reg  [  HW-1:0] extra_px;
 reg  [ SAW-1:0] sync_dly;
+wire [ACCW-1:0] scale_step;
+wire [ACCW  :0] period_x2;
+wire [HW:0] shrink_prefill;
+assign scale_step = STEP[ACCW-1:0] + {{ACCW-5{escale[4]}}, escale};
+assign period_x2 = div_alt_l ? ALT_X2 * {1'b0, scale_step} :
+                              DIV_X2 * {1'b0, scale_step};
+// Alternating input pixel intervals can put the reader just ahead of a RAM
+// write at the end of a shrunk line. Leave two pixels for read latency/jitter.
+assign shrink_prefill = {1'b0, extra_px} + (div_alt_l ? ALT_GUARD : {HW+1{1'b0}});
 
 always @(posedge clk) begin : dly_pipe
     reg [    4:0] absc;
     reg [ PW-1:0] prod;
-    reg [HW+4:0]  dly_f;
+    reg [HW+5:0]  dly_x2;
     reg [HW+3:0]  dly_h;
     absc = escale[4] ? -escale : escale;
-    period <= DIV[ACCW-1:0] * (STEP[ACCW-1:0] + {{ACCW-5{escale[4]}}, escale});
+    period <= period_x2[ACCW:1];
     prod = nactive * absc;
     extra_px <= prod[PW-1:SLOG];
     // uses registered extra_px, so sync_dly settles one clock after extra_px
-    dly_f = extra_px * DIV;
-    dly_h = dly_f[HW+4:1];
+    dly_x2 = div_alt_l ? extra_px * DLY_ALT_X2 : extra_px * DLY_DIV_X2;
+    if( div_alt_l && escale[4] ) dly_x2 = dly_x2 + ((ALT_GUARD * DLY_ALT_X2) << 1);
+    dly_h = dly_x2[HW+5:2];
     sync_dly <= dly_h >= SDEP ? {SAW{1'b1}} :
                 dly_h == 0    ? {{SAW-1{1'b0}}, 1'b1} : dly_h[SAW-1:0];
 end
@@ -138,6 +155,7 @@ always @(posedge clk) begin
         wptr     <= 0;
         wcnt     <= 0;
         enable_l <= enable;
+        div_alt_l <= div_alt;
         scale_l  <= scale;
         if( wcnt!=0 ) nactive <= wcnt;
     end else if( push ) begin
@@ -163,7 +181,7 @@ always @(posedge clk) begin
         fifo_de   <= 0;
         fifo_dout <= 0;
     end else begin
-        if( !started && wcnt>(escale[4] ? extra_px : {HW{1'b0}}) ) started <= 1;
+        if( !started && {1'b0,wcnt}>(escale[4] ? shrink_prefill : {HW+1{1'b0}}) ) started <= 1;
         if( ce_slow ) begin
             fifo_de <= pop;
             if( pop ) begin

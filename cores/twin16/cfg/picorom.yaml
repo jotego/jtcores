@@ -1,0 +1,36 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report twin16 <set>
+bustest:
+  darkadv:
+    board: "Dark Adventure / Devil World (Konami GX687, Twin16), box 26"
+    cpu: m68k
+    cpu_hz: 9216000
+    rom:
+      cpu_base: 0x0
+      even: "6N (KiCad A_N6)"
+      odd: "4N (KiCad A_N4)"
+      chip: "27C512 (64 KiB, 28-pin DIP)"
+      pins: 28
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0x60000, size: 0x4000}
+    watchdog: {addr: 0xa0010, access: "write.w", why: "0x0A0010 write: /IOCS 74LS138 output /AFR drives the 005924 watchdog/reset chip (MAME watchdog reset16_w at 0x0A0010). Timeout not measured. The core does not decode it. Kicked once per case."}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w", expect: "0 wait: any A20=0 cycle forces DTACK through A_M4 74LS21 + A_L1 74LS07 (/AS|A20)"}
+      - {name: "ram", addr: 0x60100, access: "write.w", expect: "0 wait: /MWORKCS 6264 A_S4/A_S6, A20=0 DTACK"}
+      - {name: "comram", addr: 0x40100, access: "read.w", expect: "shared RAM with the sub CPU (/MCOMCS, A_E8 PAL16L8 arbitration); the A20=0 term gives an immediate DTACK"}
+      - {name: "fix_rd", addr: 0x100100, access: "read.w", expect: "/FIXVRAMCS | TIM3 (A_J1 74LS32) into A_M4: waits for the TIM3 slot; core: no wait"}
+      - {name: "tile_rd", addr: 0x120100, access: "read.w", expect: "VRAM 0x120000 (007779), DTACK from an A_L4 74LS74 slot; core: tim slot (jttwin16_dtack)"}
+      - {name: "tile_wr", addr: 0x120100, access: "write.w", expect: "VRAM slot wait"}
+      - {name: "obj_rd", addr: 0x140100, access: "read.w", expect: "OBJ RAM 0x140000, A_L4 74LS74 slot, longer if sprite DMA is busy (DMAON is 0 after reset); core: tim slot"}
+    checklist:
+      - "The program sockets take 27C512 (64 KiB, 28-pin DIP) (28-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: none: /CE (pin 20) tied to GND, /OE (pin 22) = A_L3 74LS138 O0 (A20-A17 = 0 with /AS, 0x00000-0x1FFFF)"
+      - "PROGRAM ROMS ARE 28-PIN 27C512: KiCad cores/twin16/sch/darkadv shows A_N6 (DB15-DB8, even, MAME 687_n05.6n) and A_N4 (DB7-DB0, odd, 687_n04.4n) as 27C512; AP_R6/AP_R4 (6R/4R) hold 0x20000-0x3FFFF and can stay."
+      - "A 32-pin PicoROM needs a 28-pin PicoROM or a 32-to-28 adapter (27C512 pin n = PicoROM pin n+2, PicoROM pin 32 VCC to socket pin 28, pins 1/31 to VCC, pin 2 to GND)."
+      - "SET: darkadv (687_n05.6n/687_n04.4n); Devil World (devilw) uses 687_t05.6n/687_t04.4n and Majuu no Ohkoku (majuu) 687_s05/687_s04 in the same sockets: the box holds GX687, check the labels; the test does not depend on the version."
+      - "SUB CPU: the sub 68000 (A_J8) keeps running its original ROMs (8N/10N/8S/10S): the firmware never writes 0x0A0000 (CPUA register: bit 4 0->1 = IRQ6 to the sub CPU, bit 3 = sound IRQ, bit 6 DMAON, bits 0-2 coin counters), so the sub CPU is never interrupted."
+      - "It may still access the shared comram, tile RAM and object RAM during its own init, which can stretch some loop iterations (on the PCB and in jtsim alike): use medians."
+      - "DTACK (sheet Main CPU): 007791 (A_J2) bus controller plus an open-collector 74LS07 driven by A_M4 74LS21: immediate for A20=0, TIM3 slot for the fix layer, A_L4 74LS74 slots for VRAM/OBJ."
+      - "Do not touch: 0x0A0000-0x0A0009 writes (CPUA register, sound latch), 0x0A0012-0x0A001F, 0x0C0000-0x0C000F writes (video registers/scroll/flip), 0x080000 palette (8-bit, LDS only; harmless but not tested)."
+      - "Keep SR=0x2700. .rom: 8-byte header, maincpu byte-swapped at offset 8: SSP=0x00060F00 PC=0x000007C0 (devilw PC=0x800, checked against 687_t05.6n/687_t04.4n)."

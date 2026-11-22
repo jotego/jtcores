@@ -1,0 +1,36 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report cal50 <set>
+bustest:
+  calibr50:
+    board: "Caliber 50 (SETA, X1-001/X1-002 sprites, X1-012 tiles, X1-006 palette)"
+    cpu: m68k
+    cpu_hz: 8000000
+    rom:
+      cpu_base: 0x0
+      even: "3B"
+      odd: "11B"
+      chip: "23C4100 mask ROM (MAME uh-002-001.3b / uh-002-004.11b), 40-pin, wired in byte mode"
+      pins: 40
+      rom_offset: 16
+      word_swap: true
+    ram: {base: 0xff0000, size: 0x10000}
+    watchdog: {addr: 0x400000, access: "read.w", why: "Any AS cycle in 0x4xxxxx (E9 74LS138 O4 = /WDRST) clears the A18 74LS161 watchdog counter (MR). A18 is clocked by an R6 2M2 / C3 47nF 74LS14 RC oscillator and resets the board when Q3 rises (8 counts, roughly 0.5-1 s, estimate). Kick at least every ~50 ms; once per test loop is plenty. MAME: watchdog reset16_r at 0x400000. The FPGA core does not decode it (wdog_cs commented out). Closing JP10 (A18 /PE to GND) would disable the watchdog, not verified."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "/MROML 0x000000-0x07FFFF, DTACK through E10 (/MRMDTCK), no core wait beyond SDRAM"}
+      - {name: "wram_wr", addr: 0xff8000, access: "write.w", expect: "/MRAM work RAM B5/B6, immediate DTACK"}
+      - {name: "x1_vram_rd", addr: 0xe00000, access: "read.w", expect: "X1-001 sprite code RAM (core vram_cs, vgfx): F4B 74LS74 allows DTACK once every 4 pixels (8 MHz pixel clock)"}
+      - {name: "x1_vram_wr", addr: 0xe00400, access: "write.w", expect: "same vgfx slot wait as x1_vram_rd"}
+      - {name: "x1_ylow_rd", addr: 0xd00000, access: "read.w", expect: "X1-001 sprite Y-low RAM 0xD00000-0xD005FF (core vctrl_cs, vgfx slot wait)"}
+      - {name: "tile_rd", addr: 0x900000, access: "read.w", expect: "X1-012 tile RAM 0x900000 (/TMRAM, core tlv_cs); DTACK comes from X1-012 pin 80 /TDTACK"}
+      - {name: "palette_rd", addr: 0x700000, access: "read.w", expect: "X1-006 palette RAM 0x700000 (/PALET, core pal_cs), DTACK through E10"}
+    checklist:
+      - "The program sockets take 23C4100 mask ROM (MAME uh-002-001.3b / uh-002-004.11b), 40-pin, wired in byte mode (40-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: None on the 3B/11B pair. JP4/JP5 only select the pinout (27C256/27C512) of the 28-pin 9B socket in the 0x80000 bank; leave them alone."
+      - "PROGRAM ROMS ARE 40-PIN: KiCad cores/cal50/sch (cpu sheet) shows B3 and B11 as 23C4100 4-Mbit mask ROMs with BYTE=GND: chip A-1 (pin 29)=CPU A1, A0..A17 = A2..A19, /OE (pin 12) = /MROML (D10 74LS138 O0, CPU 0x000000-0x07FFFF, so chip A17 is always 0 and only the lower 256 KiB is used, matching MAME's 0x40000 dumps), pin 10 = M/R/W'."
+      - "B3 drives MD15-MD8 (even bytes, MAME 3b at 0x000000), B11 drives MD7-MD0 (odd, MAME 11b at 0x000001)."
+      - "A 32-pin PicoROM cannot go in directly: it needs a 40-pin 23C4100 (byte mode) to 32-pin adapter per socket (if the mask ROMs are socketed at all; if they are soldered they must be removed and replaced by 40-pin sockets)."
+      - "Adapter mapping: PicoROM A0 <- pin 29 (A-1), A1..A15 <- pins 9..2,40..34 (chip A0..A14), PicoROM D0-D7 <- pins 13,15,17,19,22,24,26,28, PicoROM /OE <- pin 12, /CE <- GND or pin 10; check the pin-11 symbol (shown as VSS but tied to VCC in the KiCad netlist) on the real board first."
+      - "The other main-CPU ROMs, B7/B9, are 28-pin 27C512 at 0x080000-0x09FFFF (/MROMH) and do not hold the reset vector. .rom evidence: rom/calibr50.rom bytes 0x10-0x17 = ff00 feff 0000 0004 -> byte-swapped words 00FF FFFE 0000 0400 (SSP=0xFFFFFE, PC=0x400), the same as the zip's 3b (00 ff 00 04) and 11b (ff fe 00 00); JTFRAME_HEADER=16, maincpu reverse=true."
+      - "Do not touch: 0x100000/0x300000 (IRQ acks, harmless but unneeded), 0x500001 (coin coils and sound CPU reset), 0x800000 (X1-012 control), 0xA00000 (I/O, uPD4701 reset at 0xA00019), 0xB00000 (sound latch), 0xC00000 (X1-001 bg flag register), 0xD00600-0xD00607 (X1-001 control registers)."
+      - "Keep interrupts masked (SR=0x2700): IRQ2/IRQ4 stay asserted until acked."
+      - "Work RAM is 64 KiB at 0xFF0000-0xFFFFFF (the core decodes all of 0xFxxxxx); the stack can sit at the top."

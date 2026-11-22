@@ -1,0 +1,3 @@
+reset
+service test 2p up down left right b3
+2coin 2right 2left 2down 2up 2b1 2b2 2b3

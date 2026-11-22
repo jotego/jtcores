@@ -14,7 +14,7 @@ localparam SSRIDERS = 0,
 /* verilator tracing_on */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy, psac_cs, psac_bank,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n, enc_done,
-            cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
+            cpu_rnw, vdtac, pq, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, riders_brn, riders_bgackn, prot_irqn, riders_cs, objreg_cs, oram_cs,
             ram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
@@ -95,6 +95,7 @@ jtriders_main u_main(
     .cpu_we         ( cpu_we        ),
     .bus_din        ( ram_din       ),
     .vdtac          ( vdtac         ),
+    .pq             ( pq            ),
     .tile_irqn      ( tile_irqn     ),
     .cpu_n          ( cpu_n         ),
 
@@ -276,6 +277,7 @@ jtriders_video u_video (
     .cpu_dsn        ( ram_dsn       ),
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
+    .pq             ( pq            ),
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),

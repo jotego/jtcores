@@ -420,7 +420,7 @@ wire [4:0] cen_den;
 assign cen_num = turbo ? 4'd1 : 4'd5;
 assign cen_den = turbo ? 5'd4 : 5'd24;
 
-jtframe_68kdtack_cen #(.MFREQ(48000),.WAIT1(1)) u_dtack(
+jtframe_68kdtack_cen #(.MFREQ(48000)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen10     ),
@@ -429,13 +429,14 @@ jtframe_68kdtack_cen #(.MFREQ(48000),.WAIT1(1)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( BGACKn          ),
     .ASn        ( ASn | dtack_clr ),
     .DSn        ( {UDSn, LDSn} ),
     .num        ( cen_num  ),
     .den        ( cen_den   ),
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd1      ),
     // unused
     .fave       ( fave      ),
     .fworst     (           )

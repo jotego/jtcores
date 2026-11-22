@@ -72,6 +72,50 @@ func TestSharedBuildArchiveReuseAndRestore(t *testing.T) {
 	}
 }
 
+func TestMiSTerBuildArchiveExtractionUsesMiSTerInventory(t *testing.T) {
+	check_preparation_cleanup(t)
+	root := t.TempDir()
+	source := filepath.Join(root, "project")
+	archiveDir := filepath.Join(root, "store")
+	if err := os.MkdirAll(archiveDir, 0750); err != nil {
+		t.Fatal(err)
+	}
+	archive := filepath.Join(archiveDir, "aaaaaaa.zip")
+	files := map[string]string{
+		"release/mister/jtfoo.rbf": "mister-rbf",
+		"release/mra/Foo.mra":             "mra",
+		"release/sidi128/jtfoo.rbf":       "sidi-rbf",
+	}
+	writeZip(t, archive, files)
+	buildSHA := strings.Repeat("a", 40)
+	identity := BuildIdentity{Repository: "jotego/jtcores", Workflow: compileAllWorkflow, RunID: "456", Attempt: "1", SHA: buildSHA, Artifact: filepath.Base(archive)}
+	stale := filepath.Join(source, "release", "mister", "jtstale.rbf")
+	manualWrite(t, stale, []byte("stale"))
+	gotArchive, rbfsDir, err := prepareArtifact(context.Background(), Config{Target: "mister", Source: source, BuildsDir: archiveDir}, filepath.Join(root, "log", "prep"), identity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotArchive != archive || rbfsDir != filepath.Join(source, "release", "mister") {
+		t.Fatalf("wrong MiSTer archive inventory: archive=%s dir=%s", gotArchive, rbfsDir)
+	}
+	if _, err = os.Stat(stale); !os.IsNotExist(err) {
+		t.Fatalf("stale MiSTer RBF survived extraction: %v", err)
+	}
+	if readString(t, filepath.Join(source, "release", "sidi128", "jtfoo.rbf")) != "sidi-rbf" {
+		t.Fatal("MiSTer extraction changed the independent SiDi inventory")
+	}
+	var record archive_record
+	if err = json.Unmarshal([]byte(readString(t, filepath.Join(root, "log", "prep", "build-manifest.json"))), &record); err != nil {
+		t.Fatal(err)
+	}
+	if record.Target != "release/mister" || record.RBF["jtfoo.rbf"] == "" {
+		t.Fatalf("archive provenance did not identify the MiSTer target: %+v", record)
+	}
+	if _, err = extract_build_archive_for_target(archive, source, "pocket"); err == nil {
+		t.Fatal("unsupported target was accepted")
+	}
+}
+
 func TestSharedBuildDownloadFailuresLeaveNoArchiveOrRelease(t *testing.T) {
 	check_preparation_cleanup(t)
 	for _, failure := range []string{"download", "checksum", "payload", "layout"} {

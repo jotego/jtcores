@@ -1,0 +1,36 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report ninja <set>
+bustest:
+  baddudes:
+    board: "Bad Dudes vs. Dragonninja (US rev 1), Data East MEC-M1 DE-0297-1 main board + DE-0299-1 sub/ROM board"
+    cpu: m68k
+    cpu_hz: 10000000
+    rom:
+      cpu_base: 0x0
+      even: "3C (DE-0299 sub/ROM board)"
+      odd: "3A (DE-0299 sub/ROM board)"
+      chip: "27C512 (MAME ei04-1.3c / ei01-1.3a, 64 KiB), 28-pin DIP"
+      pins: 28
+      rom_offset: 0
+      word_swap: true
+    ram: {base: 0xff8000, size: 0x4000}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w", expect: "program ROM, core: SDRAM only"}
+      - {name: "ram", addr: 0xff8100, access: "write.w", expect: "main RAM 0xFF8000-0xFFBFFF (core sysram_cs, SDRAM)"}
+      - {name: "tile_rd", addr: 0x244100, access: "read.w", expect: "BAC06 #0 (text) tilemap 0x244000: core holds DTACK on the whole 0x24xxxx display area until H or V blank (disp_busy), so a large, line-dependent wait"}
+      - {name: "tile_wr", addr: 0x244100, access: "write.w", expect: "same display-area blank wait as tile_rd"}
+      - {name: "pal_rd", addr: 0x310100, access: "read.w", expect: "palette RAM 0x310000 (core pal_cs, BRAM), no wait"}
+      - {name: "obj_rd", addr: 0xffc100, access: "read.w", expect: "sprite RAM 0xFFC000 (mirror of 0x31C000, core obj_cs), no wait"}
+      - {name: "io_rd", addr: 0x30c000, access: "read.w", expect: "player inputs 0x30C000, no wait"}
+    checklist:
+      - "The program sockets take 27C512 (MAME ei04-1.3c / ei01-1.3a, 64 KiB), 28-pin DIP (28-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: unknown, check the sub/ROM board near 3A/3C"
+      - "Simulated with the ninja core (cop HDL, baddudes set)."
+      - "Program pair on the DE-0299 sub/ROM board: ei04-1.3c (3C, D15-D8, even) and ei01-1.3a (3A, D7-D0, odd); drgninja (Japan) boards use eg04-1.3c/eg01-1.3a in the same sockets."
+      - "They are 28-pin 27C512: a 32-pin PicoROM needs a 32-to-28 adapter (drop PicoROM pins 1, 2, 31, 32) or the 28-pin PicoROMs (never used in this setup)."
+      - "The i8751 MCU (ei31.9a) only talks to the 68000 through 0x30C008 reads and 0x30C016 writes, both avoided; its IRQ stays masked."
+      - "No watchdog in MAME (dec0_map) or in the core."
+      - "Do not write 0x30C010-0x30C01F (priority, sprite DMA, sound command, MCU, IRQ ack) or the BAC06 control registers (0x240000, 0x246000, 0x24C000). rom/baddudes.rom has no header and stores maincpu byte-swapped (SSP 0xFFC000, PC 0x13DC)."
+    sim:
+      ms: 120
+      download: 0x1000000

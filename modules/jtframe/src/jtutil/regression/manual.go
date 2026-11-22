@@ -226,6 +226,9 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 		if !regularNonempty(game.ARC) {
 			return Manifest{}, fmt.Errorf("manual ARC converter did not produce %s", game.ARC)
 		}
+		if err = normalize_arc_buttons_file(game.ARC); err != nil {
+			return Manifest{}, fmt.Errorf("normalizing manual ARC button labels for %s: %w", set, err)
+		}
 		if profile.Inputs != "" {
 			game.CAB = filepath.Join(source, "cores", core, "ver", set, profile.Inputs)
 			if !regularNonempty(game.CAB) {
@@ -255,7 +258,7 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 	}
 	build := BuildIdentity{Repository: cfg.Repository, Workflow: "manual", RunID: runID, Attempt: "1", SHA: "", Ref: release, Event: "manual-" + mode, Artifact: release, ArtifactSHA: identityHash, Conclusion: "manual"}
 	manifest := Manifest{RunID: runID, Build: build, Source: source, ProjectSHA: projectSHA, Cores: []CoreManifest{cm}}
-	evidence := map[string]any{"schema": 1, "mode": mode, "run_id": runID, "project_sha": projectSHA, "release_checkout_sha": releaseSHA, "selected_rbf": rbf, "binary_source_commit": "not inferred; RBF content hash is authoritative", "games": records}
+	evidence := map[string]any{"schema": 1, "mode": mode, "run_id": runID, "project_sha": projectSHA, "release_checkout_sha": releaseSHA, "selected_rbf": rbf, "binary_source_commit": build.SHA, "games": records}
 	data, _ := json.MarshalIndent(evidence, "", "  ")
 	if err = os.WriteFile(filepath.Join(log_dir, "manual-preparation.json"), append(data, '\n'), 0640); err != nil {
 		return Manifest{}, err

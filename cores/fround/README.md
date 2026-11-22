@@ -39,6 +39,12 @@ Comparing this chipset with TMNT/Aliens:
 - There is no row/column scroll for tile maps
 - There is no H/V flip for the fixed layer
 
+# CPU Bus Timing
+
+A U209 74LS74 pair, clocked by the CPU clock and preset by AS, delays DTACK for the character ROM windows (40'0000 and 60'0000): 1 wait state. ROM, work RAM, palette and I/O acknowledge directly from the decoder.
+
+These wait states were derived from the schematics and have not been checked on a PCB yet.
+
 # Credits
 
 Special thanks to Skutis for all his open source research and for lending us the board.

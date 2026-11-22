@@ -63,6 +63,23 @@ func TestDiscoverBothBuildWorkflows(t *testing.T) {
     }
 }
 
+func TestMiSTerDiscoverySelectsOnlyCompileAll(t *testing.T) {
+	runs := dual_workflow_runs()
+	mock_build_workflows(t, runs)
+	got, err := DiscoverBuild(context.Background(), Config{Target: "mister"}, t.TempDir(), "")
+	if err != nil || got.Workflow != compileAllWorkflow || got.RunID != "101" {
+		t.Fatalf("MiSTer selected %+v: %v", got, err)
+	}
+	if _, err = getEligibleRunForTarget(context.Background(), githubRepository, 202, "mister"); err == nil {
+		t.Fatal("explicit SiDi128-only run was accepted for MiSTer")
+	}
+	runs[0].Conclusion = "failure"
+	mock_build_workflows(t, runs)
+	if _, err = DiscoverBuild(context.Background(), Config{Target: "mister"}, t.TempDir(), ""); err != ErrNoEligibleBuild {
+		t.Fatalf("MiSTer fell back to a SiDi-only build: %v", err)
+	}
+}
+
 func TestBothWorkflowsShareCommitCompletion(t *testing.T) {
     runs:=dual_workflow_runs();runs[1].HeadSHA=runs[0].HeadSHA
     mock_build_workflows(t,runs)

@@ -25,3 +25,9 @@ Hang-On uses the left stick horizontal axis to steer. The right stick vertical
 axis is split into pedals: up accelerates and down brakes.
 
 The current version only supports a dual-stick analog controller for Enduro Racer and Hang-On. That will be improved soon.
+
+## CPU Bus Timing
+
+Space Harrier and Enduro Racer main CPU: the IC26 LS164 shift register, clocked by the CPU clock and cleared while AS is inactive, is tapped at QB by factory jumper J2 for the program ROM: 1 wait state. Hang-On's main CPU acknowledges with AS through 4F. Both boards add VWAIT for video RAM, a board wait that the core does not recover.
+
+These wait states were derived from the schematics and have not been checked on a PCB yet.

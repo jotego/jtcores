@@ -2,8 +2,14 @@ name: SiDi128 hardware regression
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 3 * * *'
   workflow_dispatch:
+    inputs:
+      legacy_sidi128:
+        description: Explicitly enable the legacy SiDi128 capture path
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   regression:
@@ -14,6 +20,7 @@ jobs:
       issues: write
     env:
       JOTEGO: ${{ secrets.JOTEGO }}
+      REGRESSION_LEGACY_SIDI128: ${{ github.event_name == 'schedule' || inputs.legacy_sidi128 || false }}
     steps:
       - name: Check regression lock before checkout
         id: gate
@@ -32,7 +39,7 @@ jobs:
             *) echo 'Unable to check the regression lock.'; exit 1 ;;
           esac
 
-      - name: Shallow checkout of current master
+      - name: Checkout current master history
         if: steps.gate.outputs.available == 'true'
         env:
           GITEA_TOKEN: ${{ gitea.token }}
@@ -46,13 +53,13 @@ jobs:
           echo "REGRESSION_WORKSPACE=$workspace" >> "$GITHUB_ENV"
           export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraHeader
           export GIT_CONFIG_VALUE_0="Authorization: token $GITEA_TOKEN"
-          if ! git clone --quiet --depth 1 --branch master --no-recurse-submodules \
+          if ! git clone --quiet --branch master --no-recurse-submodules \
             "$GITEA_SERVER_URL/$GITEA_REPOSITORY.git" "$workspace/project" \
             > "$workspace/checkout.log" 2>&1; then
             echo 'Checkout failed; diagnostics retained privately on the runner.'
             exit 1
           fi
-          echo 'Checked out current master (depth 1, no submodules).'
+          echo 'Checked out current master history (no submodules).'
 
       - name: Run or resume regression and report to Gitea
         if: steps.gate.outputs.available == 'true'

@@ -452,6 +452,7 @@ jtframe_board #(
     .board_joystick2( joystick2       ),
     .board_joystick3( joystick3       ),
     .board_joystick4( joystick4       ),
+    .joy_aux_en     ( 1'b0            ),
     .joyana_l1      ( joyana_l1       ),
     .joyana_r1      ( joyana_r1       ),
     .joyana_l2      ( joyana_l2       ),

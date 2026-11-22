@@ -1,0 +1,32 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report fround <set>
+bustest:
+  fround:
+    board: "The Final Round (GX870)"
+    cpu: m68k
+    cpu_hz: 9216000
+    rom:
+      cpu_base: 0x0
+      even: "F27 (KiCad U88)"
+      odd: "E27 (KiCad U137)"
+      chip: "27C010"
+      pins: 32
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0x40000, size: 0x4000}
+    watchdog: {addr: 0xa0010, access: "write.w", why: "U150 LS138 O2 (~IOCS, A16=0, A4=1, A3=0, write) = ~AFR clocks 051550 S306 which drives ~RST; MAME 0x0a0010 watchdog reset16_w. Core ignores it. Kick every loop iteration"}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w"}
+      - {name: "ram", addr: 0x40100, access: "write.w"}
+      - {name: "crom", addr: 0x400000, access: "read.w", expect: "tile ROM window ~SVCHAROMCS: 1 wait (U209 LS74 pair), core crom_wait"}
+      - {name: "pal", addr: 0x80000, access: "read.w"}
+      - {name: "fix", addr: 0x100000, access: "read.w", expect: "FIXDTAC from 007782 ORDT; core gives no wait (fix_cs not in bus_cs)"}
+      - {name: "vram", addr: 0x120000, access: "read.w", expect: "scroll RAM: core holds DTACK until TIM"}
+      - {name: "orom", addr: 0x600000, access: "read.w", expect: "gfx ROM window ~OCHAROMCS: 1 wait (U209), core crom_wait"}
+    checklist:
+      - "Jumpers: none found; CE tied to GND, OE = ~ROMCS, PGM/VPP to VCC"
+      - "Program pair 870_m21.bin (D15-D8, even, F27) / 870_m20.bin (D7-D0, odd, E27)."
+      - "Board decoder (KiCad cpu sheet table): ROM 0x00000-0x3FFFF, work/comm RAM 0x40000-0x5FFFF, palette 0x80000 (8-bit, D7-D0), system I/O 0xA0000, SYSWR 0xC0000, VRCSET 0xE0000, tile ROM 0x400000-0x5FFFFF, GFX ROM 0x600000-0x7FFFFF."
+      - "Core: rom 0x00000-0x3FFFF, ram 0x40000-0x5FFFF (MAME also has RAM at 0x60000 that the core does not decode; avoid it), fix 0x100000, vram 0x120000, oram 0x140000, crom_cs 0x400000-0x5FFFFF, orom_cs 0x600000-0x7FFFFF."
+      - "ROM windows need no bank/RMRD setup for timing (0x0E0000 tile bank only changes data)."
+      - "Avoid writes to 0x0A0000 (CRTKILL/DMA/INT/sound), 0x0C0000 and 0x0E0000; avoid the object RAM 0x140000 (DMA busy). .rom: 8-byte header, vector SSP=0x00040B00 PC=0x00001000 byte-swapped at offset 8.. orom is the last case: the FPGA core does not route CPU object-ROM readback to the lyro SDRAM bus, so jtsim stops there (DTACK recovery overflow); the PCB still measures it."

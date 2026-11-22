@@ -569,6 +569,7 @@ func ExtractManualArchive(ctx context.Context, archive ManualArchive, workspace 
 		if err = xml.Unmarshal(data, &m); err != nil {
 			return result, fmt.Errorf("decode archive MRA %s: %w", name, err)
 		}
+		if m.interlaced_video() { continue }
 		core := strings.TrimPrefix(strings.TrimSpace(m.RBF), "jt")
 		set := strings.TrimSpace(m.Setname)
 		if !strings.HasPrefix(strings.TrimSpace(m.RBF), "jt") || !manualComponent(core) || !manualComponent(set) {

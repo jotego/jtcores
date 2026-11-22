@@ -12,21 +12,32 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"jotego/jtframe/macros"
 )
 
 type MameFrameResult struct {
 	Core, Setname, Verdict, Detail string
 }
 
+type MameFrameOptions struct {
+	Target          string
+	LegacySiDi128   bool
+	Generation      string
+	QualificationID string
+}
+
 type mame_candidate struct {
 	core, set, dir, digest string
+	target                 string
+	legacy_sidi128         bool
+	generation             string
+	qualification_id       string
+	mister_provenance      *MiSTerReferenceProvenance
 	profile                Profile
 	cab_source             string
 	cab_digest             string
@@ -43,13 +54,37 @@ type mame_frame_outcome struct {
 
 // RunMameFrames checks finalized new captures independently while hardware
 // regression may continue to process other games.
-func RunMameFrames(ctx context.Context, root, source, setname string, dryrun bool, jobs int, global_profile string) ([]MameFrameResult, error) {
+func RunMameFrames(ctx context.Context, root, source, setname string, dryrun bool, jobs int, global_profile string, options MameFrameOptions) ([]MameFrameResult, error) {
 	if jobs < 1 {
 		return nil, fmt.Errorf("jobs must be positive")
+	}
+	if options.Target == "" {
+		options.Target = "sidi128"
+	}
+	if options.Target != "sidi128" && options.Target != "mister" {
+		return nil, fmt.Errorf("mame-frames target must be sidi128 or mister")
+	}
+	if options.Target == "mister" && options.LegacySiDi128 {
+		return nil, fmt.Errorf("--legacy-sidi128 cannot be combined with target=mister")
+	}
+	if options.Target == "mister" && (options.Generation == "" || options.QualificationID == "") {
+		return nil, fmt.Errorf("MiSTer MAME validation requires capture generation and qualification ID")
 	}
 	selected, err := parse_mame_setnames(setname)
 	if err != nil {
 		return nil, err
+	}
+	if !dryrun {
+		if options.Target == "sidi128" && !options.LegacySiDi128 {
+			return nil, fmt.Errorf("writing legacy SiDi128 MAME results requires --legacy-sidi128")
+		}
+		if err := guardMameArchiveForWrite(root, options.Target); err != nil {
+			return nil, err
+		}
+	} else if target, present, err := ReadCaptureTarget(root); err != nil {
+		return nil, err
+	} else if present && target != options.Target {
+		return nil, fmt.Errorf("regression archive belongs to target=%s, requested target=%s", target, options.Target)
 	}
 	candidates, err := discover_mame_candidates(root, source, selected)
 	if err != nil {
@@ -81,6 +116,31 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 			return nil, err
 		}
 		candidate := &candidates[i]
+		candidate.target = options.Target
+		candidate.legacy_sidi128 = options.LegacySiDi128
+		candidate.generation = options.Generation
+		candidate.qualification_id = options.QualificationID
+		if options.Target == "mister" {
+			is_mister, provenance, progress_path, provenance_err := findMiSTerMameProvenance(root, candidate.core, candidate.set, candidate.dir, candidate.frames, options.Generation, options.QualificationID)
+			if provenance_err != nil {
+				candidate.promotion_error = provenance_err.Error()
+			} else if !is_mister {
+				candidate.promotion_error = "no completed MiSTer capture provenance matches this candidate"
+			} else {
+				candidate.promotion_error = ""
+				candidate.mister_provenance = provenance
+				candidate.progress_path = progress_path
+			}
+		} else if is_mister, provenance_err := journaledMiSTerNewCapture(root, candidate.core, candidate.set, candidate.dir, candidate.frames); provenance_err != nil {
+			candidate.promotion_error = appendMamePromotionError(candidate.promotion_error, provenance_err.Error())
+		} else if is_mister {
+			candidate.promotion_error = appendMamePromotionError(candidate.promotion_error, "MiSTer result cannot be written through the legacy SiDi128 path")
+		} else if candidate.promotion_error == "" {
+			candidate.progress_path, err = matching_mame_progress(root, candidate.core, candidate.set, candidate.digest)
+			if err != nil {
+				candidate.promotion_error = err.Error()
+			}
+		}
 		if candidate.preflight_error != "" {
 			continue
 		}
@@ -109,12 +169,41 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 	rompath := filepath.Join(home, ".mame", "roms")
 	precisions := make([]int, len(candidates))
 	precision_errors := make([]error, len(candidates))
+	commit_views := map[string]*SourceCommitView{}
+	defer func() {
+		for _, view := range commit_views {
+			_ = view.Close()
+		}
+	}()
 	for i, candidate := range candidates {
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
 		if candidate.preflight_error == "" && mame_err == nil {
-			precisions[i], precision_errors[i] = mame_capture_precision(source, candidate.core)
+			if options.Target == "mister" && candidate.mister_provenance != nil {
+				commit := candidate.mister_provenance.SourceCommit
+				view := commit_views[commit]
+				if view == nil {
+					var viewErr error
+					view, viewErr = OpenSourceCommitView(ctx, source, commit)
+					if viewErr == nil {
+						commit_views[commit] = view
+					}
+					if viewErr != nil {
+						precision_errors[i] = viewErr
+						continue
+					}
+				}
+				precisions[i], precision_errors[i] = mame_capture_precision(view.Root, candidate.core, options.Target)
+				continue
+			}
+			if options.Target == "mister" && candidate.mister_provenance == nil {
+				precision_errors[i] = fmt.Errorf("MiSTer capture candidate has no workflow source commit")
+				continue
+			}
+			if options.Target != "mister" {
+				precisions[i], precision_errors[i] = mame_capture_precision(source, candidate.core, options.Target)
+			}
 		}
 	}
 	if jobs > len(candidates) {
@@ -169,12 +258,14 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 			result := item.result
 			candidate := candidates[item.index]
 			if result.Verdict == "PASS" && !dryrun {
-				if err := promote_mame_candidate(root, candidate); err != nil {
-					result.Verdict, result.Detail = "FAIL", compact_mame_error(err.Error())
+				if candidate.promotion_error != "" {
+					result.Detail += "; ref not promoted: " + compact_mame_error(candidate.promotion_error)
+				} else if err := promote_mame_candidate(root, candidate); err != nil {
+					result.Detail += "; ref not promoted: " + compact_mame_error(err.Error())
 				}
 			}
 			if !dryrun {
-				if err := append_mame_frames_log(root, result); err != nil {
+				if err := append_mame_frames_log(root, options.Target, result); err != nil {
 					runErr = err
 					cancel()
 					done = nil
@@ -197,6 +288,15 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 		return results, runErr
 	}
 	return results, nil
+}
+
+func guardMameArchiveForWrite(root, target string) error {
+	lock, err := AcquireLock(root)
+	if err != nil {
+		return fmt.Errorf("cannot acquire regression lock for MAME archive guard: %w", err)
+	}
+	defer ReleaseLock(lock)
+	return GuardCaptureTarget(root, target)
 }
 
 func resolve_mame_candidate_profile(source, global_profile string, candidate *mame_candidate) error {
@@ -360,7 +460,7 @@ func read_published_mame_frames(dir string) (CaptureSet, error) {
 		if parseErr != nil {
 			return set, fmt.Errorf("unexpected PNG %s", entry.Name())
 		}
-		if requested <= 0 || requested%100 != 0 {
+		if requested <= 0 || actual < 1 || requested%100 != 0 {
 			return set, fmt.Errorf("invalid regression checkpoint %s", entry.Name())
 		}
 		set.Captures = append(set.Captures, CaptureRecord{Type: "capture", Requested: requested, Actual: actual, Image: entry.Name()})
@@ -540,7 +640,10 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 	if err != nil {
 		return "", err
 	}
-	frame_limit := max_frame + 500
+	frame_limit, startup_secs, err := mame_comparison_frame_limit(max_frame, refresh)
+	if err != nil {
+		return "", err
+	}
 	timeout := MameFrameTimeout(frame_limit, refresh)
 	if timeout <= 0 {
 		return "", fmt.Errorf("invalid MAME timeout for %.6g Hz", refresh)
@@ -548,7 +651,7 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 	if err = prepare_mame_nvram(ctx, mame, candidate.set, rompath, work, source, candidate.core); err != nil {
 		return "", err
 	}
-	if err = capture_mame_frames(ctx, mame, candidate.set, rompath, work, frame_limit, timeout, cab_script); err != nil {
+	if err = capture_mame_frames(ctx, mame, candidate.set, rompath, work, frame_limit, startup_secs, timeout, cab_script); err != nil {
 		return "", err
 	}
 	mame_dir := filepath.Join(work, "snapshots")
@@ -582,6 +685,20 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 	return fmt.Sprintf("%d frames matched at %s capture precision and %g Hz; MAME frames %d..%d", len(matched), capture_precision_name(capture_bits), refresh, matched[0], matched[len(matched)-1]), nil
 }
 
+const mameStartupScreenBypassMaxSeconds = 299
+
+func mame_comparison_frame_limit(maxCheckpoint int, refresh float64) (int, int, error) {
+	if maxCheckpoint < 1 || math.IsNaN(refresh) || math.IsInf(refresh, 0) || refresh <= 0 {
+		return 0, 0, fmt.Errorf("invalid MAME frame budget inputs: checkpoint=%d refresh=%g", maxCheckpoint, refresh)
+	}
+	frameLimit := maxCheckpoint + 500
+	startupSeconds := int(math.Ceil(float64(frameLimit) / refresh))
+	if startupSeconds < 1 || startupSeconds > mameStartupScreenBypassMaxSeconds {
+		return 0, 0, fmt.Errorf("checkpoint %d plus the 500-frame MAME search grace requires %d emulated seconds; visible unattended startup is supported only through %d seconds", maxCheckpoint, startupSeconds, mameStartupScreenBypassMaxSeconds)
+	}
+	return frameLimit, startupSeconds, nil
+}
+
 func capture_precision_name(bits int) string {
 	if bits == 4 {
 		return "RGB444"
@@ -589,39 +706,33 @@ func capture_precision_name(bits int) string {
 	if bits == 5 {
 		return "RGB555"
 	}
-	return fmt.Sprintf("RGB%d", bits*3)
+	return fmt.Sprintf("RGB%d%d%d", bits, bits, bits)
 }
 
-func mame_capture_precision(source, core string) (int, error) {
-	configured_frame := os.Getenv("JTFRAME")
-	if configured_frame == "" {
-		return 0, fmt.Errorf("JTFRAME is unset; cannot resolve %s capture precision", core)
+func mame_capture_precision(source, core, target string) (int, error) {
+	if target != "sidi128" && target != "mister" {
+		return 0, fmt.Errorf("unsupported MAME capture target %q", target)
 	}
-	configured_root := os.Getenv("JTROOT")
-	if configured_root == "" {
-		return 0, fmt.Errorf("JTROOT is unset; cannot resolve %s capture precision", core)
+	value, err := resolveJTFRAMEValue(source, core, target, "JTFRAME_COLORW")
+	if err != nil {
+		return 0, err
 	}
-	if !same_mame_source_path(configured_root, source) {
-		return 0, fmt.Errorf("JTROOT %s does not match capture source %s; cannot resolve %s color width safely", configured_root, source, core)
-	}
-	frame_source := filepath.Join(source, "modules", "jtframe")
-	if !same_mame_source_path(configured_frame, frame_source) {
-		return 0, fmt.Errorf("JTFRAME %s does not match capture source %s; cannot resolve %s target macros safely", configured_frame, frame_source, core)
-	}
-	macro_file := filepath.Join(source, "cores", core, "cfg", "macros.def")
-	if info, stat_err := os.Stat(macro_file); stat_err != nil || !info.Mode().IsRegular() {
-		if stat_err != nil {
-			return 0, fmt.Errorf("inspect core color-width macros %s: %w", macro_file, stat_err)
-		}
-		return 0, fmt.Errorf("core color-width macros %s are not a regular file", macro_file)
-	}
-	macros.MakeMacros(core, "sidi128")
-	color_width, err := strconv.Atoi(macros.Get("JTFRAME_COLORW"))
+	color_width, err := strconv.Atoi(value)
 	if err != nil {
 		return 0, fmt.Errorf("parse %s JTFRAME_COLORW: %w", core, err)
 	}
-	if color_width < 4 || color_width > 8 {
-		return 0, fmt.Errorf("%s JTFRAME_COLORW %d is outside the supported range 4..8", core, color_width)
+	return mame_target_capture_precision(color_width, target)
+}
+
+func mame_target_capture_precision(color_width int, target string) (int, error) {
+	if target != "sidi128" && target != "mister" {
+		return 0, fmt.Errorf("unsupported MAME capture target %q", target)
+	}
+	if color_width < 1 || color_width > 8 {
+		return 0, fmt.Errorf("JTFRAME_COLORW %d is outside the supported range 1..8", color_width)
+	}
+	if target == "mister" {
+		return color_width, nil
 	}
 	if color_width < 5 {
 		return 4, nil
@@ -648,7 +759,7 @@ func same_mame_source_path(left, right string) bool {
 }
 
 func validate_published_capture_precision(reference CaptureSet, capture_bits int) error {
-	if capture_bits != 4 && capture_bits != 5 {
+	if capture_bits < 1 || capture_bits > 8 {
 		return fmt.Errorf("invalid FPGA capture precision %d bits per channel", capture_bits)
 	}
 	for _, capture := range reference.Captures {
@@ -662,7 +773,7 @@ func validate_published_capture_precision(reference CaptureSet, capture_bits int
 		if err != nil {
 			return fmt.Errorf("decode FPGA capture %s: %w", capture.Image, err)
 		}
-		if _, err = SignatureImageAtCapturePrecision(capture.Requested, img, capture_bits, true); err != nil {
+		if _, err = SignatureImageAtCapturePrecision(capture.Requested, img, capture_bits); err != nil {
 			return fmt.Errorf("FPGA capture %s does not match source-inferred %s capture precision: %w", capture.Image, capture_precision_name(capture_bits), err)
 		}
 	}
@@ -670,8 +781,31 @@ func validate_published_capture_precision(reference CaptureSet, capture_bits int
 }
 
 func promote_mame_candidate(root string, candidate mame_candidate) error {
+	if candidate.target != "sidi128" && candidate.target != "mister" {
+		return fmt.Errorf("MAME promotion requires an explicit capture target")
+	}
+	if candidate.target == "sidi128" && !candidate.legacy_sidi128 {
+		return fmt.Errorf("legacy SiDi128 MAME promotion requires --legacy-sidi128")
+	}
+	if candidate.target == "sidi128" {
+		is_mister, err := journaledMiSTerNewCapture(root, candidate.core, candidate.set, candidate.dir, candidate.frames)
+		if err != nil {
+			return fmt.Errorf("cannot verify MAME target provenance before promotion: %w", err)
+		}
+		if is_mister {
+			return fmt.Errorf("MiSTer result cannot be promoted through the legacy SiDi128 path")
+		}
+	}
 	if candidate.promotion_error != "" {
 		return fmt.Errorf("matches are read-only because promotion cannot be proven safe: %s", candidate.promotion_error)
+	}
+	lock, err := AcquireLock(root)
+	if err != nil {
+		return fmt.Errorf("cannot acquire regression lock for MAME promotion: %w", err)
+	}
+	defer ReleaseLock(lock)
+	if err := RequireCaptureTarget(root, candidate.target); err != nil {
+		return err
 	}
 	if err := recheck_mame_candidate(root, candidate); err != nil {
 		return err
@@ -682,10 +816,168 @@ func promote_mame_candidate(root string, candidate mame_candidate) error {
 	} else if !os.IsNotExist(err) {
 		return err
 	}
+	if candidate.target == "mister" {
+		isMiSTer, provenance, _, err := findMiSTerMameProvenance(root, candidate.core, candidate.set, candidate.dir, candidate.frames, candidate.generation, candidate.qualification_id)
+		if err != nil || !isMiSTer || provenance == nil || candidate.mister_provenance == nil || !reflect.DeepEqual(*provenance, *candidate.mister_provenance) {
+			return fmt.Errorf("MiSTer candidate generation or qualification changed during MAME validation")
+		}
+		if err = validateMiSTerPriorReferenceForAcceptance(root, filepath.Dir(candidate.dir), *provenance); err != nil {
+			return err
+		}
+		provenanceBytes, encodeErr := encodeMiSTerReferenceProvenance(*provenance)
+		if encodeErr != nil {
+			return encodeErr
+		}
+		if err = accept_curation_game_with_metadata(filepath.Dir(candidate.dir), provenanceBytes, nil); err != nil {
+			return fmt.Errorf("cannot promote exact MiSTer match: %w", err)
+		}
+		return nil
+	}
 	if err := os.Rename(candidate.dir, ref); err != nil {
 		return fmt.Errorf("cannot promote exact match to ref: %w", err)
 	}
 	return nil
+}
+
+func journaledMiSTerNewCapture(root, core, set, newDir string, frames CaptureSet) (bool, error) {
+	entries, err := os.ReadDir(filepath.Join(root, "log"))
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	job := PoolJobKey{Core: core, Setname: set}
+	for _, entry := range entries {
+		if entry.IsDir() || entry.Type()&os.ModeSymlink != 0 || filepath.Ext(entry.Name()) != ".json" || !mame_progress_filename(entry.Name()) {
+			continue
+		}
+		progressPath := filepath.Join(root, "log", entry.Name())
+		progress, err := read_mame_progress(root, progressPath)
+		if err != nil {
+			return false, fmt.Errorf("read candidate target provenance %s: %w", entry.Name(), err)
+		}
+		for key, lane := range progress.CaptureRuns {
+			if lane.Target != "mister" || lane.FinalizationKind != miSTerSerialResultsKind {
+				continue
+			}
+			if err := validateCaptureRunLane(key, lane); err != nil {
+				return false, fmt.Errorf("validate MiSTer capture lane %s: %w", key, err)
+			}
+			for _, finalization := range lane.Finalizations {
+				plan := finalization.Plan
+				if plan == nil || finalization.JobKey != job || plan.Effect != MiSTerEffectNew || plan.Candidate.Target != "mister" || plan.Candidate.Core != core || plan.Candidate.Setname != set {
+					continue
+				}
+				digest, err := digestOwnedTree(newDir)
+				if err != nil {
+					return false, err
+				}
+				if digest != plan.AfterSlotDigests["new"] {
+					continue
+				}
+				published, err := readMiSTerPublishedCandidate(newDir, plan.Candidate)
+				if err != nil || !sameMameCaptureSequence(published, frames) {
+					continue
+				}
+				return true, nil
+			}
+		}
+	}
+	return false, nil
+}
+
+func findMiSTerMameProvenance(root, core, set, newDir string, frames CaptureSet, generation, qualificationID string) (bool, *MiSTerReferenceProvenance, string, error) {
+	entries, err := os.ReadDir(filepath.Join(root, "log"))
+	if os.IsNotExist(err) {
+		return false, nil, "", nil
+	}
+	if err != nil {
+		return false, nil, "", err
+	}
+	job := PoolJobKey{Core: core, Setname: set}
+	var candidates []MiSTerReferenceProvenance
+	var candidate_paths []string
+	active := false
+	for _, entry := range entries {
+		if entry.IsDir() || entry.Type()&os.ModeSymlink != 0 || filepath.Ext(entry.Name()) != ".json" || !mame_progress_filename(entry.Name()) {
+			continue
+		}
+		progress, readErr := read_mame_progress(root, filepath.Join(root, "log", entry.Name()))
+		if readErr != nil {
+			return false, nil, "", fmt.Errorf("read MiSTer candidate provenance %s: %w", entry.Name(), readErr)
+		}
+		active = active || progress.Current == core+"/"+set
+		for key, lane := range progress.CaptureRuns {
+			if lane.Target != "mister" || lane.FinalizationKind != miSTerSerialResultsKind || lane.CaptureGeneration != generation || lane.QualificationID != qualificationID {
+				continue
+			}
+			if err = validateCaptureRunLane(key, lane); err != nil {
+				return false, nil, "", fmt.Errorf("validate MiSTer candidate lane %s: %w", key, err)
+			}
+			jobKey := poolJobMapKey(job)
+			for _, finalization := range lane.Finalizations {
+				plan := finalization.Plan
+				if finalization.State != CaptureFinalizationComplete || finalization.JobKey != job || plan == nil || plan.Effect != MiSTerEffectNew || plan.Summary.Result != New ||
+					!miSTerCurrentCaptureProtocol(plan.Candidate.CaptureProtocol) || plan.Candidate.Target != "mister" || plan.Candidate.Core != core || plan.Candidate.Setname != set || plan.Candidate.Generation != generation || plan.Candidate.QualificationID != qualificationID {
+					continue
+				}
+				if lane.Selected[jobKey] != plan.Summary.PortableID || lane.Games[jobKey].OperationKey != plan.Summary.OperationKey || lane.Games[jobKey].OutputDigest != plan.CandidateDigest {
+					continue
+				}
+				if err = plan.Validate(); err != nil {
+					return false, nil, "", fmt.Errorf("validate finalized MiSTer candidate plan: %w", err)
+				}
+				currentDigest, digestErr := digestOwnedTree(newDir)
+				if digestErr != nil || currentDigest != plan.AfterSlotDigests["new"] {
+					continue
+				}
+				published, publishedErr := readMiSTerPublishedCandidate(newDir, plan.Candidate)
+				if publishedErr != nil || !sameMameCaptureSequence(published, frames) {
+					continue
+				}
+				staged, _, stagedErr := readStagedCandidate(plan.CandidateLocator, plan.Candidate)
+				if stagedErr != nil || !sameMameCaptureSequence(staged, frames) {
+					return false, nil, "", fmt.Errorf("private MiSTer candidate no longer matches published frame sequence")
+				}
+				candidates = append(candidates, plan.Candidate)
+				candidate_paths = append(candidate_paths, filepath.Join(root, "log", entry.Name()))
+			}
+		}
+	}
+	if len(candidates) > 1 {
+		return false, nil, "", fmt.Errorf("multiple completed MiSTer generations match %s/%s", core, set)
+	}
+	if active {
+		return false, nil, "", fmt.Errorf("game is active in a regression run; deferred")
+	}
+	if len(candidates) == 0 {
+		return false, nil, "", nil
+	}
+	return true, &candidates[0], candidate_paths[0], nil
+}
+
+func sameMameCaptureSequence(a, b CaptureSet) bool {
+	// read_published_mame_frames has no descriptor from which to infer image
+	// dimensions. The caller already matched the complete owned-tree digest;
+	// compare the ordered filenames/checkpoints here.
+	if len(a.Captures) != len(b.Captures) {
+		return false
+	}
+	for index, left := range a.Captures {
+		right := b.Captures[index]
+		if left.Requested != right.Requested || left.Actual != right.Actual || left.Image != right.Image {
+			return false
+		}
+	}
+	return true
+}
+
+func appendMamePromotionError(current, next string) string {
+	if current == "" {
+		return next
+	}
+	return current + "; " + next
 }
 
 func copy_mame_frames(candidate mame_candidate, destination string) error {
@@ -730,6 +1022,13 @@ func check_mame_progress(root string, candidate mame_candidate) error {
 func recheck_mame_candidate(root string, candidate mame_candidate) error {
 	if err := check_mame_progress(root, candidate); err != nil {
 		return err
+	}
+	if candidate.target == "mister" {
+		is_mister, provenance, path, err := findMiSTerMameProvenance(root, candidate.core, candidate.set, candidate.dir, candidate.frames, candidate.generation, candidate.qualification_id)
+		if err != nil || !is_mister || provenance == nil || path != candidate.progress_path || candidate.mister_provenance == nil || !reflect.DeepEqual(*provenance, *candidate.mister_provenance) {
+			return fmt.Errorf("MiSTer capture generation or qualification changed during validation")
+		}
+		return nil
 	}
 	progress, err := read_mame_progress(root, candidate.progress_path)
 	if err != nil {
@@ -799,12 +1098,21 @@ func MameFrameTimeout(frame_limit int, refresh float64) time.Duration {
 		return 0
 	}
 	seconds := math.Ceil(1.1 * float64(frame_limit) / refresh)
+	if seconds <= 0 || math.IsInf(seconds, 0) || math.IsNaN(seconds) {
+		return 0
+	}
+	if seconds > 300 {
+		return 5 * time.Minute
+	}
 	return time.Duration(seconds) * time.Second
 }
 
-func capture_mame_frames(parent context.Context, mame, set, rompath, work string, frame_limit int, timeout time.Duration, cab MameCabScript) error {
+func capture_mame_frames(parent context.Context, mame, set, rompath, work string, frame_limit, startup_seconds int, timeout time.Duration, cab MameCabScript) error {
 	if timeout <= 0 {
 		return fmt.Errorf("invalid MAME frame timeout")
+	}
+	if startup_seconds < 1 || startup_seconds > mameStartupScreenBypassMaxSeconds {
+		return fmt.Errorf("invalid MAME startup bypass duration %d seconds", startup_seconds)
 	}
 	script := filepath.Join(work, "capture.lua")
 	complete := filepath.Join(work, "complete")
@@ -818,7 +1126,7 @@ func capture_mame_frames(parent context.Context, mame, set, rompath, work string
 	}
 	ctx, cancel := context.WithTimeout(parent, timeout)
 	defer cancel()
-	command := exec.CommandContext(ctx, mame, set, "-noreadconfig", "-skip_gameinfo", "-sound", "none", "-nothrottle", "-window", "-video", "none", "-snapview", "native", "-autoboot_delay", "0",
+	command := exec.CommandContext(ctx, mame, set, "-noreadconfig", "-skip_gameinfo", "-seconds_to_run", fmt.Sprint(startup_seconds), "-sound", "none", "-nothrottle", "-window", "-snapview", "native", "-autoboot_delay", "0",
 		"-rompath", rompath, "-inipath", filepath.Join(work, "ini"), "-cfg_directory", filepath.Join(work, "cfg"), "-nvram_directory", filepath.Join(work, "nvram"), "-snapshot_directory", filepath.Join(work, "snapshots"), "-input_directory", filepath.Join(work, "input"), "-state_directory", filepath.Join(work, "state"), "-diff_directory", filepath.Join(work, "diff"), "-autoboot_script", script, "-norotate")
 	command.Dir = work
 	command.Env = isolated_mame_env(work)
@@ -979,7 +1287,7 @@ func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir
 		if err != nil {
 			return nil, err
 		}
-		signature, err := SignatureImageAtCapturePrecision(capture.Requested, img, capture_bits, true)
+		signature, err := SignatureImageAtCapturePrecision(capture.Requested, img, capture_bits)
 		if err != nil {
 			return nil, err
 		}
@@ -999,7 +1307,7 @@ func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir
 		if err != nil {
 			return nil, fmt.Errorf("decode MAME frame %d: %w", i+1, err)
 		}
-		signature, err := SignatureImageAtCapturePrecision(i+1, img, capture_bits, false)
+		signature, err := SignatureImageAtCapturePrecision(i+1, img, capture_bits)
 		if err != nil {
 			return nil, err
 		}
@@ -1091,7 +1399,15 @@ func mame_boundary_match(ctx context.Context, reference FrameSignature, candidat
 	return false, nil
 }
 
-func append_mame_frames_log(root string, result MameFrameResult) error {
+func append_mame_frames_log(root, target string, result MameFrameResult) error {
+	lock, err := AcquireLock(root)
+	if err != nil {
+		return fmt.Errorf("cannot acquire regression lock for MAME log append: %w", err)
+	}
+	defer ReleaseLock(lock)
+	if err = RequireCaptureTarget(root, target); err != nil {
+		return err
+	}
 	log_dir := filepath.Join(root, "log")
 	if err := os.MkdirAll(log_dir, 0750); err != nil {
 		return err

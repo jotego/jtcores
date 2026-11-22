@@ -12,8 +12,13 @@ import (
 // Config contains portable paths and board connection settings. Secrets stay
 // in the configured netrc file, not this YAML document.
 type Config struct {
+	Target            string   `yaml:"target"`
+	LegacySiDi128     bool     `yaml:"-"`
+	Boards            []MiSTerBoardConfig `yaml:"boards,omitempty"`
+	CaptureContract   *MiSTerCaptureContract `yaml:"capture-contract,omitempty"`
 	Root              string   `yaml:"root"`
 	Source            string   `yaml:"source"`
+	SourceConfigRoot  string   `yaml:"-"`
 	Repository        string   `yaml:"repository"`
 	ROMSource         string   `yaml:"rom-source"`
 	BuildsDir         string   `yaml:"builds-dir"`
@@ -41,6 +46,7 @@ func ReadConfig(filename string) (Config, error) {
 		return config, e
 	}
 	e = yaml.UnmarshalStrict(data, &config)
+	if e == nil { e = config.ValidateMiSTer() }
 	return config, e
 }
 
@@ -51,6 +57,9 @@ type Manifest struct {
 	Source string         `json:"source"`
 	ProjectSHA string      `json:"project_sha"`
 	Cores  []CoreManifest `json:"cores"`
+	SkippedTargets []string `json:"skipped_targets,omitempty"`
+	SkippedBuilds []string `json:"skipped_builds,omitempty"`
+	SkippedGames []string `json:"skipped_games,omitempty"`
 }
 
 type CoreManifest struct {

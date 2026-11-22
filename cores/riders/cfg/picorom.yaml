@@ -1,0 +1,65 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report riders <set>
+bustest:
+  glfgreat:
+    board: "Golfing Greats GX061"
+    cpu: m68k
+    cpu_hz: 16000000
+    rom:
+      cpu_base: 0x0
+      even: "1H"
+      odd: "4H"
+      chip: "27C010"
+      pins: 32
+      rom_offset: 16
+      word_swap: true
+    ram: {base: 0x100000, size: 0x4000}
+    watchdog: {addr: 0x124000, access: "write.w", why: "0x124000: 7E 74LS138 Y4 'AFE' (AFR, watchdog) in the PDF schematic; MAME reset16_w. KiCad leaves 7E O4 unconnected (incomplete drawing). Timeout not measured; kick between every test loop. Not decoded by the core."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "0 wait"}
+      - {name: "ram", addr: 0x100100, access: "write.w", expect: "0 wait"}
+      - {name: "adc", addr: 0x123000, access: "read.w", expect: "1 CPU clock wait (7F ALS74 chain)"}
+      - {name: "tile_rd", addr: 0x200000, access: "read.w", expect: "052109 PQ slot: starts on a PQ rise, completes on the next PQ fall; reads one 48 MHz clock later"}
+      - {name: "tile_wr", addr: 0x200000, access: "write.w", expect: "052109 PQ slot wait"}
+      - {name: "pal", addr: 0x108000, access: "read.w", expect: "0 wait"}
+    checklist:
+      - "Jumpers: S11/S12 (JP3 at 4G) route A19/A18 or +5V to ROM pins 31/30 (PDF labels the sockets EP4M). Leave them as found for 27C010; A18/A19 are 0 in the test window either way."
+      - "KiCad netlist: 1H 27C010 D0-D7 -> CPU D8-D15 (even, 061l02), 4H 27C010 -> D0-D7 (odd, 061l03), OE = /ROM from 3F 74F139."
+      - "Verified rom/glfgreat.rom[16:] == byte-swapped interleave of 061l02.1h/061l03.4h (SSP=0x00100E00 PC=0x00000400)."
+      - "ADC0804 at 0x123000 is mapped on the upper byte in MAME; a read only returns the last conversion (reading is harmless, never write: a write starts a conversion)."
+      - "052109 at 0x200000 (A12 not used, MAME k052109_word_noA12): 0x200000 is the fixed-layer tilemap; never write 0x206000-0x207FFF (052109 scroll/control)."
+      - "Do not touch 0x122000 (RMRD/PSAC bank), 0x125000 (053260), 0x11xxxx chip registers."
+      - "Keep the 68000 interrupt mask at 7."
+  ssriders:
+    board: "Sunset Riders GX064 (PWB 352359B per manual board drawing; same PCB family as TMNT2 352359C)"
+    cpu: m68k
+    cpu_hz: 16000000
+    rom:
+      cpu_base: 0x0
+      even: "8E"
+      odd: "8G"
+      chip: "27C020"
+      pins: 32
+      comms_lane: odd
+      rom_offset: 16
+      word_swap: true
+    ram: {base: 0x104000, size: 0x4000}
+    watchdog: {addr: 0x1c0400, access: "write.w", why: "0x1C0400: 13G (KiCad G13) 74LS138 O4 = /AFR, gated by /IO and PDS, so any read or write strobes it. MAME uses reset16_r/w. Timeout not measured; kick between every test loop (keep each loop well under one frame, ~16 ms). Not decoded by the core (no chip select, zero-wait DTACK)."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "0 wait (combinational PAL DTACK)"}
+      - {name: "ram", addr: 0x104100, access: "write.w", expect: "0 wait"}
+      - {name: "tile_rd", addr: 0x600000, access: "read.w", expect: "PQ slot wait (F15A 74LS74 clocked by 052109 PQ)"}
+      - {name: "tile_wr", addr: 0x600000, access: "write.w", expect: "PQ slot wait"}
+      - {name: "objram", addr: 0x180000, access: "read.w", expect: "0 wait in core (053245 RAM)"}
+      - {name: "pal", addr: 0x140000, access: "read.w", expect: "0 wait"}
+    checklist:
+      - "Jumpers: Jumper '2M / 512/1M' near 8D-9D (note 5 on the board drawing) selects the type of the 10E/10G pair (EP512K/EP1M), not 8E/8G. Leave it as found."
+      - "Even socket 8E holds 064eac02 (D15-D8), odd socket 8G holds 064eac03 (D7-D0); 10E/10G hold 0x80000-0xBFFFF and stay unused."
+      - "Verified rom/ssriders.rom[16:] == byte-swapped interleave of 064eac02.8e/064eac03.8g (reset vector SSP=0x00104E00 PC=0x00001000)."
+      - "Work RAM 0x104000-0x107FFF (core ram_cs = A14 inside 0x10xxxx-0x13xxxx)."
+      - "Tile RAM write 0x600000 hits 052109 bytes 0x0000/0x2000 (fixed-layer tilemap) only; never write CPU 0x603000-0x603FFF (052109 scroll/control registers 0x1800-0x1FFF)."
+      - "Do not touch 0x1C0200/0x1C0300 (EEPROM/gfx control incl."
+      - "RMRD), 0x1C0800 (protection/053990 DMA), 0x5Cxxxx (sound, 053251)."
+      - "Keep the 68000 interrupt mask at 7 (no vectors set up)."
+      - "No KiCad or PDF page covers the CPU/ROM area, so the sockets come from MAME names plus the manual board drawing (8E '064 *02 32P', 8G '064 *03 32P').."
+      - "The recorder unit goes in 8G (odd lane, comms_lane odd), as in the 2026-11-19 run."

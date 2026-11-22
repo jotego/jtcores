@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -118,6 +120,71 @@ static void test_run_iterator_matches_frames() {
     check(long_run.next_run().count==1000000000ULL && long_run.done(),"long hold is not expanded");
 }
 
+// Golden vectors are shared with the Go reader in jtutil/regression/cab.go
+static string describe_runs(const string& path) {
+    ostringstream out;
+    try {
+        CabinetScript script(path.c_str());
+        out << "capture ";
+        if( script.has_capture() ) out << script.capture_first(); else out << '-';
+        out << "\nframes " << script.frame_count() << '\n';
+        vector<CabinetRun> runs;
+        while( !script.done() ) {
+            const CabinetRun run = script.next_run();
+            const CabinetFrame& a = run.frame;
+            if( !runs.empty() ) {
+                const CabinetFrame& b = runs.back().frame;
+                if( a.inputs == b.inputs && a.cheats == b.cheats && a.has_dipsw == b.has_dipsw && a.dipsw == b.dipsw &&
+                    a.tracing_on == b.tracing_on && a.dump == b.dump ) {
+                    runs.back().count += run.count;
+                    continue;
+                }
+            }
+            runs.push_back(run);
+        }
+        for( const auto& run : runs ) {
+            const CabinetFrame& f = run.frame;
+            out << run.count << ' ' << hex << f.inputs << ' ';
+            if( f.has_dipsw ) out << f.dipsw; else out << '-';
+            out << dec << ' ' << (f.tracing_on ? 't' : '-') << (f.dump ? 'd' : '-') << ' ';
+            if( f.cheats.empty() ) out << '-';
+            for( size_t k = 0; k < f.cheats.size(); k++ ) out << (k ? "," : "") << f.cheats[k];
+            out << '\n';
+        }
+    } catch( const CabinetError& error ) {
+        return "error " + to_string(error.line()) + "\n";
+    }
+    return out.str();
+}
+
+static void test_vectors(const string& folder) {
+    vector<string> cabs;
+    for( const auto& entry : filesystem::directory_iterator(folder) ) {
+        if( entry.path().extension() == ".cab" ) cabs.push_back(entry.path().string());
+    }
+    sort(cabs.begin(), cabs.end());
+    check(cabs.size() > 20, "too few golden vectors in " + folder);
+    for( const auto& cab : cabs ) {
+        const string expect_path = cab.substr(0, cab.size() - 4) + ".expect";
+        ifstream expect_file(expect_path);
+        check(expect_file.good(), "missing " + expect_path);
+        ostringstream expected;
+        expected << expect_file.rdbuf();
+        const string got = describe_runs(cab);
+        check(got == expected.str(), cab + ": expected\n" + expected.str() + "got\n" + got);
+    }
+}
+
+static void test_capture_api() {
+    istringstream input("capture 2\n=250\n");
+    CabinetScript script(input, "capture.cab");
+    check(script.has_capture() && script.capture_first() == 2, "capture value");
+    check(script.frame_count() == 251, "capture adds no frames");
+    check(CabinetScript::CAPTURE_PERIOD == 100, "capture period");
+    expect_error([] { frames("1\ncapture 1\n"); }, "at cabinet line 2");
+    expect_error([] { frames("capture 3\n=2\n"); }, "at cabinet line 1");
+}
+
 static void test_cheat_database() {
     const string path = write_fixture(".yaml",
         "cabal:\n"
@@ -152,8 +219,10 @@ static void test_cheat_errors() {
     remove(duplicate.c_str());
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     try {
+        test_vectors(argc > 1 ? argv[1] : "vectors");
+        test_capture_api();
         test_relative_inputs_and_dips();
         test_absolute_and_idle_timing();
         test_loops_and_compact_repeats();

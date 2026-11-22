@@ -46,7 +46,12 @@ module jtframe_mister_dwnld(
     output reg [ 7:0] ioctl_dout,
 
     // Configuration
+`ifdef JTFRAME_CRT480I
+    output reg [18:0] core_mod,     // [18]: 15 kHz 480i analog output (MRA mod byte 3, bit 2)
+    output reg        core_mod_ok=0, // the MRA's mod download has ended
+`else
     output reg [17:0] core_mod,
+`endif
     output reg [ 7:0] game_vol=8'h80,
     input      [31:0] status,
     output     [31:0] dipsw,
@@ -73,18 +78,36 @@ localparam [7:0] IDX_DIPSW        = 8'd254,
 localparam [26:0] CART_OFFSET = `ifdef JTFRAME_CART_OFFSET `JTFRAME_CART_OFFSET `else 27'd0 `endif ;
 
 wire is_rom, is_cart, is_nvram;
+`ifdef JTFRAME_CRT480I
+reg  mod_dwn=0;
+`endif
 
 always @(posedge clk) begin
     if( rst ) begin
         core_mod <= 0;
+`ifdef JTFRAME_CRT480I
+        core_mod_ok <= 0;
+`endif
     end else begin
         // The hps_addr[0]==1'b0 condition is needed in case JTFRAME_MR_FASTIO is enabled
         // as it always creates two write events and the second would delete the data of the first
         if (hps_wr && hps_index==IDX_MOD) case (hps_addr[1:0])
+`ifdef JTFRAME_CRT480I
+            0: core_mod       <= {12'd0,hps_dout[6:0]};
+`else
             0: core_mod       <= {11'd0,hps_dout[6:0]};
+`endif
             1: game_vol       <= hps_dout;
+`ifdef JTFRAME_CRT480I
+            2: core_mod[18:16]<= hps_dout[2:0];
+`else
             2: core_mod[17:16]<= hps_dout[1:0];
+`endif
         endcase
+`ifdef JTFRAME_CRT480I
+        mod_dwn <= hps_download && hps_index==IDX_MOD;
+        if( mod_dwn && !hps_download ) core_mod_ok <= 1; // all mod bytes are in
+`endif
     end
 end
 
