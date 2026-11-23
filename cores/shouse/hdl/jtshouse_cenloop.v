@@ -35,9 +35,6 @@ assign over      = &blank && cencnt > DEN[CW-1:0]-{NUM[CW-2:0],1'b0};
 assign cencnt_nx = {1'b0,cencnt}+NUM[CW:0] -
                    (over && bsyg ? DEN[CW:0] : {CW+1{1'b0}});
 
-// The CPU clocks keep running during reset, but they restart when the reset
-// is released, so the CPUs start with the same phases in every run.
-// A pulse set before the restart is dropped
 assign cen_main = cpu_cen[0] & ~restart;
 assign cen_sub  = cpu_cen[1] & ~restart;
 assign cen_mcu  =|cpu_cen[3:0] & ~restart;

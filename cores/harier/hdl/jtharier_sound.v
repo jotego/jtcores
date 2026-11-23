@@ -3,7 +3,7 @@
  * Date: 18-8-2026 */
 
 module jtharier_sound(
-    input                rst,      // game reset
+    input                rst,
     input                snd_rstn, // PPI0 port B bit 5, held low by the 68000
     input                clk,
     input                ym2151,   // Enduro Racer sound-board selection
@@ -43,9 +43,6 @@ wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, jt03_irq_n, jt51_irq_n,
 reg  [ 7:0] cpu_din;
 reg         ram_cs, fm_cs, pcmcmd_cs, latch_cs,
             snd_rst, jt03_rst, jt51_rst, int_n;
-// The sound board is also held in reset while the game is in reset. Port B of
-// the PPI reads high during reset, so snd_rstn alone would let the sound CPU and
-// the FM chips run, and the game would not repeat from one run to the next
 wire        srst_n = snd_rstn & ~rst;
 
 assign jt51_csn =~(fm_cs &  ym2151);
