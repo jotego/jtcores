@@ -24,10 +24,8 @@ module jtframe_6809wait(
     reg  [ 3:0] misses;
     wire        catchup;
     reg         rstn_l=0, restart=0;
-    wire [ 1:0] cc;     // cencnt, restarted when the reset is released
+    wire [ 1:0] cc;
 
-    // The E/Q phase restarts when the reset is released, so the CPU starts
-    // with the same phase in every run. cen keeps running during reset
     assign cc = restart ? 2'd0 : cencnt;
 
     always @(posedge clk) begin

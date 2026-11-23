@@ -28,7 +28,7 @@ module jtframe_board_sdram #(
 )(
     input                   rst,
     input                   clk,
-    input                   lvbl,     // refresh restarts at every frame
+    input                   lvbl,
     output                  init,
     input                   prog_en,
 
@@ -150,11 +150,6 @@ reg  lvbl_l=0, rfsh=0;
 wire [`JTFRAME_RFSH_WC:0] rfsh_nx = rfsh_cnt + {1'b0,`JTFRAME_RFSH_N};
 
 // Automatic JTFRAME macros set a 64us refresh period
-// The refresh period restarts at every frame, with a refresh request, so
-// refresh requests keep a fixed timing with respect to the game video, also
-// while the game is in reset. As the game reset is released at a fixed point
-// of the frame, the SDRAM timing seen by the game does not depend on how long
-// the FPGA ran before. The last period of each frame is just shorter.
 always @(posedge clk) begin
     lvbl_l <= lvbl;
     rfsh   <= 0;

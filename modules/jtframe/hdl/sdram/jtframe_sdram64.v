@@ -524,11 +524,6 @@ jtframe_sdram64_bank #(
 
 always @(*) begin
     rfsh_bg = &idle && (noreq | help) && rfsh_br;
-    // The refresh starts with a precharge-all command, so nobody else can get
-    // the bus in the same cycle: an ACTIVE command would be lost and the
-    // following read/write would go to a closed row. This can happen when the
-    // refresh is forced (help) or when a request comes at the same time,
-    // as noreq is registered
     prog_bg = pre_br & !rfshing & !rfsh_bg;
     if( rfshing || rfsh_bg ) begin
         bg=0;

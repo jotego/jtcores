@@ -54,14 +54,6 @@ function [CW-1:0] clip(input [CW:0]a); begin
     clip = a[CW] ? MAXOUT : a[CW-1:0];
 end endfunction
 
-// cen keeps running during reset, as some CPUs need it to reset, but its phase
-// restarts when reset is released. Otherwise, it would depend on how long the
-// FPGA ran before the reset and the game would not repeat from one run to the next
-// The game gets its reset through jtframe_rsthold, one clock after rst. So the
-// cen pulse at the restart clock edge, which carries the old phase, still falls
-// within the game reset and needs no masking. Masking cen with restart would put
-// rst, which jtframe_reset sets on the falling clock edge, in a half-cycle path
-// through every cen consumer
 always @(posedge clk) begin
     rst_l  <= rst;
     cencnt <= clip(cencnt_nx);

@@ -20,7 +20,7 @@ module jtframe_mist #(parameter
     input              clk_rom,
     input              clk_pico,
     input              pll_locked,
-    input              ph24, // toggles at every clk24 rising edge
+    input              ph24,
     // interface with microcontroller
     output      [63:0] status,
     output      [31:0] dipsw,

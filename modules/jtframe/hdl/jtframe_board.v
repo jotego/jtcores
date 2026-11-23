@@ -22,7 +22,7 @@ module jtframe_board #(parameter
     // reset forcing signals:
     input               rst_req,
     input               pll_locked,
-    input               ph24,       // toggles at every clk24 rising edge
+    input               ph24,
 
     input               clk_sys,
     input               clk_rom,

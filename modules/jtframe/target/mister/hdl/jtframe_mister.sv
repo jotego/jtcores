@@ -14,7 +14,7 @@ module jtframe_mister #(parameter
     input           clk_rom,
     input           clk_pico,
     input           pll_locked,
-    input           ph24, // toggles at every clk24 rising edge
+    input           ph24,
     // interface with microcontroller
     output [63:0]   status,
     inout  [48:0]   HPS_BUS,
@@ -474,7 +474,7 @@ assign status_menumask[15:9] = 0,
        status_menumask[0]    = direct_video;
 
 always @(posedge clk_sys) begin
-    framebuf_flip <= status[40:39]==2; // o78 Rotate screen: No (flip)
+    framebuf_flip <= status[40:39]==2;
 end
 
 // this places the pxl1_cen in the pixel centre

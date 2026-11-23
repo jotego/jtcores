@@ -9,7 +9,7 @@ module jtframe_reset(
 
     input       sdram_init,
     input       ioctl_rom,
-    input       dwnld_busy, // the game leaves reset only after a first download
+    input       dwnld_busy,
     input       dip_flip,
     input       soft_rst,
     input       rst_req,
@@ -60,10 +60,6 @@ end
 // Game reset generation
 always @(posedge clk_sys ) rst_req_sync <= { rst_req_sync[0], rst_req };
 
-// The SDRAM holds stale data until the first ROM download ends. A game running
-// from it would leave random RAM and register contents, which the game reset
-// does not clear. On MiSTer, the core runs for a variable time after the FPGA is
-// programmed, before the HPS starts the download.
 always @(posedge clk_sys ) begin
     busy_l <= dwnld_busy;
     if( busy_l && !dwnld_busy ) loaded <= 1;

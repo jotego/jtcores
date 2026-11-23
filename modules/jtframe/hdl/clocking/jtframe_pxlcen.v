@@ -5,7 +5,7 @@
 `ifdef JTFRAME_PXLCLK
 module jtframe_pxlcen(
     input       clk,
-    input       ph24,       // toggles at every clk24 rising edge
+    input       ph24,
     output reg  pxl_cen=0,
     output reg  pxl2_cen=0
 );
@@ -13,9 +13,9 @@ module jtframe_pxlcen(
     localparam PXLCLK = `JTFRAME_PXLCLK,
                CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
                M      = PXLCLK==16 ? 3 : (PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0),
-               P      = CLK/24,             // clk cycles per clk24 period
+               P      = CLK/24,
                LP     = P==4 ? 2 : 1,
-               L      = (2*M)%P==0 ? 2*M : 4*M; // multiple of the pixel and clk24 periods
+               L      = (2*M)%P==0 ? 2*M : 4*M;
 
     initial begin
         if( PXLCLK==16 && CLK!=96 ) begin
@@ -28,10 +28,6 @@ module jtframe_pxlcen(
         end
     end
 
-    // The pixel clock keeps a fixed phase with respect to clk24. As the video
-    // timer runs freely, the frame start, and so the game reset release that
-    // follows it, always fall on the same clk24 phase. This is needed for the
-    // game to repeat exactly from one run to the next
     reg  [4:0] mc=0;
     reg  [1:0] ph_s=0;
     wire       ph_edge = ph_s[1]^ph_s[0];

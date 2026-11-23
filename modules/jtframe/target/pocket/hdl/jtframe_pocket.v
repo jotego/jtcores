@@ -31,7 +31,7 @@ module jtframe_pocket #(parameter
     input               clk48,
     input               clk_pico,
     input               pll_locked,
-    input               ph24, // toggles at every clk24 rising edge
+    input               ph24,
     output              rst_req,
     // interface with microcontroller
     output      [63:0]  status,

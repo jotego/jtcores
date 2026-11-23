@@ -9,7 +9,7 @@ module jtframe_mist_clocks(
     output  clk96,
     output  clk48,
     output  clk24,
-    output  ph24,       // toggles at every clk24 rising edge
+    output  ph24,
     output  pll_locked,
 
     // System clocks

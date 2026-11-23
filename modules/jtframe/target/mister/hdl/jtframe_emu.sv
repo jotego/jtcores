@@ -289,7 +289,6 @@ pll pll(
 `endif
 );
 
-// ph24 lets JTFRAME release the game reset on a fixed clk24 phase
 reg ph24=0;
 always @(posedge clk24) ph24 <= ~ph24;
 
