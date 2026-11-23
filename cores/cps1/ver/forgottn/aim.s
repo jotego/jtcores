@@ -67,7 +67,7 @@ forgottn_aim:
     addq.w  #8,%d2
 .Lquadrant:
     tst.w   %d4
-    bpl.s   .Lyflip
+    bmi.s   .Lyflip
     neg.w   %d2
     addi.w  #16,%d2
 .Lyflip:
