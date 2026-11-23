@@ -1,0 +1,12 @@
+$JTROOT/modules/ikaopm/hdl/jtikaopm.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_primitives.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_timinggen.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_reg.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_lfo.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_pg.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_eg.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_op.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_noise.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_acc.v
+$JTROOT/modules/ikaopm/hdl/IKAOPM_timer.v
