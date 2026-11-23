@@ -9,9 +9,19 @@ clocks:
     - mul: 1
       div: 24
       outputs: [cpu]
+    - mul: 1
+      div: 1024
+      outputs: [audio]
 
 audio:
-  channels: []
+  rc: { r: 0, c: 0 }
+  channels:
+    - name: sound
+      data_width: 16
+      rsum: 100k
+      rout: 100k
+      rc:
+        - { r: 10000para, c: 1n } # C84 sees R49 in parallel with the cabinet volume pot.
 
 sdram:
   banks:

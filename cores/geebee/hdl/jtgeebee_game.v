@@ -131,14 +131,14 @@ jtgeebee_colmix u_colmix(
 );
 
 jtgeebee_snd u_sound(
-    .clk    ( clk      ),
-    .rst    ( rst      ),
-    .cen    ( pxl_cen  ),
-    .wr     ( snd_wr   ),
-    .din    ( snd_din  ),
-    .v      ( v[7:0]  ),
-    .snd    ( snd      ),
-    .sample ( sample   )
+    .clk       ( clk       ),
+    .rst       ( rst       ),
+    .pxl_cen   ( pxl_cen   ),
+    .audio_cen ( audio_cen ),
+    .wr        ( snd_wr    ),
+    .din       ( snd_din   ),
+    .v         ( v[7:0]    ),
+    .snd       ( sound     )
 );
 
 endmodule
