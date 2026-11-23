@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 module test;
-    reg clk_rom=0, clk_sys=0, pll_locked=0, lvbl=0, sys_clk_en=1;
+    reg clk_rom=0, clk_sys=0, pll_locked=0, lvbl=0, sys_clk_en=1, dwnld_busy=0;
     wire rst, rst_n, game_rst, game_rst_n;
     reg io_clk=0, io_uio=0, io_fpga=0;
     reg [15:0] io_din=0;
@@ -210,7 +210,7 @@ jtframe_mister_uio transport(.rst(rst), .clk(clk_rom), .io_enable(EXT_BUS[34] &&
 
     jtframe_reset u_reset(
         .clk_sys(clk_sys),.clk_rom(clk_rom),.pxl_cen(1'b1),
-        .sdram_init(1'b0),.ioctl_rom(1'b0),.dip_flip(1'b0),.soft_rst(1'b0),
+        .sdram_init(1'b0),.ioctl_rom(1'b0),.dwnld_busy(dwnld_busy),.dip_flip(1'b0),.soft_rst(1'b0),
         .rst_req(cab_hold_reset | cab_inputs[12]),.pll_locked(pll_locked),
         .rst(rst),.rst_n(rst_n),.game_rst(game_rst),.game_rst_n(game_rst_n)
     );
@@ -225,7 +225,8 @@ jtframe_mister_uio transport(.rst(rst), .clk(clk_rom), .io_enable(EXT_BUS[34] &&
     reg [255:0] status_bytes;
     initial begin
         repeat(8) @(negedge clk_rom); pll_locked=1;
-        wait(!rst); repeat(10) @(negedge clk_rom);
+        wait(!rst); dwnld_busy=1; repeat(10) @(negedge clk_rom); dwnld_busy=0; // first ROM download
+        repeat(10) @(negedge clk_rom);
         start_tx(); transfer(16'h0002,response,response_valid);
         transfer(16'h1234,response,response_valid); transfer(16'h5678,response,response_valid);
         if(EXT_BUS[32]!==1'b0 || joystick_0!==32'h56781234)

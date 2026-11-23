@@ -254,6 +254,7 @@ jtframe_reset u_reset(
 
     .sdram_init ( sdram_init    ),
     .ioctl_rom  ( rom_rst       ),
+    .dwnld_busy ( dwnld_busy    ),
     .dip_flip   ( dip_flip      ),
     .soft_rst   ( soft_rst      ),
     .rst_req    ( rst_req       ),

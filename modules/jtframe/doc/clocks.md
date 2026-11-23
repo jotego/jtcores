@@ -68,6 +68,7 @@ A game must run the same way every time it leaves reset, so hardware regressions
 - _cen_ signals defined in mem.yaml keep running during reset, but their phase restarts when the reset is released
 - the E/Q phase of `jtframe_sys6809` restarts when the reset is released
 - the sound chip timing of jt12, jtopl and jt6295 restarts with the reset too
+- the game stays in reset from the FPGA start until a first download ends (`jtframe_reset`). Before it, the SDRAM holds stale data, and on MiSTer the core runs for a variable time before the HPS starts the download. A game running then leaves RAM and register contents that the game reset does not clear
 
 Clock enables generated inside the game module by free-running counters, such as `jtframe_frac_cen` instances, which have no reset input, are not covered. Restart such counters when the game reset is released if the game needs to repeat exactly. Check that a new CPU wrapper or clock divider does not keep a phase across the reset either.
 
