@@ -123,6 +123,9 @@ prepare_test_folder() {
     TEST_FOLDER=ver/lint
     rm -rf $TEST_FOLDER
     mkdir -p $TEST_FOLDER
+    if [ -f cfg/lint.vlt ]; then
+        cp cfg/lint.vlt $TEST_FOLDER/game.vlt
+    fi
 }
 
 make_dummy_rom() {

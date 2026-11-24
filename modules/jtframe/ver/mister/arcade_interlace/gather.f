@@ -1,0 +1,13 @@
+$JTFRAME/target/mister/hdl/sys/arcade_video.v
+$JTFRAME/target/mister/hdl/sync_fix.sv
+$JTFRAME/target/mister/hdl/sys/video_mixer.sv
+$JTFRAME/target/mister/hdl/sys/video_freezer.sv
+$JTFRAME/target/mister/hdl/sys/gamma_corr.sv
+$JTFRAME/target/mister/hdl/sys/scandoubler.v
+$JTFRAME/target/mister/hdl/sys/hq2x.sv
+$JTFRAME/target/mister/hdl/sys/osd.sv
+$JTFRAME/hdl/video/jtframe_logo.v
+$JTFRAME/hdl/ram/jtframe_prom.v
+$JTFRAME/hdl/video/tilemap/jtframe_tilemap.v
+$JTFRAME/hdl/video/jtframe_hretime.v
+$JTFRAME/target/mister/hdl/sys/vga_out.sv
