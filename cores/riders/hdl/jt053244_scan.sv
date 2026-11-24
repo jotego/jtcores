@@ -42,7 +42,7 @@
     input      [ 7:0] debug_bus
 );
 
-parameter HFLIP_OFFSET = 0;
+parameter HFLIP_OFFSET = 0, VFLIP_OFFSET = 0, DEBUG_FLICKER = 1;
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
@@ -56,6 +56,7 @@ reg         inzone, hs_l, done, hdone,
             vmir, hmir, sq, pre_vf, pre_hf, indr,
             hmir_eff, vmir_eff, vs_l, hhalf;
 wire [ 9:0] hflip_off;
+wire [ 9:0] vflip_off;
 wire [ 1:0] nx_mir, hsz, vsz;
 wire        last_obj;
 reg  [ 8:0] zoffset [0:255];
@@ -69,13 +70,14 @@ assign last_obj  = &scan_obj[6:0];
 assign nx_mir    = scan_even[9:8];
 assign {vsz,hsz} = size;
 assign hflip_off = ghf ? HFLIP_OFFSET[9:0] : 0;
+assign vflip_off = gvf ? VFLIP_OFFSET[9:0] : 0;
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     xadj <= xoffset + 10'h66 + hflip_off;
-    yadj <= yoffset + 10'h107;
+    yadj <= yoffset + 10'h107 + vflip_off;
     hscl <= rd_pzoffset(hzoom);
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
@@ -191,7 +193,7 @@ always @(posedge clk, posedge rst) begin
                     hstep   <= 0;
                     hz_keep <= 0;
                     // if( !scan_even[15]  || scan_obj[6:0]!=2  ) begin
-                    if( !scan_even[15] `ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif ) begin
+                    if( !scan_even[15] `ifndef JTFRAME_RELEASE || (DEBUG_FLICKER && scan_obj[6:0]==debug_bus[6:0] && flicker) `endif ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;

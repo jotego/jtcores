@@ -28,7 +28,9 @@ always @(posedge clk) begin
     rst_n <= ~rst;
 end
 
-IKAOPM u_opm(
+// FAST_RESET holds the phi1 divider while IC_n is low, so the chip phase
+// at reset release does not depend on how long the reset lasted
+IKAOPM #(.FAST_RESET(1)) u_opm(
     .i_EMUCLK       ( clk   ),
     .i_phiM_PCEN_n  ( cen_n ),
     .i_IC_n         ( rst_n ),

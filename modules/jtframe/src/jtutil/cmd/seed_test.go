@@ -29,18 +29,35 @@ func TestSeedSTAAllCorners(t *testing.T) {
 	}
 }
 
-func TestSeedWorstSetupSlack(t *testing.T) {
+func TestSeedTimingAllCorners(t *testing.T) {
+	report := "Worst-case setup slack is 0.148\nWorst-case hold slack is -0.027\nWorst-case recovery slack is 0.600\n" +
+		"Worst-case setup slack is 0.223\nWorst-case hold slack is 0.083\nWorst-case recovery slack is -0.031\n"
+	want := seed_timing{setup: "0.148", hold: "-0.027", recovery: "-0.031"}
+	if got := parse_seed_timing(report); got != want {
+		t.Fatalf("got %+v, want %+v", got, want)
+	}
+}
+
+func TestSeedWorstTimingSlacks(t *testing.T) {
 	dir := t.TempDir()
 	reports := map[string]string{
-		"cold.sta.rpt": "Worst-case setup slack is 0.154\nWorst-case setup slack is -0.212\n",
-		"hot.sta.rpt":  "Worst-case setup slack is 0.276\nWorst-case setup slack is 0.004\n",
+		"cold.sta.rpt": "Worst-case setup slack is -0.212\nWorst-case hold slack is 0.100\nWorst-case recovery slack is 0.500\n",
+		"hot.sta.rpt":  "Worst-case setup slack is 0.004\nWorst-case hold slack is -0.015\nWorst-case recovery slack is 0.200\n",
 	}
 	for name, text := range reports {
 		if e := os.WriteFile(filepath.Join(dir, name), []byte(text), 0600); e != nil {
 			t.Fatal(e)
 		}
 	}
-	if got := worst_setup_slack(dir); got != "-0.212" {
-		t.Fatalf("got %s, want -0.212", got)
+	want := seed_timing{setup: "-0.212", hold: "-0.015", recovery: "0.200"}
+	if got := worst_timing_slacks(dir); got != want {
+		t.Fatalf("got %+v, want %+v", got, want)
+	}
+}
+
+func TestSeedTimingMissingValues(t *testing.T) {
+	want := seed_timing{setup: "0.100", hold: "n/a", recovery: "n/a"}
+	if got := parse_seed_timing("Worst-case setup slack is 0.100"); got != want {
+		t.Fatalf("got %+v, want %+v", got, want)
 	}
 }

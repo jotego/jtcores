@@ -31,13 +31,40 @@ module jt6805_ctrl(
     output [3:0] rmux_sel
 );
 
+wire [4:0] jsr_sel;
+reg  [2:0] iv_sel;
+reg        irq_l, irq_pending;
+wire       halt, swi, ni;
+
 `include "6805_param.vh"
 `include "6805.vh"
 
-wire [4:0] jsr_sel;
-reg  [2:0] iv_sel;
-wire       halt, swi, ni;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
+wire       irq_rise = irq & ~irq_l;
+// A CLI instruction clears I on its final NI edge. Include that same-edge
+// status update in eligibility so a latched request is accepted as soon as
+// the instruction completes, without dispatching one extra opcode.
+// Resolve the interrupt mask using the status value written at this boundary.
+// CLI makes a masked request eligible as soon as I clears; SEI must likewise
+// keep it masked on the same edge that sets I.
+wire       irq_unmasked = (ni && cc_sel==I0_CC) ? 1'b1 :
+                          (ni && cc_sel==I1_CC) ? 1'b0 : ~i;
+wire       irq_ack  = cen & (ni | halt | stop) & irq_unmasked & irq_pending;
+
+// The external INT pin is falling-edge sensitive and latches requests while
+// masked. `irq` is the asserted-high logical form used by this CPU interface.
+// Track the level through reset so a pin held active during reset does not
+// create a synthetic edge when reset is released.
+always @(posedge clk) irq_l <= irq;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        irq_pending <= 0;
+    end else begin
+        if( irq_rise ) irq_pending <= 1;
+        else if( irq_ack ) irq_pending <= 0;
+    end
+end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -49,8 +76,8 @@ always @(posedge clk, posedge rst) begin
         if( swi ) iv <= 6;
         if( ni | halt | stop) begin
             uaddr <= { md[7:0], 4'd0 };
-            if( ~i ) begin
-                if( irq ) begin
+            if( irq_unmasked ) begin
+                if( irq_pending ) begin
                     iv     <= 5;
                     uaddr  <= ISRV_SEQA; // irq service
                 end else if( tirq ) begin

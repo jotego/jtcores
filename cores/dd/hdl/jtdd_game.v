@@ -10,7 +10,8 @@ wire       [12:0]  cpu_AB;
 wire               cram_cs, vram_cs, oram_cs, pal_cs;
 wire               cpu_wrn;
 wire       [ 7:0]  cpu_dout;
-wire       [ 7:0]  char_dout, scr_dout, pal_dout;
+wire       [ 7:0]  scr_dout, pal_dout;
+reg        [ 7:0]  char_dout_l, obj_dout_l;
 // video signals
 wire               VBL, IMS, H8, flip, nc;
 // Sound
@@ -31,11 +32,15 @@ assign scr_cs     = LVBL;
 assign main_dout  = cpu_dout;
 assign oram_we    = oram_cs & ~cpu_wrn;
 assign cram_we    = {2{cram_cs & ~cpu_wrn}} & { ~main_addr[0], main_addr[0]};
-assign char_dout  = main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
 assign mcu_cen    = turbo_l ? mcu_cen12 : mcu_cen6;
 assign cpu_cen    = turbo_l ? cen6 : cen3;
 
 always @(posedge clk) if( mcu_cen && cpu_cen ) turbo_l <= turbo;
+
+always @(posedge clk24) begin
+    char_dout_l <= main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
+    obj_dout_l  <= obj_dout;
+end
 
 /* verilator tracing_on */
 // CPU and sub CPU from slower clock in order to
@@ -62,11 +67,11 @@ jtdd_main u_main(
     .snd_irq        ( snd_irq       ),
     .snd_latch      ( snd_latch     ),
     // Characters
-    .char_dout      ( char_dout     ),
+    .char_dout      ( char_dout_l   ),
     .cpu_dout       ( cpu_dout      ),
     .cram_cs        ( cram_cs       ),
     // Objects
-    .obj_dout       ( obj_dout      ),
+    .obj_dout       ( obj_dout_l    ),
     .oram_cs        ( oram_cs       ),
     // scroll
     .scr_dout       ( scr_dout      ),

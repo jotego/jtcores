@@ -40,15 +40,15 @@ wire [ 2:0] code_msb;
 
 assign pal  = vram_dout[15:8];
 assign code = {code_msb,vram_dout[7:0]};
-assign pxl  = {pre_pxl[11:4],pre_pxl[2:0]};
+assign pxl  = {pre_pxl[11:4],!dec_en && pre_pxl[5] ? pre_pxl[3] : pre_pxl[2],pre_pxl[1:0]};
 assign xadj = scrhflip ? (SCRHFLIP-scrx) : (scrx + HOFFSET);
 assign yadj = scrhflip ? (SCRVFLIP-scry) : (scry + VOFFSET);
 assign dec_addr = {LYR[0],LYR==0?pal[1:0]:2'b0,LYR==1?pal[1:0]:2'b0};
 assign code_msb = dec_en ? (LYR==0 ? dec_data[3:1] : dec_data[7:5]) : {LYR[0],pal[1:0]};
 assign upper_nibbles = { rom_data[20+:4], rom_data[28+:4] };
 assign lower_nibbles = { rom_data[16+:4], rom_data[24+:4] };
-assign sorted   = { 8'd0,
-    dec_en ? rom_data[23-:8]^{8{plane3inv}} : code[9] ? lower_nibbles : upper_nibbles,
+assign sorted   = { lower_nibbles,
+    dec_en ? rom_data[23-:8]^{8{plane3inv}} : upper_nibbles,
     rom_data[ 4+:4],rom_data[12+:4],
     rom_data[ 0+:4],rom_data[ 8+:4]
 };

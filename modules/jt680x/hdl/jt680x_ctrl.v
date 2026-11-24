@@ -75,7 +75,12 @@ always @(posedge clk) begin
         if(  halt | (ni & ext_halt) ) ba<=1;
         if( ~halt & ~ext_halt       ) ba<=0;
         if( ni | halt ) begin
-            if( !still ) begin
+            // A halt instruction is a wait state until an interrupt is
+            // actually serviceable. Normal NI boundaries still dispatch the
+            // next opcode when no interrupt is pending.
+            if( !still && ( !halt || ( ~ext_halt &
+                ( pendng | ( ~i & ( irq | irq_icf | irq_ocf | irq_tof | irq_sci | irq2 | irq_cmf ) ) |
+                    ( uaddr[11:4]==8'h1a & ( irq | irq_icf | irq_ocf | irq_tof | irq_sci | irq2 | irq_cmf ) ) ) ) ) ) begin
                 uaddr <= { md[7:0], 4'd0 };
                 stack_busy <= 0;
                 // ops[md[7:0]] <= 1;
@@ -98,7 +103,7 @@ always @(posedge clk) begin
             end
             if( pendng ) begin
                 iv <= 4'o16;
-                uaddr <= ISRV_SEQA;
+                uaddr <= alt ? IVRD_SEQA : ISRV_SEQA;
                 stack_busy <= 1;
                 pendng <= 0;
             end

@@ -11,7 +11,9 @@ on:
   schedule:
     - cron: '0 0 * * *' # runs every night
 jobs:
+  # Run jobs in the private mirror only for PRs; keep public triggers unchanged.
   framework:
+    if: ${{ github.repository != 'jotego/jtcores-private' || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go
@@ -20,12 +22,16 @@ jobs:
         go-version: '1.23.4'
     - uses: actions/checkout@v5
       with:
+        fetch-depth: 2
         submodules: 'recursive'
-        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+        token: ${{ secrets.PAT || github.token }}
     - id: bash
       run: |
         source setprj.sh
         $JTFRAME/bin/jtsim-funcs-test.sh
+        make -C modules/jtframe/verilator/tests/cabinet test
+        $JTFRAME/bin/jtbin2mr-test.sh
+        $JTFRAME/devops/reg-cabs-test.sh
     - id: go
       run: |
         source ./setprj.sh

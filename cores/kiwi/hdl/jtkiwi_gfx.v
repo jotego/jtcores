@@ -14,6 +14,10 @@ module jtkiwi_gfx #(
     parameter [8:0] OBJ_XOFF=0,
     parameter [7:0] OBJ_YOFF=0,
     parameter       OBJ_YWRAP=0,
+    parameter [8:0] SCR_VOFF=0,
+    parameter [8:0] SCR_HOFF=0,
+    parameter [8:0] SCR_VOFF_F=SCR_VOFF,
+    parameter [8:0] SCR_HOFF_F=SCR_HOFF,
     parameter [8:0] OBJ_LIMIT=9'h1ff,
     // 12 = 8kB sprite RAM, page selects the 0x800 half (tnzs/calibr50)
     // 13 = 16kB, page selects the 0x1000 buffer (metafox/arbalest, MAME seta001 setac)
@@ -36,6 +40,7 @@ module jtkiwi_gfx #(
     input      [ 8:0]   vdump,
     input      [ 8:0]   vrender,
     input      [ 8:0]   hdump,
+    input      [ 8:0]   obj_hshift, // foreground only; column coordinates stay independent
 
     input               cpu_rnw,
     input      [ 1:0]   cpu_dsn,    // ignored for CPUW==8
@@ -218,7 +223,12 @@ always @* begin
     endcase
 end
 
-jtkiwi_tilemap u_tilemap(
+jtkiwi_tilemap #(
+    .VOFF  ( SCR_VOFF   ),
+    .HOFF  ( SCR_HOFF   ),
+    .VOFF_F( SCR_VOFF_F ),
+    .HOFF_F( SCR_HOFF_F )
+) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -281,7 +291,7 @@ jtkiwi_obj #(
     .rom_data   ( obj_data  ),
 
     .vdump      ( vdump     ),
-    .hdump      ( hdump     ),
+    .hdump      ( hdump + obj_hshift ),
     .pxl        ( obj_pxl   ),
     .debug_bus  ( debug_bus )
 );

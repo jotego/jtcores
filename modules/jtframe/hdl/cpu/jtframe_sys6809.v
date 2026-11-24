@@ -23,19 +23,29 @@ module jtframe_6809wait(
     reg         last_cen;
     reg  [ 3:0] misses;
     wire        catchup;
+    reg         rstn_l=0, restart=0;
+    wire [ 1:0] cc;
+
+    assign cc = restart ? 2'd0 : cencnt;
+
+    always @(posedge clk) begin
+        rstn_l <= rstn;
+        if( rstn && !rstn_l ) restart <= 1;
+        else if( cen ) restart <= 0;
+    end
 
     assign cpu_cen = cen_Q;
     assign EQ      = cen_E | cen_Q;
     assign catchup = RECOVERY && misses>0;
 
     always @(posedge clk) if(cen) begin
-        last_EQ   <= EQ;
-        if( gate ) last_cen <= cencnt[1];
-        if( gate || cencnt[1]==last_cen ) begin
-            if( !catchup )
-                cencnt <= cencnt+2'd1;
+        last_EQ   <= restart ? 1'b0 : EQ;
+        if( gate || restart ) last_cen <= cc[1];
+        if( gate || cc[1]==last_cen || restart ) begin
+            if( !catchup || restart )
+                cencnt <= cc+2'd1;
             else begin
-                cencnt <= {~cencnt[1],1'b0};
+                cencnt <= {~cc[1],1'b0};
                 misses <= misses-4'd1;
             end
         end else if(!gate) begin
@@ -50,8 +60,8 @@ module jtframe_6809wait(
     end
 
     always @(*) begin
-        cen_E = cencnt==2'b00 && cen && gate;
-        cen_Q = cencnt==2'b10 && cen && gate;
+        cen_E = cc==2'b00 && cen && gate;
+        cen_Q = cc==2'b10 && cen && gate;
     end
 
     // Uses the same logic to determine the clock gating in both
@@ -81,6 +91,7 @@ module jtframe_sys6809 #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1 mode
+    HD6309   = 0,
     IRQFF    = KONAMI==2,// Add latches for IRQ signals
     CENDIV   = 1    // set to zero to not divide by four the input cen, implies RECOVERY=0
 )(
@@ -112,6 +123,7 @@ module jtframe_sys6809 #( parameter
         .RAM_AW     ( RAM_AW    ),
         .RECOVERY   ( RECOVERY  ),
         .KONAMI     ( KONAMI    ),
+        .HD6309     ( HD6309    ),
         .CENDIV     ( CENDIV    ),
         .IRQFF      ( IRQFF     )
     ) u_sys6809(
@@ -157,6 +169,7 @@ module jtframe_sys6809_dma #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1/2 mode
+    HD6309   = 0,   // Enable Hitachi 6309 instructions and native mode
     IRQFF    = KONAMI==2,// Add latches for IRQ signals
     CENDIV   = 1         // set to zero to not divide by four the input cen, implies RECOVERY=0
 )
@@ -305,7 +318,7 @@ module jtframe_sys6809_dma #( parameter
     // cycle accurate core
     wire [111:0] RegData;
 
-    mc6809i u_cpu(
+    mc6809i #(.HD6309(HD6309)) u_cpu(
         .D       ( din_dec ),
         .DOut    ( cpu_dout),
         .ADDR    ( A       ),
@@ -325,7 +338,8 @@ module jtframe_sys6809_dma #( parameter
         .nHALT   ( 1'b1    ),
         .nRESET  ( rstn    ),
         .OP      ( OP      ),
-        .RegData ( RegData )
+        .RegData ( RegData ),
+        .RegData6309 ( )
     );
 
     `ifdef SIMULATION

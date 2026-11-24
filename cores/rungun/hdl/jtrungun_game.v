@@ -13,6 +13,7 @@ wire [ 7:0] vtimer_mmr, st_main, st_snd, pair_dout;
 wire [ 3:0] psac_bank;
 wire        lrsw, psac_cs, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we,
             sdon, objrg_cs, objrm_cs, objcha_n, dma_bsy;
+wire        timer_rst;
 reg         rst_main, rst_snd, rst_video;
 
 `ifndef POCKET
@@ -41,6 +42,12 @@ end
 always @(posedge clk) begin
     rst_video <= rst;
 end
+
+jtrungun_timer_rst u_timer_rst(
+    .clk       ( clk             ),
+    .rst       ( rst_video       ),
+    .timer_rst ( timer_rst       )
+);
 
 /* verilator tracing_off */
 jtrungun_main u_main(
@@ -159,6 +166,7 @@ jtrungun_sound u_sound(
 /* verilator tracing_on */
 jtrungun_video u_video(
     .rst            ( rst_video     ),
+    .timer_rst      ( timer_rst     ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),

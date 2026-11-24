@@ -178,7 +178,10 @@ copy_rbf() {
 	local repo="$1"
 	local curfolder=$(basename $(pwd))
 	echo "Copy release files to $curfolder"
-	cp -r $repo/release/* .
+	# release/cab holds the hardware regression scripts, which are not published
+	for item in $repo/release/*; do
+		if [ "$(basename "$item")" != cab ]; then cp -r "$item" .; fi
+	done
 }
 
 make_all_pocket_zips() {

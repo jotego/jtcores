@@ -11174,7 +11174,6 @@
 	)
 	(label "XOBJROMD18"
 		(at 82.55 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11185,7 +11184,6 @@
 	)
 	(label "MAIN_D[15..0]"
 		(at 384.81 33.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11196,7 +11194,6 @@
 	)
 	(label "APAL[4..0]"
 		(at 232.41 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11207,7 +11204,6 @@
 	)
 	(label "SYS~{RES}"
 		(at 222.25 175.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11218,7 +11214,6 @@
 	)
 	(label "BLUE"
 		(at 303.53 147.32 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11229,7 +11224,6 @@
 	)
 	(label "+12V"
 		(at 222.25 172.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11240,7 +11234,6 @@
 	)
 	(label "YOBJROMD2"
 		(at 39.37 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11251,7 +11244,6 @@
 	)
 	(label "CRAM~{CS}"
 		(at 303.53 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11262,7 +11254,6 @@
 	)
 	(label "XOBJROMD12"
 		(at 66.04 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11273,7 +11264,6 @@
 	)
 	(label "MAIN_A[23..0]"
 		(at 151.13 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11284,7 +11274,6 @@
 	)
 	(label "OBJROMA5"
 		(at 55.88 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11295,7 +11284,6 @@
 	)
 	(label "S~{RD}"
 		(at 222.25 55.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11306,7 +11294,6 @@
 	)
 	(label "YOBJROMD30"
 		(at 114.3 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11317,7 +11304,6 @@
 	)
 	(label "M~{RD}"
 		(at 313.69 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11328,7 +11314,6 @@
 	)
 	(label "~{RESET}"
 		(at 232.41 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11339,7 +11324,6 @@
 	)
 	(label "MAIN_D[15..0]"
 		(at 303.53 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11350,7 +11334,6 @@
 	)
 	(label "XOBJROMD25"
 		(at 101.6 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11361,7 +11344,6 @@
 	)
 	(label "M~{RD}"
 		(at 232.41 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11372,7 +11354,6 @@
 	)
 	(label "FPAL[3..0]"
 		(at 232.41 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11383,7 +11364,6 @@
 	)
 	(label "XOBJROMD31"
 		(at 106.68 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11394,7 +11374,6 @@
 	)
 	(label "XOBJROMD5"
 		(at 81.28 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11405,7 +11384,6 @@
 	)
 	(label "SND_A[15..0]"
 		(at 151.13 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11416,7 +11394,6 @@
 	)
 	(label "XOBJROMD10"
 		(at 93.98 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11427,7 +11404,6 @@
 	)
 	(label "XOBJROMD10"
 		(at 60.96 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11438,7 +11414,6 @@
 	)
 	(label "YOBJROMD[31..0]"
 		(at 17.78 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11449,7 +11424,6 @@
 	)
 	(label "1P_RIGHT"
 		(at 151.13 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11460,7 +11434,6 @@
 	)
 	(label "INTDMAEN"
 		(at 232.41 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11471,7 +11444,6 @@
 	)
 	(label "~{SLATCHES}"
 		(at 222.25 43.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11482,7 +11454,6 @@
 	)
 	(label "S~{WR}"
 		(at 151.13 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11493,7 +11464,6 @@
 	)
 	(label "4P_START"
 		(at 151.13 228.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11504,7 +11474,6 @@
 	)
 	(label "S~{INT}"
 		(at 151.13 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11515,7 +11484,6 @@
 	)
 	(label "2P_UP"
 		(at 102.87 71.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11526,7 +11494,6 @@
 	)
 	(label "YOBJROMD4"
 		(at 44.45 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11537,7 +11504,6 @@
 	)
 	(label "S~{INT}"
 		(at 222.25 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11548,7 +11514,6 @@
 	)
 	(label "MCO~{WR}L"
 		(at 232.41 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11559,7 +11524,6 @@
 	)
 	(label "YOBJROMD0"
 		(at 34.29 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11570,7 +11534,6 @@
 	)
 	(label "YOBJROMD7"
 		(at 52.07 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11581,7 +11544,6 @@
 	)
 	(label "XOBJROMD14"
 		(at 104.14 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11592,7 +11554,6 @@
 	)
 	(label "XOBJROMD8"
 		(at 88.9 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11603,7 +11564,6 @@
 	)
 	(label "OBJROMA10"
 		(at 43.18 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11614,7 +11574,6 @@
 	)
 	(label "YOBJROMD14"
 		(at 71.12 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11625,7 +11584,6 @@
 	)
 	(label "OBJCLK6"
 		(at 384.81 101.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11636,7 +11594,6 @@
 	)
 	(label "OBJROMA19"
 		(at 66.04 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11647,7 +11604,6 @@
 	)
 	(label "MCO~{WR}L"
 		(at 303.53 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11658,7 +11614,6 @@
 	)
 	(label "~{UDS}"
 		(at 151.13 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11669,7 +11624,6 @@
 	)
 	(label "S~{CLK}"
 		(at 222.25 63.5 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11680,7 +11634,6 @@
 	)
 	(label "XOBJROMD27"
 		(at 106.68 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11691,7 +11644,6 @@
 	)
 	(label "4P_DOWN"
 		(at 151.13 248.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11702,7 +11654,6 @@
 	)
 	(label "1P_RIGHT"
 		(at 44.45 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11713,7 +11664,6 @@
 	)
 	(label "M~{RD}"
 		(at 313.69 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11724,7 +11674,6 @@
 	)
 	(label "FCOL[3..0]"
 		(at 384.81 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11735,7 +11684,6 @@
 	)
 	(label "YOBJROMD17"
 		(at 80.01 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11746,7 +11694,6 @@
 	)
 	(label "1P_SELECT"
 		(at 44.45 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11757,7 +11704,6 @@
 	)
 	(label "SND_D[7..0]"
 		(at 222.25 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11768,7 +11714,6 @@
 	)
 	(label "~{SYNC}"
 		(at 102.87 58.42 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11779,7 +11724,6 @@
 	)
 	(label "4P_DOWN"
 		(at 115.57 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11790,7 +11734,6 @@
 	)
 	(label "SND~{PAL8}"
 		(at 222.25 45.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11801,7 +11744,6 @@
 	)
 	(label "MCO~{WR}H"
 		(at 303.53 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11812,7 +11754,6 @@
 	)
 	(label "4P_RIGHT"
 		(at 151.13 238.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11823,7 +11764,6 @@
 	)
 	(label "OBJROMA0"
 		(at 43.18 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11834,7 +11774,6 @@
 	)
 	(label "+12V"
 		(at 151.13 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11845,7 +11784,6 @@
 	)
 	(label "2P_LEFT"
 		(at 102.87 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11856,7 +11794,6 @@
 	)
 	(label "YOBJROMD31"
 		(at 116.84 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11867,7 +11804,6 @@
 	)
 	(label "TEST"
 		(at 44.45 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11878,7 +11814,6 @@
 	)
 	(label "S~{WAIT}"
 		(at 222.25 104.14 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11889,7 +11824,6 @@
 	)
 	(label "YOBJROMD[31..0]"
 		(at 384.81 45.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11900,7 +11834,6 @@
 	)
 	(label "XOBJROMD1"
 		(at 36.83 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11911,7 +11844,6 @@
 	)
 	(label "XOBJROMD25"
 		(at 91.44 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11922,7 +11854,6 @@
 	)
 	(label "4P_BTN_2"
 		(at 151.13 269.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11933,7 +11864,6 @@
 	)
 	(label "OBJ~{CS}"
 		(at 303.53 114.3 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11944,7 +11874,6 @@
 	)
 	(label "3P_UP"
 		(at 151.13 241.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11955,7 +11884,6 @@
 	)
 	(label "OCHARA"
 		(at 222.25 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11966,7 +11894,6 @@
 	)
 	(label "~{VCS}"
 		(at 313.69 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11977,7 +11904,6 @@
 	)
 	(label "~{IO2}"
 		(at 151.13 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11988,7 +11914,6 @@
 	)
 	(label "XOBJROMD31"
 		(at 116.84 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11999,7 +11924,6 @@
 	)
 	(label "XOBJROMD28"
 		(at 109.22 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12010,7 +11934,6 @@
 	)
 	(label "XOBJROMD22"
 		(at 92.71 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12021,7 +11944,6 @@
 	)
 	(label "OBJ~{CS}"
 		(at 313.69 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12032,7 +11954,6 @@
 	)
 	(label "XOBJROMD26"
 		(at 104.14 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12043,7 +11964,6 @@
 	)
 	(label "VSS"
 		(at 100.33 39.37 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12054,7 +11974,6 @@
 	)
 	(label "OBJ~{REG}"
 		(at 313.69 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12065,7 +11984,6 @@
 	)
 	(label "PCU~{CS}"
 		(at 232.41 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12076,7 +11994,6 @@
 	)
 	(label "PAIR~{CS}"
 		(at 222.25 165.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12087,7 +12004,6 @@
 	)
 	(label "MAIN_A[23..0]"
 		(at 313.69 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12098,7 +12014,6 @@
 	)
 	(label "XOBJROMD13"
 		(at 101.6 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12109,7 +12024,6 @@
 	)
 	(label "YOBJROMD10"
 		(at 60.96 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12120,7 +12034,6 @@
 	)
 	(label "~{HSYNC}"
 		(at 384.81 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12131,7 +12044,6 @@
 	)
 	(label "VCC"
 		(at 29.21 247.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12142,7 +12054,6 @@
 	)
 	(label "~{SDON}"
 		(at 151.13 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12153,7 +12064,6 @@
 	)
 	(label "3P_SERV"
 		(at 151.13 220.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12164,7 +12074,6 @@
 	)
 	(label "SCR_PQ"
 		(at 384.81 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12175,7 +12084,6 @@
 	)
 	(label "COIN_1"
 		(at 44.45 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12186,7 +12094,6 @@
 	)
 	(label "BUSY"
 		(at 222.25 40.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12197,7 +12104,6 @@
 	)
 	(label "4P_SERV"
 		(at 151.13 223.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12208,7 +12114,6 @@
 	)
 	(label "YOBJROMD12"
 		(at 66.04 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12219,7 +12124,6 @@
 	)
 	(label "XOBJROMD23"
 		(at 95.25 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12230,7 +12134,6 @@
 	)
 	(label "YOBJROMD5"
 		(at 46.99 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12241,7 +12144,6 @@
 	)
 	(label "PAS"
 		(at 303.53 99.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12252,7 +12154,6 @@
 	)
 	(label "XOBJROMD18"
 		(at 73.66 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12263,7 +12164,6 @@
 	)
 	(label "XOBJROMD15"
 		(at 73.66 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12274,7 +12174,6 @@
 	)
 	(label "YOBJROMD29"
 		(at 111.76 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12285,7 +12184,6 @@
 	)
 	(label "COIN_CNT_1"
 		(at 222.25 142.24 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12296,7 +12194,6 @@
 	)
 	(label "~{HSYNC}"
 		(at 313.69 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12307,7 +12204,6 @@
 	)
 	(label "3P_RIGHT"
 		(at 83.82 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12318,7 +12214,6 @@
 	)
 	(label "1P_BTN_3"
 		(at 44.45 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12329,7 +12224,6 @@
 	)
 	(label "BLUE"
 		(at 44.45 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12340,7 +12234,6 @@
 	)
 	(label "COIN_1"
 		(at 151.13 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12351,7 +12244,6 @@
 	)
 	(label "XOBJROMD17"
 		(at 71.12 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12362,7 +12254,6 @@
 	)
 	(label "2P_BTN_2"
 		(at 102.87 83.82 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12373,7 +12264,6 @@
 	)
 	(label "CR~{CS}"
 		(at 313.69 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12384,7 +12274,6 @@
 	)
 	(label "3P_BTN_1"
 		(at 151.13 261.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12395,7 +12284,6 @@
 	)
 	(label "~{UDS}"
 		(at 313.69 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12406,7 +12294,6 @@
 	)
 	(label "2P_BTN_1"
 		(at 102.87 81.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12417,7 +12304,6 @@
 	)
 	(label "XOBJROMD24"
 		(at 99.06 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12428,7 +12314,6 @@
 	)
 	(label "OCOL[8..0]"
 		(at 384.81 35.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12439,7 +12324,6 @@
 	)
 	(label "YOBJROMD20"
 		(at 87.63 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12450,7 +12334,6 @@
 	)
 	(label "GREEN"
 		(at 102.87 55.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12461,7 +12344,6 @@
 	)
 	(label "3P_START"
 		(at 83.82 137.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12472,7 +12354,6 @@
 	)
 	(label "3P_BTN_3"
 		(at 151.13 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12483,7 +12364,6 @@
 	)
 	(label "~{LDS}"
 		(at 151.13 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12494,7 +12374,6 @@
 	)
 	(label "XOBJROMD7"
 		(at 86.36 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12505,7 +12384,6 @@
 	)
 	(label "1P_DOWN"
 		(at 151.13 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12516,7 +12394,6 @@
 	)
 	(label "RED"
 		(at 303.53 142.24 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12527,7 +12404,6 @@
 	)
 	(label "VCC"
 		(at 66.04 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12538,7 +12414,6 @@
 	)
 	(label "XOBJROMD24"
 		(at 88.9 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12549,7 +12424,6 @@
 	)
 	(label "VCC"
 		(at 67.31 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12560,7 +12434,6 @@
 	)
 	(label "XOBJROMD17"
 		(at 80.01 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12571,7 +12444,6 @@
 	)
 	(label "3P_BTN_2"
 		(at 83.82 132.08 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12582,7 +12454,6 @@
 	)
 	(label "~{IO2}"
 		(at 303.53 104.14 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12593,7 +12464,6 @@
 	)
 	(label "S~{RST}"
 		(at 222.25 106.68 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12604,7 +12474,6 @@
 	)
 	(label "SIC_CLK"
 		(at 151.13 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12615,7 +12484,6 @@
 	)
 	(label "3P_RIGHT"
 		(at 151.13 236.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12626,7 +12494,6 @@
 	)
 	(label "YOBJROMD24"
 		(at 99.06 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12637,7 +12504,6 @@
 	)
 	(label "1P_BTN_1"
 		(at 151.13 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12648,7 +12514,6 @@
 	)
 	(label "XOBJROMD11"
 		(at 63.5 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12659,7 +12524,6 @@
 	)
 	(label "XOBJROMD14"
 		(at 71.12 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12670,7 +12534,6 @@
 	)
 	(label "MCO~{WR}H"
 		(at 232.41 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12681,7 +12544,6 @@
 	)
 	(label "XOBJROMD30"
 		(at 114.3 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12692,7 +12554,6 @@
 	)
 	(label "4P_BTN_1"
 		(at 115.57 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12703,7 +12564,6 @@
 	)
 	(label "YOBJROMD25"
 		(at 101.6 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12714,7 +12574,6 @@
 	)
 	(label "OBJROMA13"
 		(at 50.8 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12725,7 +12584,6 @@
 	)
 	(label "M~{RD}"
 		(at 151.13 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12736,7 +12594,6 @@
 	)
 	(label "MAIN~{IRQ}"
 		(at 232.41 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12747,7 +12604,6 @@
 	)
 	(label "OBJROMA9"
 		(at 66.04 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12758,7 +12614,6 @@
 	)
 	(label "OBJROMA18"
 		(at 63.5 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12769,7 +12624,6 @@
 	)
 	(label "YOBJROMD28"
 		(at 109.22 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12780,7 +12634,6 @@
 	)
 	(label "~{VCS}"
 		(at 303.53 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12791,7 +12644,6 @@
 	)
 	(label "ACOL[3..0]"
 		(at 232.41 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12802,7 +12654,6 @@
 	)
 	(label "MUTE"
 		(at 222.25 160.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12813,7 +12664,6 @@
 	)
 	(label "XOBJROMD6"
 		(at 49.53 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12824,7 +12674,6 @@
 	)
 	(label "SPEAKER(+)"
 		(at 44.45 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12835,7 +12684,6 @@
 	)
 	(label "XOBJROMD20"
 		(at 87.63 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12846,7 +12694,6 @@
 	)
 	(label "4P_UP"
 		(at 151.13 243.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12857,7 +12704,6 @@
 	)
 	(label "SIC_CLK"
 		(at 222.25 53.34 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12868,7 +12714,6 @@
 	)
 	(label "OBJROMA4"
 		(at 53.34 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12879,7 +12724,6 @@
 	)
 	(label "4P_RIGHT"
 		(at 115.57 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12890,7 +12734,6 @@
 	)
 	(label "PAIR~{CS}"
 		(at 151.13 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12901,7 +12744,6 @@
 	)
 	(label "YOBJROMD15"
 		(at 73.66 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12912,7 +12754,6 @@
 	)
 	(label "ORAM~{WE}L"
 		(at 313.69 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12923,7 +12764,6 @@
 	)
 	(label "YOBJROMD22"
 		(at 92.71 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12934,7 +12774,6 @@
 	)
 	(label "COIN_4"
 		(at 115.57 114.3 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12945,7 +12784,6 @@
 	)
 	(label "~{UDS}"
 		(at 303.53 106.68 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12956,7 +12794,6 @@
 	)
 	(label "XOBJROMD21"
 		(at 81.28 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12967,7 +12804,6 @@
 	)
 	(label "1P_DOWN"
 		(at 44.45 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12978,7 +12814,6 @@
 	)
 	(label "VSS"
 		(at 97.79 31.75 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12989,7 +12824,6 @@
 	)
 	(label "+12V"
 		(at 100.33 41.91 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13000,7 +12834,6 @@
 	)
 	(label "S~{RST}"
 		(at 151.13 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13011,7 +12844,6 @@
 	)
 	(label "R{slash}~{W}"
 		(at 151.13 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13022,7 +12854,6 @@
 	)
 	(label "SND~{PAL8}"
 		(at 151.13 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13033,7 +12864,6 @@
 	)
 	(label "XOBJROMD6"
 		(at 83.82 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13044,7 +12874,6 @@
 	)
 	(label "YOBJROMD11"
 		(at 63.5 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13055,7 +12884,6 @@
 	)
 	(label "S~{RD}"
 		(at 151.13 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13066,7 +12894,6 @@
 	)
 	(label "GND"
 		(at 49.53 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13077,7 +12904,6 @@
 	)
 	(label "FPAL[3..0]"
 		(at 384.81 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13088,7 +12914,6 @@
 	)
 	(label "SND_A[15..0]"
 		(at 222.25 50.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13099,7 +12924,6 @@
 	)
 	(label "ACOL[3..0]"
 		(at 384.81 116.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13110,7 +12934,6 @@
 	)
 	(label "XOBJROMD[31..0]"
 		(at 17.78 233.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13121,7 +12944,6 @@
 	)
 	(label "COIN_CNT_2"
 		(at 102.87 45.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13132,7 +12954,6 @@
 	)
 	(label "4P_SERV"
 		(at 115.57 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13143,7 +12964,6 @@
 	)
 	(label "VCC"
 		(at 97.79 34.29 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13154,7 +12974,6 @@
 	)
 	(label "~{SLATCHES}"
 		(at 151.13 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13165,7 +12984,6 @@
 	)
 	(label "XOBJROMD29"
 		(at 101.6 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13176,7 +12994,6 @@
 	)
 	(label "VCC"
 		(at 38.1 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13187,7 +13004,6 @@
 	)
 	(label "OBJROMA16"
 		(at 58.42 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13198,7 +13014,6 @@
 	)
 	(label "XOBJROMD2"
 		(at 73.66 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13209,7 +13024,6 @@
 	)
 	(label "OBJROMA1"
 		(at 45.72 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13220,7 +13034,6 @@
 	)
 	(label "~{VBLANK}"
 		(at 232.41 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13231,7 +13044,6 @@
 	)
 	(label "COIN_3"
 		(at 83.82 114.3 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13242,7 +13054,6 @@
 	)
 	(label "XOBJROMD8"
 		(at 55.88 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13253,7 +13064,6 @@
 	)
 	(label "OBJROMA8"
 		(at 63.5 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13264,7 +13074,6 @@
 	)
 	(label "4P_UP"
 		(at 115.57 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13275,7 +13084,6 @@
 	)
 	(label "1P_BTN_4"
 		(at 44.45 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13286,7 +13094,6 @@
 	)
 	(label "~{LDS}"
 		(at 303.53 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13297,7 +13104,6 @@
 	)
 	(label "4P_BTN_3"
 		(at 151.13 259.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13308,7 +13114,6 @@
 	)
 	(label "1P_BTN_2"
 		(at 151.13 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13319,7 +13124,6 @@
 	)
 	(label "3P_BTN_2"
 		(at 151.13 266.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13330,7 +13134,6 @@
 	)
 	(label "VSS"
 		(at 99.06 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13341,7 +13144,6 @@
 	)
 	(label "S~{CLK}"
 		(at 151.13 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13352,7 +13154,6 @@
 	)
 	(label "OBJROMA12"
 		(at 48.26 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13363,7 +13164,6 @@
 	)
 	(label "OBJROMA[19..0]"
 		(at 384.81 40.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13374,7 +13174,6 @@
 	)
 	(label "MAIN_D[15..0]"
 		(at 222.25 147.32 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13385,7 +13184,6 @@
 	)
 	(label "4P_BTN_3"
 		(at 115.57 134.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13396,7 +13194,6 @@
 	)
 	(label "VSS"
 		(at 97.79 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13407,7 +13204,6 @@
 	)
 	(label "XOBJROMD3"
 		(at 76.2 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13418,7 +13214,6 @@
 	)
 	(label "1P_START"
 		(at 151.13 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13429,7 +13224,6 @@
 	)
 	(label "YOBJROMD26"
 		(at 104.14 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13440,7 +13234,6 @@
 	)
 	(label "SERVICE2"
 		(at 44.45 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13451,7 +13244,6 @@
 	)
 	(label "YOBJROMD27"
 		(at 106.68 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13462,7 +13254,6 @@
 	)
 	(label "OBJROMA11"
 		(at 45.72 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13473,7 +13264,6 @@
 	)
 	(label "MAIN~{IRQ}"
 		(at 384.81 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13484,7 +13274,6 @@
 	)
 	(label "3P_LEFT"
 		(at 83.82 116.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13495,7 +13284,6 @@
 	)
 	(label "XOBJROMD4"
 		(at 44.45 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13506,7 +13294,6 @@
 	)
 	(label "XOBJROMD16"
 		(at 77.47 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13517,7 +13304,6 @@
 	)
 	(label "2P_BTN_4"
 		(at 102.87 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13528,7 +13314,6 @@
 	)
 	(label "MAIN_D[15..0]"
 		(at 384.81 111.76 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13539,7 +13324,6 @@
 	)
 	(label "2P_BTN_3"
 		(at 151.13 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13550,7 +13334,6 @@
 	)
 	(label "4P_BTN_2"
 		(at 115.57 132.08 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13561,7 +13344,6 @@
 	)
 	(label "OBJCLK12"
 		(at 384.81 99.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13572,7 +13354,6 @@
 	)
 	(label "VSYNC"
 		(at 384.81 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13583,7 +13364,6 @@
 	)
 	(label "COIN_2"
 		(at 102.87 66.04 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13594,7 +13374,6 @@
 	)
 	(label "GREEN"
 		(at 303.53 144.78 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13605,7 +13384,6 @@
 	)
 	(label "XOBJROMD5"
 		(at 46.99 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13616,7 +13394,6 @@
 	)
 	(label "VSS"
 		(at 52.07 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13627,7 +13404,6 @@
 	)
 	(label "~{VBLANK}"
 		(at 384.81 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13638,7 +13414,6 @@
 	)
 	(label "COIN_2"
 		(at 151.13 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13649,7 +13424,6 @@
 	)
 	(label "VSS"
 		(at 43.18 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13660,7 +13434,6 @@
 	)
 	(label "1P_UP"
 		(at 151.13 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13671,7 +13444,6 @@
 	)
 	(label "COIN_CNT_1"
 		(at 44.45 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13682,7 +13454,6 @@
 	)
 	(label "SPEAKER(+)"
 		(at 222.25 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13693,7 +13464,6 @@
 	)
 	(label "YOBJROMD23"
 		(at 95.25 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13704,7 +13474,6 @@
 	)
 	(label "~{HBLANK}"
 		(at 232.41 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13715,7 +13484,6 @@
 	)
 	(label "S~{WR}"
 		(at 222.25 58.42 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13726,7 +13494,6 @@
 	)
 	(label "OBJROMA14"
 		(at 53.34 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13737,7 +13504,6 @@
 	)
 	(label "PCM[2..0]"
 		(at 222.25 101.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13748,7 +13514,6 @@
 	)
 	(label "XOBJROMD22"
 		(at 83.82 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13759,7 +13524,6 @@
 	)
 	(label "XOBJROMD15"
 		(at 106.68 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13770,7 +13534,6 @@
 	)
 	(label "XOBJROMD29"
 		(at 111.76 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13781,7 +13544,6 @@
 	)
 	(label "CR~{CS}"
 		(at 222.25 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13792,7 +13554,6 @@
 	)
 	(label "OBJROMA17"
 		(at 60.96 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13803,7 +13564,6 @@
 	)
 	(label "CRAM~{CS}"
 		(at 232.41 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13814,7 +13574,6 @@
 	)
 	(label "SERVICE1"
 		(at 102.87 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13825,7 +13584,6 @@
 	)
 	(label "~{SDON}"
 		(at 222.25 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13836,7 +13594,6 @@
 	)
 	(label "RED"
 		(at 44.45 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13847,7 +13604,6 @@
 	)
 	(label "2P_START"
 		(at 102.87 68.58 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13858,7 +13614,6 @@
 	)
 	(label "OCHARA"
 		(at 313.69 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13869,7 +13624,6 @@
 	)
 	(label "XOBJROMD12"
 		(at 99.06 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13880,7 +13634,6 @@
 	)
 	(label "MAIN_A[23..0]"
 		(at 232.41 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13891,7 +13644,6 @@
 	)
 	(label "~{SYNC}"
 		(at 384.81 132.08 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13902,7 +13654,6 @@
 	)
 	(label "OPRI[4..0]"
 		(at 384.81 38.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13913,7 +13664,6 @@
 	)
 	(label "OBJROMA6"
 		(at 58.42 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13924,7 +13674,6 @@
 	)
 	(label "SHD[1..0]"
 		(at 384.81 50.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13935,7 +13684,6 @@
 	)
 	(label "2P_RIGHT"
 		(at 102.87 78.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13946,7 +13694,6 @@
 	)
 	(label "2P_SELECT"
 		(at 102.87 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13957,7 +13704,6 @@
 	)
 	(label "COIN_3"
 		(at 151.13 251.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13968,7 +13714,6 @@
 	)
 	(label "~{LDS}"
 		(at 313.69 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13979,7 +13724,6 @@
 	)
 	(label "+12V"
 		(at 43.18 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13990,7 +13734,6 @@
 	)
 	(label "3P_DOWN"
 		(at 151.13 246.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14001,7 +13744,6 @@
 	)
 	(label "3P_UP"
 		(at 83.82 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14012,7 +13754,6 @@
 	)
 	(label "OBJCLK12"
 		(at 313.69 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14023,7 +13764,6 @@
 	)
 	(label "XOBJROMD26"
 		(at 93.98 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14034,7 +13774,6 @@
 	)
 	(label "2P_BTN_2"
 		(at 151.13 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14045,7 +13784,6 @@
 	)
 	(label "1P_START"
 		(at 44.45 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14056,7 +13794,6 @@
 	)
 	(label "XOBJROMD4"
 		(at 78.74 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14067,7 +13804,6 @@
 	)
 	(label "3P_DOWN"
 		(at 83.82 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14078,7 +13814,6 @@
 	)
 	(label "YOBJROMD21"
 		(at 90.17 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14089,7 +13824,6 @@
 	)
 	(label "XOBJROMD11"
 		(at 96.52 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14100,7 +13834,6 @@
 	)
 	(label "OBJROMA3"
 		(at 50.8 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14111,7 +13844,6 @@
 	)
 	(label "~{RESET}"
 		(at 232.41 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14122,7 +13854,6 @@
 	)
 	(label "OPRI[4..0]"
 		(at 232.41 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14133,7 +13864,6 @@
 	)
 	(label "COIN_CNT_2"
 		(at 222.25 144.78 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14144,7 +13874,6 @@
 	)
 	(label "1P_BTN_2"
 		(at 44.45 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14155,7 +13884,6 @@
 	)
 	(label "2P_BTN_1"
 		(at 151.13 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14166,7 +13894,6 @@
 	)
 	(label "TEST"
 		(at 151.13 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14177,7 +13904,6 @@
 	)
 	(label "SERVICE2"
 		(at 151.13 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14188,7 +13914,6 @@
 	)
 	(label "YOBJROMD3"
 		(at 41.91 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14199,7 +13924,6 @@
 	)
 	(label "3P_BTN_1"
 		(at 83.82 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14210,7 +13934,6 @@
 	)
 	(label "3P_SERV"
 		(at 83.82 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14221,7 +13944,6 @@
 	)
 	(label "SYS~{RES}"
 		(at 313.69 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14232,7 +13954,6 @@
 	)
 	(label "2P_RIGHT"
 		(at 151.13 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14243,7 +13964,6 @@
 	)
 	(label "OBJ~{REG}"
 		(at 222.25 162.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14254,7 +13974,6 @@
 	)
 	(label "S~{IORQ}"
 		(at 151.13 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14265,7 +13984,6 @@
 	)
 	(label "VSS"
 		(at 118.11 267.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14276,7 +13994,6 @@
 	)
 	(label "YOBJROMD1"
 		(at 36.83 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14287,7 +14004,6 @@
 	)
 	(label "XOBJROMD23"
 		(at 86.36 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14298,7 +14014,6 @@
 	)
 	(label "XOBJROMD13"
 		(at 68.58 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14309,7 +14024,6 @@
 	)
 	(label "1P_BTN_3"
 		(at 151.13 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14320,7 +14034,6 @@
 	)
 	(label "~{HBLANK}"
 		(at 384.81 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14331,7 +14044,6 @@
 	)
 	(label "OBJCLK6"
 		(at 232.41 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14342,7 +14054,6 @@
 	)
 	(label "1P_UP"
 		(at 44.45 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14353,7 +14064,6 @@
 	)
 	(label "XOBJROMD9"
 		(at 91.44 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14364,7 +14074,6 @@
 	)
 	(label "SCR_PQ"
 		(at 232.41 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14375,7 +14084,6 @@
 	)
 	(label "4P_LEFT"
 		(at 115.57 116.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14386,7 +14094,6 @@
 	)
 	(label "~{RESET}"
 		(at 384.81 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14397,7 +14104,6 @@
 	)
 	(label "~{RESET}"
 		(at 313.69 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14408,7 +14114,6 @@
 	)
 	(label "BCOL[3..0]"
 		(at 384.81 104.14 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14419,7 +14124,6 @@
 	)
 	(label "3P_START"
 		(at 151.13 226.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14430,7 +14134,6 @@
 	)
 	(label "3P_LEFT"
 		(at 151.13 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14441,7 +14144,6 @@
 	)
 	(label "VSYNC"
 		(at 313.69 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14452,7 +14154,6 @@
 	)
 	(label "YOBJROMD13"
 		(at 68.58 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14463,7 +14164,6 @@
 	)
 	(label "PCM[2..0]"
 		(at 151.13 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14474,7 +14174,6 @@
 	)
 	(label "V~{CHARA}"
 		(at 222.25 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14485,7 +14184,6 @@
 	)
 	(label "V~{CHARA}"
 		(at 313.69 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14496,7 +14194,6 @@
 	)
 	(label "BPAL[4..0]"
 		(at 232.41 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14507,7 +14204,6 @@
 	)
 	(label "XOBJROMD21"
 		(at 90.17 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14518,7 +14214,6 @@
 	)
 	(label "OBJROMA[19..0]"
 		(at 17.78 237.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14529,7 +14224,6 @@
 	)
 	(label "2P_BTN_3"
 		(at 102.87 86.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14540,7 +14234,6 @@
 	)
 	(label "XOBJROMD16"
 		(at 68.58 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14551,7 +14244,6 @@
 	)
 	(label "OBJROMA7"
 		(at 60.96 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14562,7 +14254,6 @@
 	)
 	(label "MAIN_A[23..1]"
 		(at 151.13 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14573,7 +14264,6 @@
 	)
 	(label "XOBJROMD2"
 		(at 39.37 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14584,7 +14274,6 @@
 	)
 	(label "4P_START"
 		(at 115.57 137.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14595,7 +14284,6 @@
 	)
 	(label "~{IO1}"
 		(at 151.13 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14606,7 +14294,6 @@
 	)
 	(label "MAIN_D[15..0]"
 		(at 222.25 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14617,7 +14304,6 @@
 	)
 	(label "YOBJROMD6"
 		(at 49.53 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14628,7 +14314,6 @@
 	)
 	(label "XOBJROMD[31..0]"
 		(at 384.81 43.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14639,7 +14324,6 @@
 	)
 	(label "YOBJROMD19"
 		(at 85.09 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14650,7 +14334,6 @@
 	)
 	(label "2P_START"
 		(at 151.13 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14661,7 +14344,6 @@
 	)
 	(label "MUTE"
 		(at 151.13 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14672,7 +14354,6 @@
 	)
 	(label "BPAL[4..0]"
 		(at 384.81 106.68 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14683,7 +14364,6 @@
 	)
 	(label "YOBJROMD9"
 		(at 58.42 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14694,7 +14374,6 @@
 	)
 	(label "2P_LEFT"
 		(at 151.13 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14705,7 +14384,6 @@
 	)
 	(label "R{slash}~{W}"
 		(at 151.13 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14716,7 +14394,6 @@
 	)
 	(label "XOBJROMD9"
 		(at 58.42 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14727,7 +14404,6 @@
 	)
 	(label "YOBJROMD18"
 		(at 82.55 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14738,7 +14414,6 @@
 	)
 	(label "BCOL[3..0]"
 		(at 232.41 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14749,7 +14424,6 @@
 	)
 	(label "XOBJROMD19"
 		(at 76.2 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14760,7 +14434,6 @@
 	)
 	(label "MCLK"
 		(at 232.41 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14771,7 +14444,6 @@
 	)
 	(label "R{slash}~{W}"
 		(at 303.53 116.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14782,7 +14454,6 @@
 	)
 	(label "SPEAKER(-)"
 		(at 102.87 50.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14793,7 +14464,6 @@
 	)
 	(label "OBJDMA"
 		(at 384.81 48.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14804,7 +14474,6 @@
 	)
 	(label "ORAM~{WE}H"
 		(at 313.69 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14815,7 +14484,6 @@
 	)
 	(label "S~{IORQ}"
 		(at 222.25 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14826,7 +14494,6 @@
 	)
 	(label "2P_UP"
 		(at 151.13 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14837,7 +14504,6 @@
 	)
 	(label "OBJROMA2"
 		(at 48.26 275.59 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14848,7 +14514,6 @@
 	)
 	(label "ORAM~{WE}H"
 		(at 303.53 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14859,7 +14524,6 @@
 	)
 	(label "FCOL[3..0]"
 		(at 232.41 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14870,7 +14534,6 @@
 	)
 	(label "MAIN_D[15..0]"
 		(at 232.41 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14881,7 +14544,6 @@
 	)
 	(label "APAL[4..0]"
 		(at 384.81 114.3 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14892,7 +14554,6 @@
 	)
 	(label "~{RESET}"
 		(at 151.13 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14903,7 +14564,6 @@
 	)
 	(label "MCLK"
 		(at 222.25 66.04 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14914,7 +14574,6 @@
 	)
 	(label "SND_D[7..0]"
 		(at 222.25 48.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14925,7 +14584,6 @@
 	)
 	(label "SHD[1..0]"
 		(at 232.41 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14936,7 +14594,6 @@
 	)
 	(label "XOBJROMD28"
 		(at 99.06 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14947,7 +14604,6 @@
 	)
 	(label "MAIN_A[23..0]"
 		(at 313.69 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14958,7 +14614,6 @@
 	)
 	(label "XOBJROMD1"
 		(at 71.12 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14969,7 +14624,6 @@
 	)
 	(label "OCOL[8..0]"
 		(at 232.41 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14980,7 +14634,6 @@
 	)
 	(label "XOBJROMD27"
 		(at 96.52 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14991,7 +14644,6 @@
 	)
 	(label "XOBJROMD0"
 		(at 68.58 276.86 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15002,7 +14654,6 @@
 	)
 	(label "M~{RD}"
 		(at 303.53 111.76 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15013,7 +14664,6 @@
 	)
 	(label "SCR~{CLK}"
 		(at 222.25 177.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15024,7 +14674,6 @@
 	)
 	(label "~{IO1}"
 		(at 303.53 101.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15035,7 +14684,6 @@
 	)
 	(label "ORAM~{WE}L"
 		(at 303.53 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15046,7 +14694,6 @@
 	)
 	(label "1P_LEFT"
 		(at 151.13 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15057,7 +14704,6 @@
 	)
 	(label "XOBJROMD0"
 		(at 34.29 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15068,7 +14714,6 @@
 	)
 	(label "2P_DOWN"
 		(at 151.13 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15079,7 +14724,6 @@
 	)
 	(label "SERVICE1"
 		(at 151.13 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15090,7 +14734,6 @@
 	)
 	(label "SPEAKER(-)"
 		(at 222.25 99.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15101,7 +14744,6 @@
 	)
 	(label "PCU~{CS}"
 		(at 222.25 167.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15112,7 +14754,6 @@
 	)
 	(label "PAS"
 		(at 151.13 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15123,7 +14764,6 @@
 	)
 	(label "XOBJROMD30"
 		(at 104.14 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15134,7 +14774,6 @@
 	)
 	(label "MAIN_A[23..0]"
 		(at 303.53 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15145,7 +14784,6 @@
 	)
 	(label "S~{WAIT}"
 		(at 151.13 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15156,7 +14794,6 @@
 	)
 	(label "1P_LEFT"
 		(at 44.45 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15167,7 +14804,6 @@
 	)
 	(label "YOBJROMD8"
 		(at 55.88 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15178,7 +14814,6 @@
 	)
 	(label "XOBJROMD19"
 		(at 85.09 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15189,7 +14824,6 @@
 	)
 	(label "XOBJROMD3"
 		(at 41.91 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15200,7 +14834,6 @@
 	)
 	(label "4P_BTN_1"
 		(at 151.13 264.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15211,7 +14844,6 @@
 	)
 	(label "SCR~{CLK}"
 		(at 313.69 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15222,7 +14854,6 @@
 	)
 	(label "OBJCLK6"
 		(at 313.69 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15233,7 +14864,6 @@
 	)
 	(label "OBJDMA"
 		(at 232.41 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15244,7 +14874,6 @@
 	)
 	(label "2P_DOWN"
 		(at 102.87 73.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15255,7 +14884,6 @@
 	)
 	(label "BUSY"
 		(at 151.13 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15266,7 +14894,6 @@
 	)
 	(label "XOBJROMD20"
 		(at 78.74 236.22 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15277,7 +14904,6 @@
 	)
 	(label "YOBJROMD16"
 		(at 77.47 194.31 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15288,7 +14914,6 @@
 	)
 	(label "OBJROMA15"
 		(at 55.88 240.03 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15299,7 +14924,6 @@
 	)
 	(label "1P_BTN_1"
 		(at 44.45 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15310,7 +14934,6 @@
 	)
 	(label "XOBJROMD7"
 		(at 52.07 231.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15321,7 +14944,6 @@
 	)
 	(label "4P_LEFT"
 		(at 151.13 233.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15332,7 +14954,6 @@
 	)
 	(label "COIN_4"
 		(at 151.13 254 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15343,7 +14964,6 @@
 	)
 	(label "INTDMAEN"
 		(at 222.25 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15354,7 +14974,6 @@
 	)
 	(label "3P_BTN_3"
 		(at 83.82 134.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

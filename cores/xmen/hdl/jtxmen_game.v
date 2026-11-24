@@ -11,7 +11,7 @@ module jtxmen_game(
 /* verilator tracing_off */
 wire        snd_irq, rmrd, rst8, dma_bsy,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, mute, objcha_n,
-            cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn,
+            cpu_rnw, vdtac, pq, tile_irqn, tile_nmin, snd_wrn,
             objreg_cs, pair_we;
 wire [15:0] pal_dout, oram_dout;
 wire [15:0] video_dumpa;
@@ -54,6 +54,7 @@ jtxmen_main u_main(
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
+    .pq             ( pq            ),
     .tile_irqn      ( tile_irqn     ),
 
     .main_addr      ( main_addr     ),
@@ -143,6 +144,7 @@ jtxmen_video u_video (
     .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),
     .vdtac          ( vdtac         ),
+    .pq             ( pq            ),
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),

@@ -26,6 +26,12 @@ func (cfg *Config)Run() (e error){
     return e
 }
 
+// Render returns the effective configuration string without writing cfgstr.hex.
+func Render(core, target string) (string, error) {
+	macros.MakeMacros(core, target)
+	return (Config{Core: core, Target: target}).make_cfgstr(macros.CopyToMap())
+}
+
 func (cfg Config)prepare_macros() (copy map[string]string) {
     macros.MakeMacros(cfg.Core,cfg.Target,cfg.Add...)
     macros.Remove(cfg.Discard...)

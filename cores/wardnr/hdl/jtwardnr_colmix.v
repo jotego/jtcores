@@ -6,8 +6,10 @@
 module jtwardnr_colmix(
     input             clk,
     input             pxl_cen,
-    input             LVBL,
-    input             LHBL,
+    input             preLVBL,
+    input             preLHBL,
+    output            LVBL,
+    output            LHBL,
     input             video_on,
     input      [ 3:0] gfx_en,
 
@@ -19,16 +21,19 @@ module jtwardnr_colmix(
     output reg [11:1] pal_vaddr,
     input      [15:0] pal_dout,
 
-    output reg [ 4:0] red,
-    output reg [ 4:0] green,
-    output reg [ 4:0] blue
+    output     [ 4:0] red,
+    output     [ 4:0] green,
+    output     [ 4:0] blue
 );
 
 wire [ 1:0] obj_prio = obj_pxl[11:10];
 wire        fg_hit   = fg_pxl[3:0]  != 4'd0 && gfx_en[2];
 wire        tx_hit   = tx_pxl[2:0]  != 3'd0 && gfx_en[0];
 wire        obj_hit  = obj_pxl[3:0] != 4'd0 && gfx_en[3];
-reg         blank_l;
+wire [14:0] rgb;
+reg         video_on_l;
+
+assign rgb = video_on_l ? pal_dout[14:0] : 15'd0;
 
 // priority 1 is hidden by the foreground or text, 2 by text, 3 never
 wire obj_show = obj_hit && ( obj_prio == 2'd3 ||
@@ -41,8 +46,19 @@ always @(posedge clk) if( pxl_cen ) begin
                  tx_hit   ? {3'b110, tx_pxl[8:4], tx_pxl[2:0]} :
                  fg_hit   ? {3'b101, fg_pxl} :
                             {3'b100, gfx_en[1] ? bg_pxl : 8'd0};
-    blank_l  <= ~(LVBL & LHBL) | ~video_on;
-    {blue, green, red} <= blank_l ? 15'd0 : pal_dout[14:0];
+    video_on_l <= video_on;
 end
+
+jtframe_blank #(.DLY(2),.DW(15)) u_blank(
+    .clk        ( clk                ),
+    .pxl_cen    ( pxl_cen            ),
+    .preLHBL    ( preLHBL            ),
+    .preLVBL    ( preLVBL            ),
+    .LHBL       ( LHBL               ),
+    .LVBL       ( LVBL               ),
+    .preLBL     (                    ),
+    .rgb_in     ( rgb                ),
+    .rgb_out    ( {blue, green, red} )
+);
 
 endmodule

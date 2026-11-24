@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 29-10-2026
+
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_v30.yaml
+  - from: cpu
+    get:
+      - jtframe_v20_bus.sv
+      - jtframe_v20.sv

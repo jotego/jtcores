@@ -1,0 +1,50 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report outrun <set>
+bustest:
+  outrun:
+    board: "Out Run (Sega, CPU board 837-6063, 315-5195 mapper, main + sub 68000)"
+    cpu: m68k
+    cpu_hz: 10000000
+    rom:
+      cpu_base: 0x0
+      even: "IC133"
+      odd: "IC118"
+      chip: "27C512 (MAME epr-10380b.133 / epr-10382b.118), Tacc <= 200 ns per schematic"
+      pins: 28
+      rom_offset: 16
+      word_swap: true
+    ram: {base: 0x60000, size: 0x4000}
+    watchdog: {addr: 0x140060, access: "read.w", why: "I/O region (mapper region 4 at 0x140000) offset 0x60: MAME outrun_custom_io_r/w watchdog reset (read or write). A read is used because the first kick runs before the mapper is programmed, when 0x140060 is unmapped and a write would land in mapper register 0x10. MAME gives no timeout; gen_test kicks once per case and every ~5 ms."}
+    init:
+      - {addr: 0xfe0020, access: "write.w", value: 0xa, why: "mapper reg 0x10: region 0 (ROM pairs IC133/IC118, IC132/IC117, IC131/IC116 + work RAM at 0x60000) 512 KiB, DTACK 10 -> DTACK_SEL 1, 0 waits (game uses 00)"}
+      - {addr: 0xfe0022, access: "write.w", why: "mapper reg 0x11: region 0 base 0x000000"}
+      - {addr: 0xfe0024, access: "write.w", value: 0xd, why: "mapper reg 0x12: region 1 (tile + text RAM) 128 KiB, DTACK 11 -> EDAK (as the game)"}
+      - {addr: 0xfe0026, access: "write.w", value: 0x10, why: "mapper reg 0x13: region 1 base 0x100000 (as the game)"}
+      - {addr: 0xfe0028, access: "write.w", why: "mapper reg 0x14: region 2 (palette) 64 KiB, DTACK 00 -> 2 waits (as the game)"}
+      - {addr: 0xfe002a, access: "write.w", value: 0x12, why: "mapper reg 0x15: region 2 base 0x120000 (as the game)"}
+      - {addr: 0xfe002c, access: "write.w", value: 0xc, why: "mapper reg 0x16: region 3 (sprite RAM) 64 KiB, DTACK 11 -> EDAK (as the game)"}
+      - {addr: 0xfe002e, access: "write.w", value: 0x13, why: "mapper reg 0x17: region 3 base 0x130000 (as the game)"}
+      - {addr: 0xfe0030, access: "write.w", value: 0x4, why: "mapper reg 0x18: region 4 (I/O) 64 KiB, DTACK 01 -> 1 wait (game uses 10)"}
+      - {addr: 0xfe0032, access: "write.w", value: 0x14, why: "mapper reg 0x19: region 4 base 0x140000 (as the game)"}
+      - {addr: 0xfe0034, access: "write.w", value: 0xf, why: "mapper reg 0x1A: region 5 (sub CPU bus) 2 MiB, DTACK 11 -> EDAK (as the game)"}
+      - {addr: 0xfe0036, access: "write.w", value: 0x20, why: "mapper reg 0x1B: region 5 base 0x200000 (as the game)"}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "region 0 DTACK 10 (DTACK_SEL 1): 0 waits -> 42"}
+      - {name: "ram", addr: 0x60100, access: "write.w", expect: "region 0 work RAM 0x60000, DTACK 10: 0 waits -> 42"}
+      - {name: "pal", addr: 0x120000, access: "read.w", expect: "region 2 DTACK 00 (DTACK_SEL 3): 2 waits -> 50"}
+      - {name: "io", addr: 0x140010, access: "read.w", expect: "region 4 DTACK 01 (DTACK_SEL 2): 1 wait -> 46; digital input port 0x140010"}
+      - {name: "tile", addr: 0x100000, access: "read.w", expect: "region 1 DTACK 11 (EDAK): tile RAM arbitration on the PCB; the core adds no mapper wait"}
+      - {name: "obj", addr: 0x130000, access: "read.w", expect: "region 3 DTACK 11 (EDAK): sprite RAM arbitration on the PCB"}
+      - {name: "sub_ram", addr: 0x260000, access: "read.w", expect: "region 5 DTACK 11 (EDAK): sub CPU work RAM 0x260000 through the sub-bus request; waits depend on the sub CPU bus grant"}
+    checklist:
+      - "The program sockets take 27C512 (MAME epr-10380b.133 / epr-10382b.118), Tacc <= 200 ns per schematic (28-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: none drawn (OUTRUN CPU 2/7): /OE = ROM0 (ROM pair 0 select), /CE = RDC; IC132/IC117 (ROM1) and IC131/IC116 (ROM2) hold 0x20000-0x5FFFF and stay in place"
+      - "28-PIN: the main program pair IC133 (D15-D8, ROM0 even) / IC118 (D7-D0, odd) are 27512 (OUTRUN CPU 2/7), so the 32-pin PicoROMs do not fit directly; use the 28-pin PicoROMs (never tried in this setup) or a 32-to-28 adapter."
+      - "The other main ROM pairs IC132/IC117 and IC131/IC116 stay."
+      - "SUB CPU: it is left running its own program from its ROMs (IC76/58/75/57) and is never reset or written by the firmware; the only sub-bus access is the last case (sub_ram read at 0x260000), which is a plain read through the bus request."
+      - "Main CPU is plain 68000 on outrun Rev B (outrundxj uses FD1089A: not this set)."
+      - "The game (MAME outrun, frame 100) programs r0 02/00, r1 0d/10, r2 00/12, r3 0c/13, r4 08/14, r5 0f/20 (size/dtack, base), r6/r7 unused; the init only changes r0 to DTACK 10 and r4 to DTACK 01 so all four DTACK_SEL values are exercised."
+      - "Mapper registers are written as words at 0xFE0020+2n (unmapped area)."
+      - "Do not touch: I/O 0x140000-0x140007 writes (8255: port C resets the sound CPU and blanks the screen), 0x140020 (lamps, motor, mute), 0x140030 (ADC start), 0x140070 (sprite draw trigger), region 5 0x290000 (road control), mapper regs 0x02-0x05."
+      - "EDAK cases are last so that a hang still leaves the earlier brackets."
+      - "Check the ROM labels: epr-10380b/10382b (Rev B, MAME outrun), 10380a/10382a (outrunra) or deluxe sets; the same image serves all plain-68000 versions."

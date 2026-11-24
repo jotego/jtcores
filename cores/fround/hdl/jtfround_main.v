@@ -76,6 +76,7 @@ wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
             pal_cs, dma_cs, crom_cs, orom_cs, int16en;
+wire [ 1:0] crom_wait;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg         intn, LVBLl;
@@ -89,6 +90,7 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
+assign crom_wait= {1'b0, crom_cs | orom_cs};
 assign bus_cs   = rom_cs | ram_cs | crom_cs | orom_cs | oram_cs;
 wire [1:0] ok_cs, ok_in;
 assign ok_cs = { rom_cs, ram_cs };
@@ -260,13 +262,14 @@ jtframe_68kdtack_cen #(.W(5),.RECOVERY(1)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 4'd3      ),  // numerator
     .den        ( 5'd16     ),  // denominator, => 9216
     .DTACKn     ( pre_dtackn),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( crom_wait ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

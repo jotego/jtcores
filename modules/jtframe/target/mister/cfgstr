@@ -9,7 +9,11 @@
     P1oLO,CRT H offset,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
     P1oPS,CRT V offset,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
     P1oG,CRT scale enable,Off,On;
-    H2P1oHK,CRT scale factor,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
+    H2P1oHK,CRT scale factor,+1,+2,+3,+4,+5,+6,+7,+8,-8,-7,-6,-5,-4,-3,-2,-1;
+{{ if .JTFRAME_CRT480I }}
+    H7P1O[65:64],CRT deflicker,Off,Low,Mid,High;
+    H7P1O[69:67],CRT height,224,232,240,1:1,200,208,216;
+{{ end }}
 P1{{ .SEPARATOR }}
 {{ if .JTFRAME_NOHQ2X }}            d3P1O35,Scandoubler Fx,None,N/A,CRT 25%,CRT 50%,CRT 75%;
         {{ else }}                  d3P1O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%; {{ end }}
@@ -44,6 +48,7 @@ d5P1oAD,Crop Offset,0,2,4,8,10,12,-12,-10,-8,-6,-4,-2;
     {{ if .JTFRAME_NO_DB15 }}       o6,User port,Off,UART; {{ else }}
                                     o56,User port,Off,DB15 Joystick,UART; {{ end }}
     {{ else }}                      o5,User port,Off,DB15 Joystick; {{ end }}
+{{ if not .JTFRAME_NO_DB15 }}       H8oT,DB15 OSD Combo,Start+Button 3,Off; {{ end }}
 {{ if .JTFRAME_CREDITS }} OC,Show credits in pause,On,Off; {{ end }}
 R0,Reset;
 {{ with .MISTER_EXTRA }} {{ . }} {{ end }}

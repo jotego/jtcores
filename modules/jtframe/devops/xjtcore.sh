@@ -14,7 +14,7 @@ export PATH=$PATH:/usr/local/go/bin
 # 1st argument is the core name
 CORENAME=$1
 shift
-# next argument can select debug mode, which is on by default
+# next argument can enable debug mode; release mode (--nodbg) is the default
 NODBG=--nodbg
 if [ $1 = --debug ]; then
     NODBG=
@@ -42,7 +42,7 @@ if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
         if [ $TARGET != pocket ]; then SKIPPOCKET=--skipPocket; else unset SKIPPOCKET; fi
         jtframe mra $NODBG --skipROM $SKIPPOCKET $CORENAME
         echo "Compiling for $TARGET"
-        jtutil seed --max-trials 4 $CORENAME -$TARGET $NODBG --nolinter
+        jtutil seed --max-trials 8 $CORENAME -$TARGET $NODBG --nolinter
         # recover hard disk space
         rm -rf $CORES/$CORENAME/$TARGET
     done

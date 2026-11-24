@@ -1,0 +1,6 @@
+- include:
+    core: ajax
+    name: k051316
+- include:
+    core: rungun
+    name: k053252

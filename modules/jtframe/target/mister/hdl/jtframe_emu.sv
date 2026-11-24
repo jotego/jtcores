@@ -32,6 +32,10 @@
 `define JTFRAME_MR_DDR
 `endif
 
+`ifdef JTFRAME_MR_GAME_DDR
+`define JTFRAME_MR_DDR
+`endif
+
 module emu
 (
     //Master input clock
@@ -61,6 +65,18 @@ module emu
     output  [1:0] VGA_SL,
     output        VGA_SCALER,
     output        VGA_DISABLE, // analog out is off
+    output  [4:0] VGA_HSIZE,   // { enable, signed scale }, analogue branch only
+`ifdef JTFRAME_CRT480I
+    // the core's native picture for the HDMI scaler; VGA_* is native or 480i (MRA mod bit 18)
+    output        CRT480I_ON,
+    output        NATIVE_CE,
+    output  [7:0] NATIVE_R,
+    output  [7:0] NATIVE_G,
+    output  [7:0] NATIVE_B,
+    output        NATIVE_HS,
+    output        NATIVE_VS,
+    output        NATIVE_DE,
+`endif
 
     input  [11:0] HDMI_WIDTH,
     input  [11:0] HDMI_HEIGHT,
@@ -180,11 +196,16 @@ module emu
     localparam SDRAMW=22; // 32 MB
 `endif
 
-`ifndef JTFRAME_INTERLACED
-assign VGA_F1=1'b0;
+`ifdef JTFRAME_CRT480I
+wire   crt_f1;
+assign VGA_F1=crt_f1;
 `else
-wire   field;
-assign VGA_F1=field;
+    `ifndef JTFRAME_INTERLACED
+    assign VGA_F1=1'b0;
+    `else
+    wire   field;
+    assign VGA_F1=field;
+    `endif
 `endif
 
 // unused features
@@ -267,6 +288,9 @@ pll pll(
     .reconfig_from_pll ( pll_reconfig_from )
 `endif
 );
+
+reg ph24=0;
+always @(posedge clk24) ph24 <= ~ph24;
 
 jtframe_rst_sync u_reset96(
     .rst        ( game_rst  ),
@@ -441,6 +465,13 @@ wire [`JTFRAME_LF_VW-1:0] game_vrender, ln_v;
 wire        ln_done, ln_hs, ln_vs, ln_lvbl, ln_we, fb_keep;
 wire [15:0] ln_dout, ln_pxl, ln_data;
 
+`ifdef JTFRAME_MR_GAME_DDR
+wire [ 7:0] game_ddr_burstcnt, game_ddr_be;
+wire [28:0] game_ddr_addr;
+wire        game_ddr_rd, game_ddr_we, game_ddr_busy, game_ddr_dout_ready;
+wire [63:0] game_ddr_din, game_ddr_dout;
+`endif
+
 jtframe_mister #(
     .SDRAMW         ( SDRAMW         ),
     .BUTTONS        (`JTFRAME_BUTTONS),
@@ -453,6 +484,7 @@ u_frame(
     .clk_rom        ( clk_rom        ),
     .clk_pico       ( clk_pico       ),
     .pll_locked     ( pll_locked     ),
+    .ph24           ( ph24           ),
     // interface with microcontroller
     .status         ( status         ),
     .HPS_BUS        ( HPS_BUS        ),
@@ -504,6 +536,17 @@ u_frame(
 `ifdef JTFRAME_LF_ZOOM
     .game_h_step    ( game_h_step    ),
     .game_v_step    ( game_v_step    ),
+`endif
+`ifdef JTFRAME_MR_GAME_DDR
+    .game_ddr_burstcnt  ( game_ddr_burstcnt   ),
+    .game_ddr_addr      ( game_ddr_addr       ),
+    .game_ddr_rd        ( game_ddr_rd         ),
+    .game_ddr_we        ( game_ddr_we         ),
+    .game_ddr_be        ( game_ddr_be         ),
+    .game_ddr_din       ( game_ddr_din        ),
+    .game_ddr_busy      ( game_ddr_busy       ),
+    .game_ddr_dout      ( game_ddr_dout       ),
+    .game_ddr_dout_ready( game_ddr_dout_ready ),
 `endif
 
     `ifdef JTFRAME_VERTICAL
@@ -675,6 +718,28 @@ u_frame(
     .hdmi_ary       ( VIDEO_ARY      ),
     .hdmi_width     ( HDMI_WIDTH     ),
     .hdmi_height    ( HDMI_HEIGHT    ),
+`ifdef JTFRAME_CRT480I
+    // native picture to the HDMI scaler; native or 480i to the analog output
+    .scan2x_r       ( NATIVE_R       ),
+    .scan2x_g       ( NATIVE_G       ),
+    .scan2x_b       ( NATIVE_B       ),
+    .scan2x_hs      ( NATIVE_HS      ),
+    .scan2x_vs      ( NATIVE_VS      ),
+    .scan2x_clk     ( CLK_VIDEO      ),
+    .scan2x_cen     ( NATIVE_CE      ),
+    .scan2x_de      ( NATIVE_DE      ),
+    .scan2x_sl      (                ),
+    .crt_r          ( VGA_R          ),
+    .crt_g          ( VGA_G          ),
+    .crt_b          ( VGA_B          ),
+    .crt_hs         ( VGA_HS         ),
+    .crt_vs         ( VGA_VS         ),
+    .crt_de         ( VGA_DE         ),
+    .crt_cen        ( CE_PIXEL       ),
+    .crt_f1         ( crt_f1         ),
+    .crt_sl         ( VGA_SL         ),
+    .crt_on         ( CRT480I_ON     ),
+`else
     // scan doubler output to VGA pins
     .scan2x_r       ( VGA_R          ),
     .scan2x_g       ( VGA_G          ),
@@ -685,6 +750,8 @@ u_frame(
     .scan2x_cen     ( CE_PIXEL       ),
     .scan2x_de      ( VGA_DE         ),
     .scan2x_sl      ( VGA_SL         ),
+`endif
+    .hsize_ctl      ( VGA_HSIZE      ),
     // status
     .st_addr        ( st_addr        ),
     .st_dout        ( st_dout        ),

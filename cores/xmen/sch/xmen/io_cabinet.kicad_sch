@@ -11452,7 +11452,6 @@
 	)
 	(label "R2P_BTN_2"
 		(at 83.82 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11463,7 +11462,6 @@
 	)
 	(label "JOYSTICK"
 		(at 83.82 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11474,7 +11472,6 @@
 	)
 	(label "MAIN_D1"
 		(at 134.62 163.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11485,7 +11482,6 @@
 	)
 	(label "R1P_UP"
 		(at 64.77 194.31 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11496,7 +11492,6 @@
 	)
 	(label "MAIN_D1"
 		(at 384.81 140.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11507,7 +11502,6 @@
 	)
 	(label "R3P_BTN_3"
 		(at 83.82 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11518,7 +11512,6 @@
 	)
 	(label "CAB11"
 		(at 322.58 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11529,7 +11522,6 @@
 	)
 	(label "R3P_BTN_3"
 		(at 64.77 25.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11540,7 +11532,6 @@
 	)
 	(label "R3P_BTN_2"
 		(at 64.77 57.15 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11551,7 +11542,6 @@
 	)
 	(label "MAIN_D14"
 		(at 384.81 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11562,7 +11552,6 @@
 	)
 	(label "R3P_BTN_1"
 		(at 83.82 25.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11573,7 +11562,6 @@
 	)
 	(label "MAIN_D8"
 		(at 228.6 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11584,7 +11572,6 @@
 	)
 	(label "R3P_UP"
 		(at 83.82 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11595,7 +11582,6 @@
 	)
 	(label "MAIN_D15"
 		(at 384.81 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11606,7 +11592,6 @@
 	)
 	(label "R4P_LEFT"
 		(at 64.77 77.47 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11617,7 +11602,6 @@
 	)
 	(label "VCC"
 		(at 326.39 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11628,7 +11612,6 @@
 	)
 	(label "R4P_UP"
 		(at 64.77 101.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11639,7 +11622,6 @@
 	)
 	(label "CAB8"
 		(at 322.58 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11650,7 +11632,6 @@
 	)
 	(label "CAB7"
 		(at 322.58 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11661,7 +11642,6 @@
 	)
 	(label "R2P_UP"
 		(at 83.82 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11672,7 +11652,6 @@
 	)
 	(label "JOYSTICK"
 		(at 83.82 189.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11683,7 +11662,6 @@
 	)
 	(label "R3P_BTN_2"
 		(at 83.82 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11694,7 +11672,6 @@
 	)
 	(label "MAIN_D6"
 		(at 134.62 134.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11705,7 +11682,6 @@
 	)
 	(label "RCOIN_1"
 		(at 83.82 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11716,7 +11692,6 @@
 	)
 	(label "MAIN_D3"
 		(at 384.81 146.05 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11727,7 +11702,6 @@
 	)
 	(label "R4P_DOWN"
 		(at 64.77 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11738,7 +11712,6 @@
 	)
 	(label "CAB8"
 		(at 317.5 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11749,7 +11722,6 @@
 	)
 	(label "OTHER"
 		(at 194.31 214.63 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11760,7 +11732,6 @@
 	)
 	(label "VCC"
 		(at 295.91 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11771,7 +11742,6 @@
 	)
 	(label "MAIN_D10"
 		(at 384.81 90.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11782,7 +11752,6 @@
 	)
 	(label "R4P_BTN_3"
 		(at 83.82 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11793,7 +11762,6 @@
 	)
 	(label "RCOIN_4"
 		(at 64.77 36.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11804,7 +11772,6 @@
 	)
 	(label "CAB7"
 		(at 317.5 180.34 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11815,7 +11782,6 @@
 	)
 	(label "MAIN_D6"
 		(at 384.81 148.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11826,7 +11792,6 @@
 	)
 	(label "R1P_LEFT"
 		(at 83.82 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11837,7 +11802,6 @@
 	)
 	(label "AFE"
 		(at 298.45 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11848,7 +11812,6 @@
 	)
 	(label "VSS"
 		(at 147.32 240.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11859,7 +11822,6 @@
 	)
 	(label "R1P_BTN_3"
 		(at 64.77 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11870,7 +11832,6 @@
 	)
 	(label "R4P_BTN_2"
 		(at 83.82 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11881,7 +11842,6 @@
 	)
 	(label "R2P_LEFT"
 		(at 83.82 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11892,7 +11852,6 @@
 	)
 	(label "JOYSTICK"
 		(at 194.31 212.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11903,7 +11862,6 @@
 	)
 	(label "VCC"
 		(at 318.77 196.85 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11914,7 +11872,6 @@
 	)
 	(label "R4P_DOWN"
 		(at 83.82 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11925,7 +11882,6 @@
 	)
 	(label "R2P_UP"
 		(at 64.77 198.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11936,7 +11892,6 @@
 	)
 	(label "R4P_BTN_2"
 		(at 64.77 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11947,7 +11902,6 @@
 	)
 	(label "MAIN_D3"
 		(at 228.6 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11958,7 +11912,6 @@
 	)
 	(label "CAB2"
 		(at 322.58 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11969,7 +11922,6 @@
 	)
 	(label "R2P_BTN_3"
 		(at 64.77 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11980,7 +11932,6 @@
 	)
 	(label "MAIN_D5"
 		(at 134.62 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11991,7 +11942,6 @@
 	)
 	(label "VSS"
 		(at 298.45 240.03 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12002,7 +11952,6 @@
 	)
 	(label "CAB2"
 		(at 317.5 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12013,7 +11962,6 @@
 	)
 	(label "CAB10"
 		(at 317.5 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12024,7 +11972,6 @@
 	)
 	(label "R1P_RIGHT"
 		(at 64.77 177.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12035,7 +11982,6 @@
 	)
 	(label "CAB11"
 		(at 317.5 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12046,7 +11992,6 @@
 	)
 	(label "R1P_LEFT"
 		(at 64.77 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12057,7 +12002,6 @@
 	)
 	(label "R1P_BTN_1"
 		(at 64.77 146.05 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12068,7 +12012,6 @@
 	)
 	(label "CAB9"
 		(at 317.5 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12079,7 +12022,6 @@
 	)
 	(label "JOYSTICK"
 		(at 83.82 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12090,7 +12032,6 @@
 	)
 	(label "MAIN_D10"
 		(at 134.62 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12101,7 +12042,6 @@
 	)
 	(label "CAB1"
 		(at 317.5 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12112,7 +12052,6 @@
 	)
 	(label "MAIN_D2"
 		(at 134.62 179.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12123,7 +12062,6 @@
 	)
 	(label "CAB6"
 		(at 322.58 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12134,7 +12072,6 @@
 	)
 	(label "MAIN_A1"
 		(at 148.59 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12145,7 +12082,6 @@
 	)
 	(label "R2P_BTN_3"
 		(at 83.82 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12156,7 +12092,6 @@
 	)
 	(label "MAIN_D11"
 		(at 384.81 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12167,7 +12102,6 @@
 	)
 	(label "VCC"
 		(at 149.86 248.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12178,7 +12112,6 @@
 	)
 	(label "R2P_LEFT"
 		(at 64.77 173.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12189,7 +12122,6 @@
 	)
 	(label "R4P_BTN_1"
 		(at 83.82 27.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12200,7 +12132,6 @@
 	)
 	(label "MAIN_D15"
 		(at 134.62 40.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12211,7 +12142,6 @@
 	)
 	(label "RCOIN_2"
 		(at 83.82 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12222,7 +12152,6 @@
 	)
 	(label "R4P_BTN_3"
 		(at 64.77 29.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12233,7 +12162,6 @@
 	)
 	(label "MAIN_D14"
 		(at 134.62 48.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12244,7 +12172,6 @@
 	)
 	(label "AFE"
 		(at 175.26 245.11 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12255,7 +12182,6 @@
 	)
 	(label "R4P_RIGHT"
 		(at 83.82 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12266,7 +12192,6 @@
 	)
 	(label "R2P_BTN_1"
 		(at 83.82 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12277,7 +12202,6 @@
 	)
 	(label "VSS"
 		(at 336.55 251.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12288,7 +12212,6 @@
 	)
 	(label "CAB14"
 		(at 317.5 59.69 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12299,7 +12222,6 @@
 	)
 	(label "MAIN_D3"
 		(at 134.62 171.45 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12310,7 +12232,6 @@
 	)
 	(label "R1P_DOWN"
 		(at 83.82 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12321,7 +12242,6 @@
 	)
 	(label "CAB[15..0]"
 		(at 334.01 62.23 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12332,7 +12252,6 @@
 	)
 	(label "MAIN_D1"
 		(at 228.6 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12343,7 +12262,6 @@
 	)
 	(label "RCOIN_2"
 		(at 64.77 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12354,7 +12272,6 @@
 	)
 	(label "R3P_LEFT"
 		(at 83.82 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12365,7 +12282,6 @@
 	)
 	(label "R3P_LEFT"
 		(at 64.77 73.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12376,7 +12292,6 @@
 	)
 	(label "MAIN_A6"
 		(at 148.59 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12387,7 +12302,6 @@
 	)
 	(label "OTHER"
 		(at 340.36 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12398,7 +12312,6 @@
 	)
 	(label "R1P_BTN_2"
 		(at 64.77 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12409,7 +12322,6 @@
 	)
 	(label "~{MAIN_A1}"
 		(at 83.82 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12420,7 +12332,6 @@
 	)
 	(label "VCC"
 		(at 382.27 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12431,7 +12342,6 @@
 	)
 	(label "R3P_BTN_1"
 		(at 64.77 49.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12442,7 +12352,6 @@
 	)
 	(label "R3P_DOWN"
 		(at 83.82 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12453,7 +12362,6 @@
 	)
 	(label "CAB0"
 		(at 317.5 115.57 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12464,7 +12372,6 @@
 	)
 	(label "R2P_RIGHT"
 		(at 64.77 181.61 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12475,7 +12382,6 @@
 	)
 	(label "JOYSTICK"
 		(at 83.82 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12486,7 +12392,6 @@
 	)
 	(label "R2P_DOWN"
 		(at 83.82 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12497,7 +12402,6 @@
 	)
 	(label "VCC"
 		(at 340.36 237.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12508,7 +12412,6 @@
 	)
 	(label "RCOIN_3"
 		(at 83.82 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12519,7 +12422,6 @@
 	)
 	(label "~{MAIN_A1}"
 		(at 83.82 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12530,7 +12432,6 @@
 	)
 	(label "MAIN_D5"
 		(at 228.6 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12541,7 +12442,6 @@
 	)
 	(label "R2P_DOWN"
 		(at 64.77 205.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12552,7 +12452,6 @@
 	)
 	(label "R4P_BTN_1"
 		(at 64.77 53.34 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12563,7 +12462,6 @@
 	)
 	(label "R1P_UP"
 		(at 83.82 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12574,7 +12472,6 @@
 	)
 	(label "RCOIN_1"
 		(at 64.77 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12585,7 +12482,6 @@
 	)
 	(label "CAB0"
 		(at 322.58 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12596,7 +12492,6 @@
 	)
 	(label "MAIN_D2"
 		(at 228.6 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12607,7 +12502,6 @@
 	)
 	(label "MAIN_D0"
 		(at 228.6 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12618,7 +12512,6 @@
 	)
 	(label "~{MAIN_A1}"
 		(at 83.82 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12629,7 +12522,6 @@
 	)
 	(label "R2P_BTN_2"
 		(at 64.77 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12640,7 +12532,6 @@
 	)
 	(label "VSS"
 		(at 325.12 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12651,7 +12542,6 @@
 	)
 	(label "R2P_RIGHT"
 		(at 83.82 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12662,7 +12552,6 @@
 	)
 	(label "R1P_RIGHT"
 		(at 83.82 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12673,7 +12562,6 @@
 	)
 	(label "MAIN_A5"
 		(at 148.59 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12684,7 +12572,6 @@
 	)
 	(label "CAB6"
 		(at 317.5 177.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12695,7 +12582,6 @@
 	)
 	(label "CAB3"
 		(at 322.58 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12706,7 +12592,6 @@
 	)
 	(label "MAIN_D9"
 		(at 134.62 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12717,7 +12602,6 @@
 	)
 	(label "R3P_UP"
 		(at 64.77 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12728,7 +12612,6 @@
 	)
 	(label "RCOIN_4"
 		(at 83.82 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12739,7 +12622,6 @@
 	)
 	(label "MAIN_D12"
 		(at 134.62 25.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12750,7 +12632,6 @@
 	)
 	(label "R4P_UP"
 		(at 83.82 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12761,7 +12642,6 @@
 	)
 	(label "CAB9"
 		(at 322.58 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12772,7 +12652,6 @@
 	)
 	(label "R3P_DOWN"
 		(at 64.77 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12783,7 +12662,6 @@
 	)
 	(label "MAIN_D0"
 		(at 384.81 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12794,7 +12672,6 @@
 	)
 	(label "~{RESET}"
 		(at 229.87 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12805,7 +12682,6 @@
 	)
 	(label "MAIN_D7"
 		(at 134.62 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12816,7 +12692,6 @@
 	)
 	(label "~{MAIN_A1}"
 		(at 83.82 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12827,7 +12702,6 @@
 	)
 	(label "MAIN_D2"
 		(at 384.81 143.51 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12838,7 +12712,6 @@
 	)
 	(label "MAIN_D4"
 		(at 228.6 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12849,7 +12722,6 @@
 	)
 	(label "MAIN_D13"
 		(at 134.62 33.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12860,7 +12732,6 @@
 	)
 	(label "VSS"
 		(at 289.56 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12871,7 +12742,6 @@
 	)
 	(label "MAIN_D7"
 		(at 384.81 151.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12882,7 +12752,6 @@
 	)
 	(label "MAIN_A2"
 		(at 148.59 214.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12893,7 +12762,6 @@
 	)
 	(label "R1P_BTN_1"
 		(at 83.82 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12904,7 +12772,6 @@
 	)
 	(label "MAIN_A3"
 		(at 148.59 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12915,7 +12782,6 @@
 	)
 	(label "R4P_RIGHT"
 		(at 64.77 85.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12926,7 +12792,6 @@
 	)
 	(label "MAIN_D8"
 		(at 384.81 85.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12937,7 +12802,6 @@
 	)
 	(label "MAIN_D11"
 		(at 134.62 83.82 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12948,7 +12812,6 @@
 	)
 	(label "CAB14"
 		(at 322.58 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12959,7 +12822,6 @@
 	)
 	(label "R3P_RIGHT"
 		(at 64.77 81.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12970,7 +12832,6 @@
 	)
 	(label "CAB1"
 		(at 322.58 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12981,7 +12842,6 @@
 	)
 	(label "R2P_BTN_1"
 		(at 64.77 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12992,7 +12852,6 @@
 	)
 	(label "MAIN_D9"
 		(at 384.81 87.63 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13003,7 +12862,6 @@
 	)
 	(label "R1P_BTN_2"
 		(at 83.82 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13014,7 +12872,6 @@
 	)
 	(label "R4P_LEFT"
 		(at 83.82 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13025,7 +12882,6 @@
 	)
 	(label "~{MAIN_A1}"
 		(at 185.42 184.15 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13036,7 +12892,6 @@
 	)
 	(label "MAIN_D0"
 		(at 134.62 156.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13047,7 +12902,6 @@
 	)
 	(label "MAIN_D11"
 		(at 228.6 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13058,7 +12912,6 @@
 	)
 	(label "OTHER"
 		(at 340.36 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13069,7 +12922,6 @@
 	)
 	(label "RCOIN_3"
 		(at 64.77 33.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13080,7 +12932,6 @@
 	)
 	(label "CAB10"
 		(at 322.58 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13091,7 +12942,6 @@
 	)
 	(label "MAIN_D4"
 		(at 134.62 111.76 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13102,7 +12952,6 @@
 	)
 	(label "MAIN_D8"
 		(at 134.62 68.58 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13113,7 +12962,6 @@
 	)
 	(label "CAB3"
 		(at 317.5 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13124,7 +12972,6 @@
 	)
 	(label "VSS"
 		(at 304.8 204.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13135,7 +12982,6 @@
 	)
 	(label "R1P_BTN_3"
 		(at 83.82 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13146,7 +12992,6 @@
 	)
 	(label "R3P_RIGHT"
 		(at 83.82 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13157,7 +13002,6 @@
 	)
 	(label "MAIN_D10"
 		(at 228.6 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13168,7 +13012,6 @@
 	)
 	(label "R1P_DOWN"
 		(at 64.77 201.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13179,7 +13022,6 @@
 	)
 	(label "MAIN_D9"
 		(at 228.6 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13191,7 +13033,6 @@
 	(hierarchical_label "1P_LEFT"
 		(shape input)
 		(at 26.67 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13203,7 +13044,6 @@
 	(hierarchical_label "+12V"
 		(shape passive)
 		(at 322.58 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13215,7 +13055,6 @@
 	(hierarchical_label "3P_LEFT"
 		(shape input)
 		(at 26.67 73.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13227,7 +13066,6 @@
 	(hierarchical_label "PAIR~{CS}"
 		(shape output)
 		(at 190.5 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13239,7 +13077,6 @@
 	(hierarchical_label "~{IO1}"
 		(shape input)
 		(at 156.21 200.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13251,7 +13088,6 @@
 	(hierarchical_label "SERVICE1"
 		(shape input)
 		(at 266.7 115.57 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13263,7 +13099,6 @@
 	(hierarchical_label "MAIN_D[15..0]"
 		(shape tri_state)
 		(at 389.89 27.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13275,7 +13110,6 @@
 	(hierarchical_label "OCHARA"
 		(shape output)
 		(at 270.51 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13287,7 +13121,6 @@
 	(hierarchical_label "1P_START"
 		(shape input)
 		(at 266.7 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13299,7 +13132,6 @@
 	(hierarchical_label "2P_BTN_2"
 		(shape input)
 		(at 26.67 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13311,7 +13143,6 @@
 	(hierarchical_label "2P_UP"
 		(shape input)
 		(at 26.67 198.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13323,7 +13154,6 @@
 	(hierarchical_label "~{RESET}"
 		(shape input)
 		(at 236.22 166.37 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13335,7 +13165,6 @@
 	(hierarchical_label "4P_BTN_1"
 		(shape input)
 		(at 26.67 53.34 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13347,7 +13176,6 @@
 	(hierarchical_label "1P_BTN_3"
 		(shape input)
 		(at 26.67 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13359,7 +13187,6 @@
 	(hierarchical_label "2P_RIGHT"
 		(shape input)
 		(at 26.67 181.61 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13371,7 +13198,6 @@
 	(hierarchical_label "2P_BTN_3"
 		(shape input)
 		(at 26.67 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13383,7 +13209,6 @@
 	(hierarchical_label "1P_BTN_2"
 		(shape input)
 		(at 26.67 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13395,7 +13220,6 @@
 	(hierarchical_label "3P_START"
 		(shape input)
 		(at 266.7 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13407,7 +13231,6 @@
 	(hierarchical_label "COIN_4"
 		(shape input)
 		(at 26.67 36.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13419,7 +13242,6 @@
 	(hierarchical_label "R{slash}~{W}"
 		(shape input)
 		(at 133.35 232.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13431,7 +13253,6 @@
 	(hierarchical_label "4P_DOWN"
 		(shape input)
 		(at 26.67 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13443,7 +13264,6 @@
 	(hierarchical_label "1P_RIGHT"
 		(shape input)
 		(at 26.67 177.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13455,7 +13275,6 @@
 	(hierarchical_label "PCU~{CS}"
 		(shape output)
 		(at 190.5 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13467,7 +13286,6 @@
 	(hierarchical_label "SERVICE4"
 		(shape input)
 		(at 266.7 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13479,7 +13297,6 @@
 	(hierarchical_label "1P_DOWN"
 		(shape input)
 		(at 26.67 201.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13491,7 +13308,6 @@
 	(hierarchical_label "3P_BTN_3"
 		(shape input)
 		(at 26.67 25.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13503,7 +13319,6 @@
 	(hierarchical_label "~{LDS}"
 		(shape input)
 		(at 208.28 198.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13515,7 +13330,6 @@
 	(hierarchical_label "2P_LEFT"
 		(shape input)
 		(at 26.67 173.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13527,7 +13341,6 @@
 	(hierarchical_label "OBJ~{REG}"
 		(shape output)
 		(at 208.28 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13539,7 +13352,6 @@
 	(hierarchical_label "COIN_1"
 		(shape input)
 		(at 26.67 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13551,7 +13363,6 @@
 	(hierarchical_label "SYS~{RES}"
 		(shape output)
 		(at 393.7 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13563,7 +13374,6 @@
 	(hierarchical_label "~{IO2}"
 		(shape input)
 		(at 133.35 224.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13575,7 +13385,6 @@
 	(hierarchical_label "MAIN_A[6..1]"
 		(shape input)
 		(at 133.35 212.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13587,7 +13396,6 @@
 	(hierarchical_label "TEST"
 		(shape input)
 		(at 278.13 52.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13599,7 +13407,6 @@
 	(hierarchical_label "4P_START"
 		(shape input)
 		(at 266.7 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13611,7 +13418,6 @@
 	(hierarchical_label "3P_BTN_1"
 		(shape input)
 		(at 26.67 49.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13623,7 +13429,6 @@
 	(hierarchical_label "CR~{CS}"
 		(shape output)
 		(at 187.96 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13635,7 +13440,6 @@
 	(hierarchical_label "4P_BTN_3"
 		(shape input)
 		(at 26.67 29.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13647,7 +13451,6 @@
 	(hierarchical_label "4P_UP"
 		(shape input)
 		(at 26.67 101.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13659,7 +13462,6 @@
 	(hierarchical_label "3P_RIGHT"
 		(shape input)
 		(at 26.67 81.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13671,7 +13473,6 @@
 	(hierarchical_label "COIN_2"
 		(shape input)
 		(at 26.67 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13683,7 +13484,6 @@
 	(hierarchical_label "3P_BTN_2"
 		(shape input)
 		(at 26.67 57.15 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13695,7 +13495,6 @@
 	(hierarchical_label "2P_DOWN"
 		(shape input)
 		(at 26.67 205.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13707,7 +13506,6 @@
 	(hierarchical_label "M~{RD}"
 		(shape input)
 		(at 133.35 217.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13719,7 +13517,6 @@
 	(hierarchical_label "SERVICE3"
 		(shape input)
 		(at 266.7 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13731,7 +13528,6 @@
 	(hierarchical_label "3P_UP"
 		(shape input)
 		(at 26.67 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13743,7 +13539,6 @@
 	(hierarchical_label "SERVICE2"
 		(shape input)
 		(at 266.7 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13755,7 +13550,6 @@
 	(hierarchical_label "COIN_CNT_1"
 		(shape output)
 		(at 339.09 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13767,7 +13561,6 @@
 	(hierarchical_label "4P_LEFT"
 		(shape input)
 		(at 26.67 77.47 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13779,7 +13572,6 @@
 	(hierarchical_label "SCR~{CLK}"
 		(shape output)
 		(at 379.73 245.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13791,7 +13583,6 @@
 	(hierarchical_label "2P_BTN_1"
 		(shape input)
 		(at 26.67 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13803,7 +13594,6 @@
 	(hierarchical_label "1P_UP"
 		(shape input)
 		(at 26.67 194.31 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13815,7 +13605,6 @@
 	(hierarchical_label "PAS"
 		(shape input)
 		(at 147.32 242.57 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13827,7 +13616,6 @@
 	(hierarchical_label "COIN_CNT_2"
 		(shape output)
 		(at 339.09 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13839,7 +13627,6 @@
 	(hierarchical_label "COIN_3"
 		(shape input)
 		(at 26.67 33.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13851,7 +13638,6 @@
 	(hierarchical_label "~{SDON}"
 		(shape output)
 		(at 270.51 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13863,7 +13649,6 @@
 	(hierarchical_label "~{UDS}"
 		(shape input)
 		(at 199.39 161.29 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13875,7 +13660,6 @@
 	(hierarchical_label "INTDMAEN"
 		(shape output)
 		(at 283.21 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13887,7 +13671,6 @@
 	(hierarchical_label "4P_RIGHT"
 		(shape input)
 		(at 26.67 85.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13899,7 +13682,6 @@
 	(hierarchical_label "4P_BTN_2"
 		(shape input)
 		(at 26.67 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13911,7 +13693,6 @@
 	(hierarchical_label "2P_START"
 		(shape input)
 		(at 266.7 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13923,7 +13704,6 @@
 	(hierarchical_label "3P_DOWN"
 		(shape input)
 		(at 26.67 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13935,7 +13715,6 @@
 	(hierarchical_label "V~{CHARA}"
 		(shape output)
 		(at 270.51 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13947,7 +13726,6 @@
 	(hierarchical_label "1P_BTN_1"
 		(shape input)
 		(at 26.67 146.05 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13959,7 +13737,6 @@
 	(hierarchical_label "MUTE"
 		(shape output)
 		(at 270.51 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

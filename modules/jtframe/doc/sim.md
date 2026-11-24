@@ -30,6 +30,21 @@ See `man jtsim` for the complete schema.
 `dipsw=<hex-value>` overrides the simulation DIP-switch value from that
 frame onward; the `0x` prefix is optional.
 
+Lines are numbered from 0 after counts and loops are expanded, one line per
+frame. `=N` makes N the index of the last line, so a script that ends in
+`=4000` has 4001 lines. The intended numbering, shared with the hardware
+regression, is that line 0 is the reset frame and line N is active during
+video frame N, whose picture `jtsim` saves as `frames/frame_%05d.png`.
+`jtsim` prints `CAB line 1 active from frame <n>` to check it: an n other
+than 1 means that the pictures are offset by n-1 frames from that rule. Some
+cores do not match it yet, and with `-load` the frame count includes the
+frames spent downloading the ROM.
+
+`capture N` schedules hardware regression captures at frames N, N+100,
+N+200... up to the last line index. It may appear once, before any frame line
+or `loop`; only comments and blank lines may come first. N must be between 1
+and the last line index. It adds no frames, and `jtsim` does not act on it.
+
 A line may also contain `cheat=<name>`. The name resolves to the active
 core's `cfg/cheat.yaml`; its declared SDRAM byte writes are applied once for
 each frame requested by that line. This only models MAME cheats that write
@@ -74,6 +89,11 @@ The fastest method to produce the sdram files is to run `jtutil sdram` from the 
 
 ## Simulator Speed
 
+`jtsim` uses `make -j` for Verilator builds unless regression scheduling is
+explicitly enabled with `JTFRAME_SIM_REGRESSION=1`. The
+`JTFRAME_REGRESSION` macro selects core-side capture logic and does not by
+itself disable parallel simulation builds.
+
 Comparison run on [Roc'n Rope](https://github.com/jotego/jtkicker) core for ten frames plus ROM loading.
 
 simulator | vcd/no video | no vcd/video | no vcd/no video
@@ -100,50 +120,5 @@ By default, all audio output gets dumped to test.wav. If the **Audio** section o
 
 # Regression
 
-The script `run_regression.sh` is used for automatic regressions triggered by Gitea Actions. It executes a regression for all setnames defined in the configuration files (explained below). If any problem occurs during execution (simulation failure, missing audio/frames, audio/frames validation failure, etc.), the workflow reports the failing regression result.
-
-The script `run_regression.sh` runs a simulation using `jtsim` according to the options defined in a configuration file located in `<core>/cfg`, called `reg.yaml`. In this file, you can specify the same options available when using `jtsim`. The syntax is as follows:
-
-```yaml
-1942:
-    video: number
-    inputs: reg.cab
-    dipsw: binary_number
-    d: MACRO1,MACRO2
-    ...
-1942-flip:
-    inputs: ../setname1/reg.cab
-    dipsw: ef77
-...
-higemaru:
-    ...
-```
-
-You can simulate the same setname with different options by adding a suffix after the setname using a hyphen to separate them, such as in `1942-flip`
-
-> [!NOTE]
-> GitHub uses these configuration files to decide which setnames will be executed during regression. Any setnames not included in these files will be skipped. If you want a setname to be triggered without options, just type <setname>: without any additional fields.
-
-There is also a reg.yaml file in $JTFRAME/bin, where you can define default options. The syntax is the same as above, but you do not need to specify a setname:
-```yaml
-video: number
-inputs: file
-dipsw: binary_number
-d: MACRO1,MACRO2
-...
-```
-
-> [!NOTE]
-> To see all available options for these configuration files, run jtsim --help.
-
-This script also allows validating a simulation against a reference. To do this, use the `--check` flag. MAME zip files are read from the folder pointed to by `MAME`, and reference/results data is read from and written to the folder pointed to by `REGRUNS`. The `--local-check <folder>` flag is kept as a convenience alias for `REGRUNS=<folder> --check`.
-
-The following folder structure is required:
-- `$MAME/`: contains all zipped ROMs.
-- `$REGRUNS/<core>/<setname>/valid/`: contains reference `frames.zip` or `frames/`, and `audio.zip` or `audio.wav`.
-- `$REGRUNS/<core>/<setname-or-variant>/{not_checked,fail}/`: receives generated regression results when `--push` is used.
-
-You can also use the `--push` flag to store simulation results. Depending on the validation outcome, results will be copied to either the `fail` or `not_checked` folder. Reference frames/audio must always be added manually to the `valid` folder.
-
-> [!IMPORTANT]
-> When run by Gitea Actions, the script is executed with the `--check` and `--push` flags. The workflow will only pass if validation succeeds.
+Games with a `cores/<core>/ver/<setname>/reg.cab` file are captured on MiSTer
+boards by `jtutil regression`. See [`hardware-regression.md`](hardware-regression.md).

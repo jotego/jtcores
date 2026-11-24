@@ -194,7 +194,8 @@ mc6809i u_cpu(
     // Bus multiplexer is external
     .D          ( din_dec   ),
     .DOut       ( cpu_dout  ),
-    .RegData    (           )
+    .RegData    (           ),
+    .RegData6309 ( )
 );
 
 `else

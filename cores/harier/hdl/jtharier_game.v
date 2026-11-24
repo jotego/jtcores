@@ -234,6 +234,7 @@ jtharier_sub u_sub(
 /* verilator tracing_on */
 // Sound board 834-5799. cen_pcm is 16 MHz, not 8 -- see the module header.
 jtharier_sound u_snd(
+    .rst        ( rst       ),
     .snd_rstn   ( snd_rstn  ),
     .clk        ( clk       ),
     .ym2151     ( ym2151    ),

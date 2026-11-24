@@ -31,6 +31,21 @@ Contributed by *niknakniknak* and reviewed by Jose Tejada. The PCB belongs to th
 
 The sound FM-PCM balance was measured on the PCB.
 
+# CPU Bus Timing
+
+TMNT, MIA and Punk Shot acknowledge addresses with A20=0 with AS: no wait states. Accesses to the 052109 and 051960 latch their select on a PQ rising edge (I20 74LS74, set while no data strobe is active) and then on the chip's 12 MHz clock (H16/H20). Punk Shot's 052109 adds one more 12 MHz flip-flop (H22B). These are board waits, so the core does not recover those CPU clocks. Thunder Cross II has no schematic and uses the TMNT timing.
+
+## PCB Check
+
+The bus timing was measured on the PCB with a PicoROM-based test that times loops of 256 iterations of four accesses (issue #230). Without waits, a loop takes 42 CPU clocks; each wait state on the four accesses adds 4. Measured on Punk Shot (12 MHz CPU):
+
+Access (CPU clocks per loop) | PCB  | Core
+-----------------------------|------|------
+ROM, work RAM, palette       | 42   | 42
+052109 tile RAM read         | 56.1 | 56.2
+052109 tile RAM write        | 60.1 | 60.1
+051960 object RAM read       | 56.1 | 55.9
+
 # Credits
 
 Special thanks to [Furrtek](http://furrtek.free.fr/) for all his open source research. Thanks too to DJ Hardrich for lending this PCB for analysis.

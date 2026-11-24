@@ -19,8 +19,10 @@ wire        dsp_on, dsp_halt, dsp_we;
 wire        flip, bg_bank, fg_bank, video_on;
 
 assign dip_flip    = flip;
+`ifndef JTFRAME_PXLCLK
 assign pxl_cen     = cen7;
 assign pxl2_cen    = cen14;
+`endif
 // the mask ROM holds 2048 words, and the foreground ROM has no second bank
 assign dsprom_addr = dsp_rom_addr[10:0];
 assign fg_addr     = fg_full_addr[14:0];
@@ -100,6 +102,8 @@ jttoaplan1_dsp #(.TWINCOBR(0)) u_dsp(
     .cen        ( cen14             ),
     .dsp_on     ( dsp_on            ),
     .halt_main  ( dsp_halt          ),
+    .bus_req    (                   ),
+    .bus_ack    ( 1'b0              ),
     .host_addr  ( dsp_addr          ),
     .host_sel   ( dsp_sel           ),
     .host_dout  ( dsp_dout          ),
@@ -114,6 +118,11 @@ jtwardnr_sound u_sound(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .cen3p5     ( cen3p5            ),
+
+    .sys        ( 8'd0              ),
+    .dipsw      ( 16'd0             ),
+    .busrq_n    ( 1'b1              ),
+    .busak_n    (                   ),
 
     .rom_addr   ( snd_addr          ),
     .rom_data   ( snd_data          ),
@@ -137,6 +146,7 @@ jtwardnr_video u_video(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
+    .pxl2_cen   ( pxl2_cen          ),
 
     .scr_cs     ( scr_cs            ),
     .scr_addr   ( scr_addr          ),
@@ -148,6 +158,7 @@ jtwardnr_video u_video(
     .bg_bank    ( bg_bank           ),
     .fg_bank    ( fg_bank           ),
     .video_on   ( video_on          ),
+    .tcobr      ( 1'b0              ),
     .gfx_en     ( gfx_en            ),
 
     .tx_vaddr   ( tx_vaddr          ),

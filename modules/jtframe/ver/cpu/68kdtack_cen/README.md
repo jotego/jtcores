@@ -48,26 +48,27 @@ the test asserts `bus_legit`, then `bus_ack`, and checks that:
 - debt neither increases nor decreases while either exclusion applies;
 - debt drains after the exclusions end.
 
-## WAIT1 and extra wait qualification
+## Wait-state qualification
 
-Six phase-driven instances cover `WAIT1=0/1`, each with no extra wait, `wait2`,
-or `wait3`. With memory immediately ready, the acknowledgement qualification
+`waitn` is the number of 68000 wait states (whole CPU clocks) for the transfer.
+Eight phase-driven instances cover `waitn=0..3`, each with the input held
+constant or driven only while AS is low, like a wait taken from an AS-gated
+chip select. With memory immediately ready, the acknowledgement qualification
 occurs after these delivered Phi1 events following request assertion:
 
-| WAIT1 | No extra wait | wait2 | wait3 |
-|---|---:|---:|---:|
-| 0 | 0 | 1 | 2 |
-| 1 | 2 | 2 | 3 |
+| waitn | 0 | 1 | 2 | 3 |
+|---|---:|---:|---:|---:|
+| Phi1 events | 0 | 2 | 3 | 4 |
 
-These are qualification-event counts, not claims about complete 68000
-instruction cycles. The test also preserves the original synchronized check
-that `wait3` acknowledges later than `wait2`.
+The Phi1 entering S4 precedes the first DTACK sample, so `N` wait states need
+`N+1` events. Gated and constant inputs must give the same count. The test
+also checks that `waitn=2` acknowledges later than `waitn=1`.
 
 Each configuration then receives a late memory response. Both CPU enables must
 be held, debt must accrue, and DTACK must become ready on master-clock edges
 without requiring a held Phi1 to execute. A following transfer begins with debt
 still pending: configured board waits must not charge or spend it. Debt must
-then drain in idle even if the wait inputs retain the preceding selection.
+then drain in idle.
 
 ## Running
 

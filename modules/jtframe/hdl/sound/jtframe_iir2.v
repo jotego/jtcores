@@ -5,21 +5,21 @@
 // Second order IIR filter
 module jtframe_iir2 #(parameter
     WS=14,
-    G = 4   // Gain = 2^G, G>0 needed for unity gain depending on
-            // coefficient scaling
+    G = 4,  // Coefficient scale is 2^(WS-G)
+    WC=WS   // Coefficient width
 )(
     input                      rst,
     input                      clk,
     input                      sample,
     input      signed [WS-1:0] sin,
-    input      signed [WS-1:0] b0,b1,b2,a1,a2,    // coefficients (a0=1)
+    input      signed [WC-1:0] b0,b1,b2,a1,a2,    // coefficients (a0=1)
     output     signed [WS-1:0] sout
 );
 
-reg  signed [WS-1:0] x1, x2, y0, y1, y2; // previous signals
+reg  signed [WS-1:0] x1, x2, y1, y2; // previous signals
 wire signed [WS-1:0] x0;
-reg  signed [WS*2-1:0] xb0,xb1,xb2,ya1,ya2;
-wire signed [WS*2-1:0] sum;
+reg  signed [WS+WC-1:0] xb0,xb1,xb2,ya1,ya2;
+wire signed [WS+WC-1:0] sum;
 
 assign x0  = sin;
 assign sout= sum[(WS*2-1-G)-:WS];
@@ -27,14 +27,16 @@ assign sum = xb0+xb1+xb2-ya1-ya2;
 
 always @(posedge clk) begin
     if( rst ) begin
+        x1 <= 0; x2 <= 0;
+        y1 <= 0; y2 <= 0;
+        xb0 <= 0; xb1 <= 0; xb2 <= 0;
+        ya1 <= 0; ya2 <= 0;
     end else begin
         if(sample) begin
             x2 <= x1;
             x1 <= x0;
             y2 <= y1;
-            y1 <= y0;
-            // y0 <= ^sum[WC*2+3:WC*2-1] ? { sum[WC*2+3], {WC-1{~sum[WC*2+3]}}} : sum[(WC*2-1)-:WC];
-            y0 <= sum[WS+:WS];
+            y1 <= sout;
         end else begin
             xb0 <= x0*b0;
             xb1 <= x1*b1;

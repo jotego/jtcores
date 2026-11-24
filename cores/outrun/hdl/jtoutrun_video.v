@@ -222,6 +222,9 @@ jts16_tilemap #(.MODEL(1),.SCR2_DLY(10'd10)) u_tilemap(
     .dswn       ( main_dswn ),
     .char_dout  ( char_dout ),
     .vint       ( vint      ),
+    // ignored as DUAL_RATE is 0
+    .req_57Hz   ( 1'b0      ),
+    .is_57Hz    (           ),
 
     // Other configuration
     .flip       ( flip      ),

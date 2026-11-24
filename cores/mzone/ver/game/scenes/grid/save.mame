@@ -1,0 +1,6 @@
+save vram0.bin,2000,400
+save vram1.bin,2400,400
+save cram0.bin,2800,400
+save cram1.bin,2c00,400
+save obj.bin,3000,400
+save shared.bin,3800,800

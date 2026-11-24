@@ -1,0 +1,34 @@
+[*]
+CORENAME=JTMEIKYU
+JTFRAME_BUTTONS=2
+
+# Meikyu Jima (Kickle Cubicle), Irem M77. Single game, no background layer.
+JTFRAME_WIDTH=384
+JTFRAME_HEIGHT=256
+JTFRAME_COLORW=5
+JTFRAME_DEBUG_VPOS = 6
+
+# JTFRAME_STATUS
+# No JTFRAME_PLL: the default 48 MHz clock is exact for this PCB.
+# Meikyu Jima's video is on a 24 MHz XTAL (Vigilante's is 18.432 MHz, which is
+# why that core needs jtframe_pll6144 -- do not copy it here).
+# PCB pixel clock = 24/3 = 8.000 MHz, and clk/6 = 48/6 = 8.000 MHz exactly.
+# htotal 512 (384 active), vtotal 284 (256 active)
+#   -> 15.625 kHz H, 8e6/(512*284) = 55.0176 Hz V
+JTFRAME_PXLCLK=8
+JTFRAME_RATE=55.02
+
+# ROM file layout
+# BA0, main CPU ROM (P0+B0+B1 = 0x28000)
+# BA1, sound CPU and PCM
+# BA2, chars
+# BA3, sprites
+JTFRAME_BA1_START    =0x28000
+PCM_START    =0x38000
+JTFRAME_BA2_START    =0x48000
+JTFRAME_BA3_START    =0x88000
+
+# Scene saving
+debug JTFRAME_IOCTL_RD=4096
+debug JTFRAME_IOCTL_RD+=2048
+debug JTFRAME_IOCTL_RD+=4

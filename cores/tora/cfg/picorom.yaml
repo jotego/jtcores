@@ -1,0 +1,41 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report tora <set>
+bustest:
+  f1dream:
+    board: "F-1 Dream (Capcom, Tiger Road hardware 86614A/B, N86614A-5 + N86614B-6)"
+    cpu: m68k
+    cpu_hz: 10000000
+    rom:
+      cpu_base: 0x0
+      even: "6J"
+      odd: "6K"
+      chip: "HM27C301G (27C301 128Kx8 EPROM, non-JEDEC pinout: pin 2=/OE, pin 24=A16, pin 22=/CE tied to GND)"
+      pins: 32
+      rom_offset: 4
+      word_swap: true
+    ram: {base: 0xffc000, size: 0x4000}
+    cases:
+      - {name: "rom_a19_0", addr: 0x1f000, access: "read.w", expect: "/PRCS, 7G 74LS161 loads {0,0,AB19=0,1}: QC (DTACK) after ~3 counts of the 12 MHz clock, asynchronous to the 10 MHz CPU"}
+      - {name: "wram_wr_a19_1", addr: 0xffd000, access: "write.w", expect: "/WRAM 4K/4J TMM2063, 7G loads {0,0,1,1}: DTACK after ~1 count of 12 MHz"}
+      - {name: "wram_rd_a19_1", addr: 0xffd000, access: "read.w", expect: "same as wram_wr_a19_1"}
+      - {name: "objram_wr", addr: 0xfe0000, access: "write.w", expect: "/OBJRAM 2K/3K TMM2015 at 0xE0000 (below the 0xE0800 sprite table), A19=1 short DTACK"}
+      - {name: "char_rd", addr: 0xfec000, access: "read.w", expect: "/VRAMCS character RAM 0xEC000 (core char_cs): 7G held cleared, DTACK waits for /VWAIT from the text layer"}
+      - {name: "char_wr", addr: 0xfec7fe, access: "write.w", expect: "same as char_rd; leaves one garbage character on screen"}
+      - {name: "palette_rd", addr: 0xff8000, access: "read.w", expect: "/COLRAM 0xF8000 (core col_cs), A19=1 short DTACK"}
+    checklist:
+      - "The program sockets take HM27C301G (27C301 128Kx8 EPROM, non-JEDEC pinout: pin 2=/OE, pin 24=A16, pin 22=/CE tied to GND) (32-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: J8 (sheet A1) selects the 68000 clock: XCK (8C 10 MHz oscillator) or 12 MHz. Leave it on XCK (10 MHz)."
+      - "CORE: Tiger Road / F-1 Dream is cores/tora (jttora_game.v instantiates cores/biocom/hdl/jtbiocom_main.v with GAME=1); rom/f1dream.rom was generated with `jtframe mra tora`."
+      - "Only CPU A1-A19 are used (A20-A23 not connected), so 0xFFC000 = 0x0FC000; addresses above use the 0xFxxxxx form the game uses (SSP=0xFFFFE0)."
+      - "SOCKETS: sheet 86614 A 2 (CAPCOM Tiger Road [schematics].pdf, page 2) shows 6J (DB15-DB8, even, MAME *.6j at 0x00000) and 6K (DB7-DB0, odd, MAME *.6k at 0x00001) as 32-pin HM27C301G."
+      - "The 27C301 pinout swaps /OE and A16 relative to a JEDEC 27C010: on this board pin 2 = /PRCS and pin 24 = AB17, pin 22 (/CE) = GND, pins 1/31/32 = +5 V."
+      - "A PicoROM (JEDEC 27C010-style pinout, 64 KiB mode) plugged in directly would see /PRCS on its A16 (ignored in 64 KiB mode) and AB17 on its /OE, so it would drive DB0-DB15 on every cycle with A17=0 regardless of /PRCS, including idle/DMA cycles: risky bus contention."
+      - "Use a 32-pin pass-through adapter that crosses pins 2 and 24 (board pin 2 /PRCS -> PicoROM pin 24 /OE; board pin 24 AB17 -> PicoROM pin 2 A16) on each socket; with that adapter the PicoROM is fine."
+      - "If the actual board has been reworked with 27C010s and cut/jumpered traces (pads E/F on the sheet suggest options for 6K), re-check pins 2/24 with a meter first. .rom evidence: JTFRAME_HEADER=4 (byte 0 = 01 for f1dream), rom/f1dream.rom bytes 4-11 = ff00 e0ff 0000 9c04 -> words 00FF FFE0 0000 049C (SSP=0x00FFFFE0, PC=0x49C), matching f1_02.6j (00 ff 00 04) / f1_03.6k (ff e0 00 9c) in /nobackup/mame/mame260/f1dream.zip."
+      - "Note that zip holds the f1_02/f1_03 program (CRC 3c2ec697, current MAME names it f1dreama); current MAME f1dream uses f1_hi.6j/f1_lo.6k."
+      - "Irrelevant to the test because our firmware replaces the program ROMs."
+      - "DTACK (sheet A3): 7G 74LS161 clocked by 12 MHz, cleared while the cycle is inactive (and for /VRAMCS), loads D,C=0, B=AB19, A apparently tied high (read from a scanned sheet), and 6F combines QC with /VWAIT into DTACK, so ROM (A19=0) is expected to be roughly 2 extra 12 MHz periods slower (estimate) than A19=1 regions, with jitter because 12 MHz and 10 MHz are asynchronous: report min/max per case."
+      - "No watchdog (5H M51953B is only a power-on reset; MAME has none)."
+      - "Do not access: 0x40000-0xBFFFF (BERR), 0xE4000 writes (flip/coin counters), 0xE4002 writes (F-1 Dream: i8751 INT0 / MCU DMA trigger; Tiger Road: sound latch), 0xE8000-0xE800F (scroll, OKOUT, sprite buffer)."
+      - "Keep interrupts masked (SR=0x2700)."
+      - "The sprite engine takes the bus (BR/BLCNTEN) for object DMA, which may stretch some loop iterations: use repeated runs and take the minimum/median."

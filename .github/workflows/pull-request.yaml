@@ -26,7 +26,7 @@ jobs:
     secrets: inherit
 
   compile_all:
-    if: github.event.pull_request.draft == false
+    if: github.repository != 'jotego/jtcores-private' && github.event.pull_request.draft == false
     needs:
       - beta_checks
       - framework_tests

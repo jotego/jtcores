@@ -46,314 +46,275 @@ module jtframe_credits #(
     output reg [COLW*3-1:0] rgb_out
 );
 
-localparam MSGW  = PAGES == 1 ? 10 :
-                   (PAGES == 2 ? 11 :
-                   (PAGES > 2 && PAGES <=4 ? 12 :
-                   (PAGES > 5 && PAGES <=8 ? 13 : 14 ))); // Support for upto 16 pages
-localparam VPOSW = MSGW-2;
-localparam HPOSW = 9;
-localparam             _MAXVISIBLE = PAGES*32*8-1; // workaround to avoid a warning
-localparam [VPOSW-1:0] MAXVISIBLE  = _MAXVISIBLE[VPOSW-1:0];
+localparam VPOSW = PAGES <= 1 ? 8 :
+                   (PAGES <= 2 ? 9 :
+                   (PAGES <= 4 ? 10 :
+                   (PAGES <= 8 ? 11 : 12)));
+localparam HPOSW = 10;
+localparam [12:0] MAXVISIBLE = {PAGES[4:0],8'd0};
+localparam [12:0] MAXVISIBLE_13 = MAXVISIBLE;
 
-`ifndef JTFRAME_CREDITS_HSTART
-    localparam [HPOSW-1:0] HOFFSET=0;
-`else
-    localparam [HPOSW-1:0] HOFFSET=`JTFRAME_CREDITS_HSTART;
-`endif
-
-localparam [HPOSW-1:0] HSTART= 0,
-                       HEND  = 'h102;
+function [71:0] page_filename;
+    input integer page;
+    reg [7:0] digit;
+    begin
+        digit = 8'd48 + (page < 10 ? page[7:0] : page[7:0] - 8'd10);
+        // Leave the short name implicitly extended; a leading NUL breaks Quartus string typing for SYNFILE.
+        /* verilator lint_off WIDTHEXPAND */
+        page_filename = page < 10 ? {"msg",digit,".bin"} : {"msg1",digit,".bin"};
+        /* verilator lint_on WIDTHEXPAND */
+    end
+endfunction
 
 reg  [HPOSW-1:0]  hn;
 wire [HPOSW-1:0]  hscan;
-reg  [VPOSW-1:0]  scrpos, vdump, vdump1;
+reg  [VPOSW:0]    scrpos;
 reg  [8:0]        vrender;
 wire [8:0]        scan_data;
 wire [7:0]        font_data;
-reg  [MSGW-1:0]   scan_addr;
-wire [2:0]        font_row = rotate==2'b11 ? (~vdump[2:0]+3'd1) : vdump[2:0];
-wire              visible = vrender < MAXVISIBLE;
-reg               last_toggle, last_enable;
+reg  [9:0]        scan_addr;
+reg  [3:0]        scan_page, scan_page_addr;
+wire [2:0]        font_row;
+wire              visible;
+reg               visible_l, visible_l2, visible_l3;
+reg               last_toggle, last_enable_pxl;
 reg               show, hide;
+reg               pxl_valid;
+reg               pxl_row7;
 wire              vram_mode = vram_ctrl[0];
 wire              vram_nc;
 
-assign hscan = hn - HOFFSET;
+reg  [HPOSW-1:0] active_width;
+reg  [8:0] active_height;
+reg  [8:0] active_lines;
+reg  [HPOSW-1:0] h_offset;
+reg  [8:0] h_source, v_source;
+reg  [8:0] h_phase, v_phase;
+reg  [2:0] x_addr, x_ram, x_font;
+reg  [2:0] row_addr, row_ram;
+reg         row7_addr, row7_ram, row7_font;
+reg  [1:0] pal_font;
+reg        last_hb, last_vb;
+reg  [3:0] scr_base;
+wire       tate      = rotate[0];
+wire       tate_flip = rotate==2'b11;
+wire       hb = BLKPOL ? HB : ~HB;
+wire       vb = BLKPOL ? VB : ~VB;
+wire       hb_edge = hb && !last_hb;
+wire       vb_edge = vb && !last_vb;
+wire       vb_fall = !vb && last_vb;
+wire [12:0] scroll_coord;
+wire [12:0] text_y;
+wire [12:0] scrpos_13 = {{(12-VPOSW){1'b0}},scrpos};
+wire [7:0] text_x;
+wire [7:0] h_source_direct = hn[7:0]-h_offset[7:0];
+wire [7:0] v_source_flip = 8'hff-v_source[7:0];
+wire [9:0] h_scale_step = 10'd256-active_width;
+wire [9:0] h_scale_sum = {1'b0,h_phase}+h_scale_step;
+wire [10:0] h_scale_wrap = {1'b0,h_scale_sum}-{1'b0,active_width};
+wire [3:0] text_page;
+wire       text_valid;
+wire [8:0] page_data [0:15];
+wire [8:0] page_cpu_q [0:15];
+wire [8:0] vram_q = page_cpu_q[0];
+reg [COLW*3-1:0] rgb_d0, rgb_d1, rgb_d2, rgb_d3;
+reg [3:0] sync_d0, sync_d1, sync_d2, sync_d3;
+wire hb_delayed = BLKPOL ? sync_d3[3] : ~sync_d3[3];
+wire vb_delayed = BLKPOL ? sync_d3[2] : ~sync_d3[2];
+wire [9:0] font_addr = {scan_data[6:0],font_row};
 
-jtframe_dual_ram #(.DW(9), .AW(MSGW),.SYNFILE("msg.bin"),.ASCII_BIN(1)) u_msg(
-    .clk0   ( clk       ),
-    .clk1   ( clk       ),
-    // Port 0: optional write access
-    .data0  ( {1'b1, vram_din }             ),
-    .addr0  ( { {MSGW-10{1'b0}}, vram_addr } ),
-    .we0    ( vram_we   ),
-    .q0     ( { vram_nc, vram_dout } ),
-    // Port 1: video dump
-    .data1  ( 9'd0      ),
-    .addr1  ( scan_addr ),
-    .we1    ( 1'b0      ),
-    .q1     ( scan_data )
-);
+assign hscan = tate ? hn : hn - h_offset;
+assign font_row = row_ram;
+assign scroll_coord = scrpos_13 + (tate ? {3'd0,hscan} : {4'd0,vrender});
+assign text_y = tate_flip ? MAXVISIBLE_13-13'd1-scroll_coord : scroll_coord;
+assign text_x = tate ? (rotate[1] ? v_source[7:0] : v_source_flip) :
+                (active_width<256 ? h_source[7:0] : h_source_direct);
+assign text_page = text_y[11:8];
+assign text_valid = scroll_coord < MAXVISIBLE_13;
 
-jtframe_font u_font(
-    .clk    ( clk               ),
-    .ascii  ( scan_data[6:0]    ),
-    .v      ( font_row          ),
-    .pxl    ( font_data         )
-);
+generate
+    genvar page;
+    for(page=0;page<16;page=page+1) begin: gen_page
+        if(page<PAGES) begin: gen_ram
+            localparam [71:0] INIT_FILE = page_filename(page);
+            wire [8:0] cpu_wdata = page==0 ? {1'b1,vram_din} : 9'd0;
+            wire [9:0] cpu_waddr = page==0 ? vram_addr : 10'd0;
+            wire       cpu_we    = page==0 ? vram_we : 1'b0;
 
-reg  [1:0]      pal;
-reg  [2:0]      pxl;
+            jtframe_dual_ram_cen #(
+                .DW        ( 9              ),
+                .AW        ( 10             ),
+                .SYNFILE   ( INIT_FILE      ),
+                .ASCII_BIN ( 1              )
+            ) u_msg(
+                .cen0   ( 1'b1         ),
+                .cen1   ( pxl_cen      ),
+                .clk0   ( clk          ),
+                .data0  ( cpu_wdata    ),
+                .addr0  ( cpu_waddr    ),
+                .we0    ( cpu_we       ),
+                .q0     ( page_cpu_q[page] ),
+                .clk1   ( clk          ),
+                .data1  ( 9'd0         ),
+                .addr1  ( scan_addr    ),
+                .we1    ( 1'b0         ),
+                .q1     ( page_data[page] )
+            );
+        end else begin: gen_empty
+            assign page_cpu_q[page] = 9'd0;
+            assign page_data[page]  = 9'd0;
+        end
+    end
+endgenerate
 
-localparam MULTIPAGE = MSGW > 10;
+assign scan_data = page_data[scan_page];
+assign visible = pxl_valid;
 
-// hb and vb are always active high
-wire hb = BLKPOL ? HB : ~HB;
-wire vb = BLKPOL ? VB : ~VB;
-reg [7:0] pxl_data;
-wire tate      = rotate[0],
-     tate_flip = rotate==2'b11;
-
-reg last_hb, last_vb;
-reg [3:0] scr_base;
-
-wire hb_edge = hb && !last_hb;
-
-always @(posedge clk) if(pxl_cen) begin
-    if( tate || hb_edge ) begin
-        vdump1  <= scrpos + (tate ? hscan : vrender);
-        vdump   <= vdump1;
+always @(posedge clk) begin
+    if(rst) begin
+        scan_page  <= 0;
+        x_ram      <= 0;
+        x_font     <= 0;
+        row_ram    <= 0;
+        row7_ram   <= 0;
+        row7_font  <= 0;
+        pal_font   <= 0;
+        visible_l2 <= 0;
+        visible_l3 <= 0;
+    end else if(pxl_cen) begin
+        scan_page  <= scan_page_addr;
+        x_ram      <= x_addr;
+        x_font     <= x_ram;
+        row_ram    <= row_addr;
+        row7_ram   <= row7_addr;
+        row7_font  <= row7_ram;
+        pal_font   <= scan_data[8:7];
+        visible_l2 <= visible_l;
+        visible_l3 <= visible_l2;
     end
 end
 
-wire [VPOSW-1:3] vidx_flip = (~vdump[VPOSW-1:3])+1'd1;
+jtframe_ram #(.DW(8),.AW(10),.SYNFILE("font0.hex"),.CEN_RD(1)) u_font(
+    .clk    ( clk       ),
+    .cen    ( pxl_cen   ),
+    .data   ( 8'd0      ),
+    .addr   ( font_addr ),
+    .we     ( 1'b0      ),
+    .q      ( font_data )
+);
+
+reg  [2:0]      pxl;
+
+localparam MULTIPAGE = PAGES > 1;
+assign vram_dout = vram_q[7:0];
+assign vram_nc   = vram_q[8];
 
 always @(posedge clk) begin
-    if( rst ) begin
-        hn       <= HSTART;
-        scrpos   <= {VPOSW{1'b0}};
-        vrender  <= 8'd0;
-        scr_base <= 4'd0;
+    if(rst) begin
+        hn            <= 0;
+        scrpos        <= 0;
+        vrender       <= 0;
+        active_width  <= 384;
+        active_height <= 224;
+        active_lines  <= 0;
+        h_offset      <= 64;
+        h_source      <= 0;
+        v_source      <= 0;
+        h_phase       <= 0;
+        v_phase       <= 0;
+        last_enable_pxl <= 0;
+        scr_base      <= 0;
+        last_hb       <= 1'b0;
+        last_vb       <= 1'b0;
+        scan_addr     <= 0;
+        scan_page_addr<= 0;
+        visible_l     <= 0;
+        x_addr        <= 0;
+        row_addr      <= 0;
+        row7_addr     <= 0;
+        pxl_valid     <= 0;
+        pxl_row7      <= 0;
     end else if(pxl_cen) begin
         last_hb <= hb;
         last_vb <= vb;
-        if( hb_edge ) begin
-            vrender <= vrender + 8'd1;
-        end
-        hn <= hb ? HSTART : hn+9'd1;
-        // scrpos: scroll counter
-        // gets reset each time the pause button is pressed
-        if( enable && !last_enable ) begin
-            scrpos <=  tate_flip ? MAXVISIBLE : {VPOSW{1'b0}};
-        end else begin
-            if ( vb ) begin
-                vrender  <= 0;
-                if( !last_vb && MULTIPAGE ) begin
-                    // Scroll runs at max speed when the visible pages are over
-                    // otherwise it runs at SPEED
-                    if( scr_base == SPEED || scrpos>MAXVISIBLE || fast_scroll ) begin
-                        scrpos <= tate_flip ? (scrpos-1'b1) : (scrpos + 1'b1);
-                        scr_base <= 4'd0;
-                    end else scr_base <= scr_base + 4'd1;
+        last_enable_pxl <= enable;
+            hn <= hb ? 0 : hn+1'b1;
+            if(hb_edge) begin
+                active_width <= hn;
+                if(!vb) begin
+                    active_lines <= active_lines+1'b1;
+                    if(tate && active_height<256) begin
+                        if(v_phase+(256-active_height)>=active_height) begin
+                            v_phase  <= v_phase+(256-active_height)-active_height;
+                            v_source <= v_source+9'd2;
+                        end else begin
+                            v_phase  <= v_phase+(256-active_height);
+                            v_source <= v_source+1'b1;
+                        end
+                    end else if(tate) v_source <= v_source+1'b1;
+                end
+                if(!vb) vrender <= vrender+1'b1;
+            end
+            if(vb_edge) begin
+                active_height <= active_lines + (hb_edge ? 9'd1 : 9'd0);
+                if(MULTIPAGE) begin
+                    if(scr_base==SPEED || fast_scroll) begin
+                        scrpos <= scrpos_13>=MAXVISIBLE_13 ? 0 : scrpos+1'b1;
+                        scr_base <= 0;
+                    end else scr_base <= scr_base+1'b1;
                 end
             end
-        end
-        if( vram_mode ) scrpos <= 0;
-        //if( /*tate || hn[2:0]==3'd0 || hb || vb ) begin
-            scan_addr <= tate ?
-                { rotate[1] ? vidx_flip : vdump[VPOSW-1:3], vrender[7:3]^{5{~rotate[1]}} } :
-                { vdump[VPOSW-1:3], hscan[7:3] };
-        //end
-        // Draw
-        if( tate ) begin
-            pxl <= { scan_data[8:7], font_data[ vrender[2:0] ^{3{rotate[1]}} ] };
-        end else begin
-            pxl <= { pal, pxl_data[7] };
-            if( hscan[2:0]==3'd1 ) begin
-                pal      <= scan_data[8:7];
-                pxl_data <= font_data;
+            if(vb_fall) begin
+                active_lines <= 0;
+                vrender      <= 0;
+                v_source     <= 0;
+                v_phase      <= 0;
+            end
+            if(enable && !last_enable_pxl) begin
+                scrpos   <= 0;
+                scr_base <= 0;
+            end
+            if(vram_mode) scrpos <= 0;
+
+            if(hb) begin
+                h_source <= 0;
+                h_phase  <= 0;
+            end else if(active_width<256 && !tate) begin
+                if({1'b0,h_scale_sum}>={1'b0,active_width}) begin
+                    h_phase  <= h_scale_wrap[8:0];
+                    h_source <= h_source+9'd2;
+                end else begin
+                    h_phase  <= h_scale_sum[8:0];
+                    h_source <= h_source+1'b1;
+                end
+            end else if(!tate) begin
+                h_source <= 0;
+                h_phase  <= 0;
             end else begin
-                pxl_data <= pxl_data << 1;
+                h_source <= 0;
             end
-        end
+            if(hb_edge && active_width>=256 && !tate)
+                h_offset <= (active_width-256)>>1;
+
+            scan_addr  <= { text_y[7:3], text_x[7:3] };
+            scan_page_addr <= text_page;
+            x_addr         <= text_x[2:0];
+            row_addr       <= text_y[2:0];
+            row7_addr      <= text_y[7];
+            visible_l  <= text_valid && (tate || active_width<256 ||
+                          (hn>=h_offset && hn<h_offset+256));
+
+            if(tate) begin
+                pxl       <= { pal_font, font_data[~x_font] };
+                pxl_valid <= visible_l3;
+                pxl_row7  <= row7_font;
+            end else begin
+                pxl       <= { pal_font, font_data[~x_font] };
+                pxl_valid <= visible_l3;
+                pxl_row7  <= row7_font;
+            end
     end
 end
-
-//////////////////////////////////////////////////////////////////////////////
-// Object Generator
-
-
-`ifdef JTFRAME_AVATARS
-reg  [ 7:0] buf_din;
-reg         buf_we0, buf_we1;
-reg  [ 7:0] buf_addr0;
-
-reg  [11:0] lut_addr;
-wire [ 7:0] lut_data;
-
-reg  [12:0] obj_addr;
-wire [15:0] obj_data;
-
-wire [ 7:0] pal_addr;
-wire [11:0] pal_data;
-reg  [11:0] obj_pxl;
-reg  [ 7:0] obj_id, obj_x, obj_y;
-
-reg         line = 1'b0;
-
-jtframe_dual_ram #(.DW(8), .AW(9)) u_linebuffer(
-    .clk0   ( clk       ),
-    .clk1   ( clk       ),
-    // Port 0: new data writes
-    .data0  ( buf_din   ),
-    .addr0  ( { line, buf_addr0 } ),
-    .we0    ( buf_we0   ),
-    .q0     (           ),
-    // Port 1
-    .data1  ( ~8'd0     ),
-    .addr1  ( { ~line, hscan[7:0] } ),
-    .we1    ( buf_we1   ),
-    .q1     ( pal_addr  )
-);
-
-jtframe_ram #(.DW(8), .AW(12),.SYNFILE("lut.hex")) u_lut(
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    .data   ( 8'd0      ),
-    .addr   ( lut_addr  ),
-    .we     ( 1'b0      ),
-    .q      ( lut_data  )
-);
-
-jtframe_ram #(.DW(16), .AW(13),.SYNFILE("avatar.hex")) u_obj(
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    .data   ( 16'd0     ),
-    .addr   ( obj_addr  ),
-    .we     ( 1'b0      ),
-    .q      ( obj_data  )
-);
-
-jtframe_ram #(.DW(12), .AW(4+4),.SYNFILE("avatar_pal.hex")) u_pal(
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    .data   ( 12'd0     ),
-    .addr   ( pal_addr  ),
-    .we     ( 1'b0      ),
-    .q      ( pal_data  )
-);
-
-wire [VPOSW-1:0] vsub = vdump1 - { lut_data, 3'b0 };
-reg  [3:0] obj_pal;
-reg  [3:0] x,y,z,w;
-
-reg [4:0] st;
-reg       first;
-
-reg last_hb2; // this is one is not gated by pxl_cen
-
-always @(posedge clk) begin
-    last_hb2 <= hb;
-    if( hb && !last_hb2 ) begin
-        lut_addr <= 12'd0;
-        first    <= 1'b1;
-        st       <= 0;
-        line     <= ~line;
-        buf_we0  <= 1'b0;
-        buf_addr0<= 8'd0;
-    end else begin
-        st <= st+1;
-        case( st )
-            0: begin
-                if( lut_addr==12'd0 && !first ) st <= 0;
-            end
-            1: begin
-                lut_addr <= lut_addr + 12'd1;
-                first <= 1'b0;
-            end
-            2: begin
-                lut_addr <= lut_addr + 12'd1;
-                obj_id   <= lut_data;
-            end
-            3: begin
-                lut_addr <= lut_addr + 12'd1;
-                obj_x    <= lut_data;
-            end
-            4: begin
-                lut_addr <= lut_addr + 12'd1;
-                obj_y    <= lut_data;
-                obj_addr <= { obj_id[6:0], vsub[3:0], 2'b0 }; // 7+4+2 = 13
-                if( !({lut_data,3'b0} <= vdump1 && {lut_data,3'b0}+16 > vdump1) ) st <= 0;
-                if( obj_id==8'hff ) begin // end of LUT
-                    lut_addr <= 12'd0;
-                    st <= 0;
-                end
-            end
-            5: obj_pal <= lut_data;
-            6: begin
-                buf_addr0     <= { obj_x-8'd1, 3'b111 };
-                {z,y,x,w}     <= obj_data;
-                obj_addr[1:0] <= 2'b01;
-            end
-            7,8,9,10,    12,13,14,15,
-            17,18,19,20, 22,23,24,25: begin
-                buf_addr0    <= buf_addr0 + 1;
-                // xywz
-                // wxyz
-                // zyxw
-                // zywx
-                // zwyx
-                // zwxy
-                buf_din      <= { obj_pal, z[3],y[3],x[3],w[3] };
-                buf_we0      <= 1'b1;
-                obj_x        <= obj_x + 1;
-                x            <= x << 1;
-                y            <= y << 1;
-                z            <= z << 1;
-                w            <= w << 1;
-            end
-            11: begin
-                {z,y,x,w}     <= obj_data;
-                obj_addr[1:0] <= 2'b10;
-            end
-            16: begin
-                {z,y,x,w}     <= obj_data;
-                obj_addr[1:0] <= 2'b11;
-            end
-            21: {z,y,x,w}     <= obj_data;
-            26: begin
-                buf_we0<= 1'b0;
-                st     <= 0;
-            end
-        endcase
-    end
-end
-
-reg rd=1'b0;
-reg [ 2:0] st2=3'd0;
-reg        obj_ok;
-
-always @(posedge clk ) begin
-    st2 <= st2+1;
-    case( st2 )
-        3: begin
-            obj_pxl <= pal_data;
-            obj_ok  <= pal_addr[3:0] != 4'hf; // visible pixel
-            buf_we1 <= !hscan[8]; // do not empty the line buffer when
-                               // scanning the left side of the screen
-                               // This applies when JTFRAME_CREDITS_HSTART!=0
-        end
-        4: begin
-            buf_we1 <= 1'b0;
-            if( pxl_cen ) st2 <= 0; else st2 <= 4;
-        end
-    endcase
-end
-
-`else
-wire [11:0] obj_pxl = ~12'h0;
-wire        obj_ok  = 1'b0;
-`endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Colour Mixer
@@ -365,7 +326,7 @@ localparam G0 = COLW;
 localparam B1 = COLW-1;
 localparam B0 = 0;
 
-wire [COLW*3-1:0] dim = { 1'b0, rgb_in[R1:R0+1], 1'b0, rgb_in[G1:G0+1], 1'b0, rgb_in[B1:B0+1] };
+wire [COLW*3-1:0] dim = { 1'b0, rgb_d3[R1:R0+1], 1'b0, rgb_d3[G1:G0+1], 1'b0, rgb_d3[B1:B0+1] };
 
 // COLW must be >= 4
 reg [7:0] b;
@@ -385,9 +346,7 @@ always @(posedge clk) begin
         show        <= 0;
         hide        <= 0;
         last_toggle <= 0;
-        last_enable <= 0;
     end else begin
-        last_enable <= enable;
         last_toggle <= toggle;
         if( enable ) begin
             if( vram_mode ) begin
@@ -404,30 +363,51 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) if(pxl_cen) begin
-    { HB_out, VB_out, HS_out, VS_out } <= { HB, VB, HS, VS };
-    // if HOFFSET != 0 and the game is vertical, the full horizontal length
-    // of the screen is used. Otherwise, the credits will start at HOFFSET
-    // and last for 256 pixels
-    if( !show || ( HOFFSET!=0 && !tate && (hn<HOFFSET || hn>=(HEND+HOFFSET))) )
-        rgb_out <= rgb_in;
+    if( !show )
+        rgb_out <= rgb_d3;
     else begin
-        if( (!pxl[0] && (!obj_ok || vram_mode)) || !visible ) begin
+        if( !pxl[0] || !visible ) begin
             if( vram_ctrl[0] ) begin
-                rgb_out <= (vdump[7] ? vram_ctrl[2] : vram_ctrl[1]) ? dim : rgb_in;
+                rgb_out <= (pxl_row7 ? vram_ctrl[2] : vram_ctrl[1]) ? dim : rgb_d3;
             end else begin
                 rgb_out <= dim;
             end
         end else begin
-            if( pxl[0] || tate ) begin // CHAR, OBJ disabled for TATE
-                case( pxl[2:1] )
-                    2'd0: rgb_out <= extend(PAL0);
-                    2'd1: rgb_out <= extend(PAL1);
-                    2'd2: rgb_out <= extend(PAL2);
-                    2'd3: rgb_out <= extend(PAL3);
-                endcase
-            end else rgb_out <= extend(obj_pxl); // OBJ
+            case( pxl[2:1] )
+                2'd0: rgb_out <= extend(PAL0);
+                2'd1: rgb_out <= extend(PAL1);
+                2'd2: rgb_out <= extend(PAL2);
+                2'd3: rgb_out <= extend(PAL3);
+            endcase
         end
-        if( vb || hb ) rgb_out <= 0;
+        if( vb_delayed || hb_delayed ) rgb_out <= 0;
+    end
+end
+
+always @(posedge clk) begin
+    if(rst) begin
+        rgb_d0  <= 0;
+        rgb_d1  <= 0;
+        rgb_d2  <= 0;
+        rgb_d3  <= 0;
+        sync_d0 <= 0;
+        sync_d1 <= 0;
+        sync_d2 <= 0;
+        sync_d3 <= 0;
+        HB_out <= 0;
+        VB_out <= 0;
+        HS_out <= 0;
+        VS_out <= 0;
+    end else if(pxl_cen) begin
+        { HB_out, VB_out, HS_out, VS_out } <= sync_d3;
+        rgb_d0  <= rgb_in;
+        rgb_d1  <= rgb_d0;
+        rgb_d2  <= rgb_d1;
+        rgb_d3  <= rgb_d2;
+        sync_d0 <= {HB,VB,HS,VS};
+        sync_d1 <= sync_d0;
+        sync_d2 <= sync_d1;
+        sync_d3 <= sync_d2;
     end
 end
 

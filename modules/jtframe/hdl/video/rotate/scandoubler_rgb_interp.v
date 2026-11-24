@@ -1,5 +1,6 @@
 module scandoubler_rgb_interp (
 	input clk_sys,
+	input ce,
 	input blank,
 	input [7:0] fraction,
 	input [15:0] rgb_in,
@@ -10,6 +11,7 @@ module scandoubler_rgb_interp (
 pixel_interp #(.signalwidth(5),.fracwidth(8)) interp_red
 (
 	.clk(clk_sys),
+	.ce(ce),
 	.blank(blank),
 	.frac(fraction),
 	.in(rgb_in[15:11]),
@@ -20,6 +22,7 @@ pixel_interp #(.signalwidth(5),.fracwidth(8)) interp_red
 pixel_interp #(.signalwidth(6),.fracwidth(8)) interp_green
 (
 	.clk(clk_sys),
+	.ce(ce),
 	.blank(blank),
 	.frac(fraction),
 	.in(rgb_in[10:5]),
@@ -30,6 +33,7 @@ pixel_interp #(.signalwidth(6),.fracwidth(8)) interp_green
 pixel_interp #(.signalwidth(5),.fracwidth(8)) interp_blue
 (
 	.clk(clk_sys),
+	.ce(ce),
 	.blank(blank),
 	.frac(fraction),
 	.in(rgb_in[4:0]),

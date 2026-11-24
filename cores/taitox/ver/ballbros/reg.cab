@@ -1,3 +1,4 @@
+capture 100
 # Regression script: boot, insert a coin, start a 1P game.
 # Ballbros then shows a mode-select screen - "SELECT AND PRESS BUTTON
 # ACCORDINGLY" - where the left arrow is ONE PLAYER. Hold left, then press
@@ -10,3 +11,4 @@
 8 left
 8 left b1
 200
+=4000

@@ -14,14 +14,14 @@ module jtgng_timer(
     input               cen6,   //  6 MHz
     output  reg [8:0]   V,
     output  reg [8:0]   H,
-    output  reg         Hinit = 1'b0,
-    output  reg         Vinit = 1'b1,
-    output  reg         LHBL = 1'b0,
-    output  reg         LHBL_obj = 1'b0,
-    output  reg         LVBL = 1'b0,
-    output  reg         LVBL_obj = 1'b0,
-    output  reg         HS = 1'b0,
-    output  reg         VS = 1'b0
+    output  reg         Hinit,
+    output  reg         Vinit,
+    output  reg         LHBL,
+    output  reg         LHBL_obj,
+    output  reg         LVBL,
+    output  reg         LVBL_obj,
+    output  reg         HS,
+    output  reg         VS
 );
 
 parameter obj_offset=10'd3;
@@ -59,25 +59,37 @@ end
 
 reg LVBL_x;
 
+localparam [9:0] LHBL_obj0 = 10'd135-obj_offset >= 10'd128 ? 10'd135-obj_offset : 10'd135-obj_offset+10'd512-10'd128,
+                 LHBL_obj1 = 10'd263-obj_offset;
+
 `ifdef SIMULATION
 initial begin
-    // These numbers produce a good image in simulation
-    // after binary to jpg conversion. Tested with layout=5
-    // might need different H/V values for layout 0
-    // The problem is the few pixels for which both LHBL and LVBL
-    // are high before LVBL goes down, that can shift the image
-    // in the jpg files.
-    LVBL_obj = 1;
-    LVBL_x = 1;
-    LVBL   = 1;
-    LHBL   = 0;
-    H = 192;
-    V = 264;
+    // starts off at the beginning of the vertical blanking
+    // to match MAME timing. LVBL lags LVBL_obj by two lines
+    H        = HB_START;
+    V        = VB_START+9'd2;
+    Hinit    = H == 9'h87;
+    Vinit    = 0;
+    LHBL     = 1;
+    LHBL_obj = H <= LHBL_obj0[8:0] || H > LHBL_obj1[8:0];
+    LVBL_obj = 0;
+    LVBL_x   = 0;
+    LVBL     = 0;
+    HS       = 0;
+    VS       = 0;
+end
+`else
+initial begin
+    Hinit    = 0;
+    Vinit    = 1;
+    LHBL     = 0;
+    LHBL_obj = 0;
+    LVBL     = 0;
+    LVBL_obj = 0;
+    HS       = 0;
+    VS       = 0;
 end
 `endif
-
-wire [9:0] LHBL_obj0 = 10'd135-obj_offset >= 10'd128 ? 10'd135-obj_offset : 10'd135-obj_offset+10'd512-10'd128;
-wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 
 // L Horizontal/Vertical Blanking
 // Objects are drawn using a 2-line buffer

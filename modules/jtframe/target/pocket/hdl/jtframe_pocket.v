@@ -31,6 +31,7 @@ module jtframe_pocket #(parameter
     input               clk48,
     input               clk_pico,
     input               pll_locked,
+    input               ph24,
     output              rst_req,
     // interface with microcontroller
     output      [63:0]  status,
@@ -416,11 +417,16 @@ jtframe_board #(
 ) u_board(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),
+    .capture_pause  ( 1'b0            ),
+    .cab_active     ( 1'b0            ),
+    .cab_inputs     ( 21'b0           ),
+    .cab_dump_pause ( 1'b0            ),
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),
     .sdram_init     ( sdram_init      ),
     .pll_locked     ( pll_locked      ),
+    .ph24           ( ph24            ),
     .ioctl_cart     ( ioctl_cart      ),
     .ioctl_ram      ( ioctl_ram       ),
     .dwnld_busy     ( dwnld_busy      ), // use busy signal from game module
@@ -448,6 +454,7 @@ jtframe_board #(
     .board_joystick2( joystick2       ),
     .board_joystick3( joystick3       ),
     .board_joystick4( joystick4       ),
+    .joy_aux_en     ( 1'b0            ),
     .joyana_l1      ( joyana_l1       ),
     .joyana_r1      ( joyana_r1       ),
     .joyana_l2      ( joyana_l2       ),

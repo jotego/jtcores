@@ -163,7 +163,7 @@ jtframe_ff u_ff(
     .sigedge  ( irq_trigger )     // signal whose edge will trigger the FF
 );
 
-jtframe_sys6809 #(.RAM_AW(11)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(11),.HD6309(1)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen12     ),   // This is normally the input clock to the CPU

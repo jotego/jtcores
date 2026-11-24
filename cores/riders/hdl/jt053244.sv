@@ -56,7 +56,7 @@ module jt053244(    // sprite logic
     output     [ 7:0] st_dout
 );
 
-parameter HFLIP_OFFSET = 0;
+parameter HFLIP_OFFSET = 0, VFLIP_OFFSET = 0, DEBUG_FLICKER = 1;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
@@ -79,7 +79,8 @@ assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 assign dma_trig  = cs && cpu_addr[2:1]==3;
 
-jt053244_scan #(.HFLIP_OFFSET(HFLIP_OFFSET)
+jt053244_scan #(.HFLIP_OFFSET(HFLIP_OFFSET),.VFLIP_OFFSET(VFLIP_OFFSET),
+    .DEBUG_FLICKER(DEBUG_FLICKER)
     )u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),

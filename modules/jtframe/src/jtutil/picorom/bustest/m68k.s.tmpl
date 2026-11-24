@@ -1,0 +1,49 @@
+        .text
+        .org 0
+        .long 0x{{hex .Stack}}
+        .long start
+        .rept 62
+        .long fatal
+        .endr
+        .org 0x400
+start:  move.w #0x2700,%sr
+        lea 0x{{hex .Stack}},%sp
+{{range .Preamble}}        {{.}}
+{{end}}        {{.Watchdog}}
+{{range .Init}}        {{.}}
+{{end}}        move.b (0x{{hex .MarkStart}}).l,%d5
+        move.b (0x{{hex .InSeq}}).l,%d7
+        move.w #0x5a5a,%d2
+{{range .Cases}}{{$kernel := .Kernel}}{{range .Reps}}| {{.Comment}}
+        lea 0x{{hex .Addr}},%a0
+        move.w #{{$.LastIter}},%d0
+        move.b (0x{{hex .Start}}).l,%d5
+1:      {{$kernel}}
+        {{$kernel}}
+        {{$kernel}}
+        {{$kernel}}
+        dbra %d0,1b
+        move.b (0x{{hex .End}}).l,%d5
+{{end}}        {{$.Watchdog}}
+        cmpi.b #1,(0x{{hex $.Active}}).l
+        bne.s 3f
+2:      move.w #{{$.WaitLoops}},%d3
+4:      move.b (0x{{hex $.InSeq}}).l,%d1
+        cmp.b %d7,%d1
+        bne.s 7f
+        dbra %d3,4b
+        {{$.Watchdog}}
+        bra.s 2b
+7:      move.b %d1,%d7
+        move.b (0x{{hex $.RxData}}).l,%d1
+3:
+{{end}}        move.b (0x{{hex .MarkEnd}}).l,%d5
+idle:   {{.Watchdog}}
+        move.w #0x3fff,%d0
+4:      dbra %d0,4b
+        bra.s idle
+fatal:  move.b (0x{{hex .MarkFatal}}).l,%d5
+5:      {{.Watchdog}}
+        move.w #0x3fff,%d0
+6:      dbra %d0,6b
+        bra.s 5b

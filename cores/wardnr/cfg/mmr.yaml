@@ -1,8 +1,9 @@
 # Scroll position and tile map pointer of one tile layer. The main CPU writes
 # them a byte at a time at ports 10-15 (text), 20-25 (background) and 30-35
 # (foreground).
-- name: scroll
+- name: wardnr_scroll
   size: 6
+  no_core_name: true
   regs:
     - name: scrx
       dw: 16

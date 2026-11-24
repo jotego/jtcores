@@ -1,5 +1,8 @@
 # Keyboard controls
 
+For automated SiDi128 cabinet scripts, see [CAB input streaming](cab-stream.md).
+It uses the same CAB parser as simulation and a small MCU-refilled FPGA queue.
+
 JTFRAME maps the traditional MAME keyboard inputs to the game module. Apart from the player controls, the following keys are used:
 
 Key           |   Action
@@ -39,6 +42,16 @@ Bit  |  Action
  4+  | buttons
 
 If a different mapping is needed, it should be set via a JTFRAME_JOY macro. The analog stick is used to emulate a 32-way joystick via pulse-width modulation.
+
+On MiSTer, the pad Test input is joystick bit `BUTTONS+7` and Service is
+`BUTTONS+8`, where `BUTTONS` is the number of gameplay buttons. Both inputs
+are combined across all four players and are ignored while CAB input streaming
+is active. Other targets retain their existing pad input behavior. Pocket
+keeps its front-button Test shortcut and does not decode pad Service.
+
+Keyboard Service and enabled pad Service reach the game's service input. When
+the game is paused, either one advances a single frame; CAB input streaming
+uses its own service mapping and does not advance paused frames.
 
 Analog controllers are connected via ports:
 
@@ -110,7 +123,7 @@ Original documentation [here](https://www.analogue.co/developer/docs/bus-communi
 
 ## DB15 Support
 
-The DB15 hardware from Antonio Villena can be enabled in the OSD. It will replace USB input to the game for players 1P and 2P. Controlling the OSD with the DB15 input is possible and uses the command byte *0xF*. If future MiSTer versions used that value, the file *hps_io.v* will need to be edited to support it. Declaring the macro **JTFRAME_NO_DB15_OSD** will disable OSD control.
+The DB15 hardware from Antonio Villena can be enabled in the OSD. It will replace USB input to the game for players 1P and 2P. The `DB15 OSD Combo` option is hidden when the MiSTer user port is Off and visible for DB15 or UART; it defaults to `Start+Button 3`. Status bit 61 selects `Off`, which suppresses only the Start+Button 3 OSD shortcut while DB15 is selected. Start and Button 3 continue to reach the game. Controlling the OSD with the DB15 input is possible and uses the command byte *0xF*. If future MiSTer versions used that value, the file *hps_io.v* will need to be edited to support it.
 
 The macro **JTFRAME_NO_DB15** disables DB15 support.
 

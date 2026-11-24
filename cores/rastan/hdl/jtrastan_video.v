@@ -7,8 +7,8 @@ module jtrastan_video(
     input           clk,
     input           opwolf,
     input           rbisland,
-    output          pxl_cen,
-    output          pxl2_cen,
+    input           pxl_cen,
+    input           pxl2_cen,
 
     output          HS,
     output          VS,

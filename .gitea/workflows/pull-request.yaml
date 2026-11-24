@@ -1,0 +1,77 @@
+name: Pull request checks
+
+# Light checks run natively (no Docker) on the office hosts registered with
+# the jtcores-host label. Core compilations stay on GitHub.
+# See modules/jtframe/doc/gitea-ci.md
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  checks:
+    runs-on: jtcores-host
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        # Gitea queues the jobs in name order, so the simunit shards go last
+        # and each of the three hosts ends the run on one of them
+        check: [affected, beta, framework, lint, simunit-1of3, simunit-2of3, simunit-3of3]
+    steps:
+      - name: ${{ matrix.check }}
+        shell: bash
+        env:
+          CHECK: ${{ matrix.check }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITEA_TOKEN: ${{ gitea.token }}
+        run: |
+          set -euo pipefail
+          # act_runner kills only this shell, the session leader, when a run is
+          # cancelled. The watchdog, in its own session, then stops everything
+          # left in the step's session. GNU parallel gives each job its own
+          # process group, so killing the step's group is not enough
+          step=$$
+          setsid bash -c "while kill -0 $step 2>/dev/null; do sleep 2; done
+            pkill -TERM -s $step; sleep 10; pkill -KILL -s $step" \
+            < /dev/null > /dev/null 2>&1 &
+          # One persistent checkout per check and host keeps submodules warm.
+          # The simunit shards share one
+          ws="${JTCI_ROOT:-/tmp/jtcores-$(id -u)/gitea-runner/ci}/${CHECK%%-*}"
+          mkdir -p "$ws"
+          exec 9> "$ws.lock"
+          flock 9
+          cd "$ws"
+          get_head() {
+            [ -d .git ] || git init --quiet
+            # the token header is scoped to the Gitea server, never sent to GitHub
+            GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0="http.${GITHUB_SERVER_URL%/}/.extraHeader" \
+            GIT_CONFIG_VALUE_0="Authorization: token $GITEA_TOKEN" \
+              git fetch --quiet --depth 2 --no-tags \
+                "${GITHUB_SERVER_URL%/}/$GITHUB_REPOSITORY.git" "+refs/pull/$PR_NUMBER/head:refs/ci/head" &&
+            git checkout --quiet --force --detach refs/ci/head
+          }
+          # a broken checkout, e.g. aged /tmp files, is cloned again
+          if ! get_head; then
+            echo "Cloning $ws again"
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+            get_head
+          fi
+          # every job of a run must test the same commit
+          if [ "$(git rev-parse HEAD)" != "$HEAD_SHA" ]; then
+            echo "The pull request moved on from $HEAD_SHA: this run is superseded"
+            exit 1
+          fi
+          set +eu --
+          source ./setprj.sh > /dev/null
+          set -eu
+          exec nice -n 10 "$JTFRAME/devops/gitea-pr.sh" "$CHECK"

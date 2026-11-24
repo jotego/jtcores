@@ -16,19 +16,21 @@ func Test_button_defaults(t *testing.T) {
 		{"directions", "Shoot left,Shoot centre,Shoot right", "YXA", "Shoot left,Shoot centre,Shoot right", "Y,X,A", "3", 3},
 		{"shoulders", "Shot,Bomb,Turn left,Turn right", "YBLR", "Shot,Bomb,Turn left,Turn right", "Y,B,L,R", "4", 4},
 		{"unused input", "Left,-,Right", "Y-A", "Left,-,Right", "Y,A", "2", 3},
+		{"unused input default map", "Left,-,Right", "", "Left,-,Right", "A,X", "2", 3},
 		{"unused named key", "Left,-,Right", "YBA", "Left,-,Right", "Y,A", "2", 3},
 		{"core padding", "Rotate left,Rotate right", "LR", "Rotate left,Rotate right,-,-,-,-", "L,R", "2", 6},
 		{"dynasty wars", "Attack left,Attack right,Special", "YAB", "Attack left,Attack right,Special,-,-,-", "Y,A,B", "3", 6},
 		{"final fight", "Attack,Jump,Evade", "", "Attack,Jump,Evade,-,-,-", "A,B,X", "3", 6},
 		{"core limit", "Left,Centre,Right", "YXA", "Left,Centre", "Y,X", "2", 2},
+		{"core limit default map", "Left,Centre,Right", "", "Left,Centre", "A,B", "2", 2},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := button_test_cfg(t, tc.names, tc.mapping, tc.core)
 			root := MakeNode("misterromdescription")
 			make_buttons(&root, &MachineXML{Name: "test"}, cfg, Args{})
 			b := root.GetNode("buttons")
-			if got := b.GetAttr("names"); got != tc.want_names+",Start,Coin,Core credits" { t.Errorf("names: %s", got) }
-			if got := b.GetAttr("default"); got != tc.want_pad+",Start,Select,-" { t.Errorf("default: %s", got) }
+			if got := b.GetAttr("names"); got != tc.want_names+",Start,Coin,Core credits,Test,Service" { t.Errorf("names: %s", got) }
+			if got := b.GetAttr("default"); got != tc.want_pad+",Start,Select,L2,R2,L3" { t.Errorf("default: %s", got) }
 			if got := b.GetAttr("count"); got != tc.count { t.Errorf("count: %s", got) }
 		})
 	}
@@ -71,7 +73,7 @@ names=[{names=""}]`, "Shot,Jump"},
 		cfg.Buttons.Core = 2
 		root := MakeNode("misterromdescription")
 		make_buttons(&root, &MachineXML{Name:"test"}, cfg, Args{})
-		if got := root.GetNode("buttons").GetAttr("names"); got != tc.names+",Start,Coin,Core credits" { t.Errorf("names: %s", got) }
+		if got := root.GetNode("buttons").GetAttr("names"); got != tc.names+",Start,Coin,Core credits,Test,Service" { t.Errorf("names: %s", got) }
 	}
 }
 
@@ -98,7 +100,7 @@ func Test_button_command_override(t *testing.T) {
 	root := MakeNode("misterromdescription")
 	make_buttons(&root, &MachineXML{Name: "test"}, cfg, Args{Buttons: "One,Two,Three"})
 	b := root.GetNode("buttons")
-	if b.GetAttr("names") != "One,Two,Three,Start,Coin,Core credits" || b.GetAttr("default") != "A,B,X,Start,Select,-" {
+	if b.GetAttr("names") != "One,Two,Three,Start,Coin,Core credits,Test,Service" || b.GetAttr("default") != "A,B,X,Start,Select,L2,R2,L3" {
 		t.Fatal("command-line buttons did not replace the configured names and map")
 	}
 }

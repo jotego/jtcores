@@ -27,35 +27,45 @@ static vector<string> words(const string& line) {
     return result;
 }
 
+// Attach the cabinet line to sim_utils number errors
+template<typename Parser>
+static unsigned line_value(Parser parser, const string& text, const string& what, int line_no) {
+    try {
+        return parser(text, what);
+    } catch( const runtime_error& error ) {
+        throw CabinetError(string(error.what()) + " at cabinet line " + to_string(line_no), line_no);
+    }
+}
+
 static CabinetFrame parse_frame(const vector<string>& tokens, size_t start, int line_no) {
     CabinetFrame frame;
     for( ; start < tokens.size(); start++ ) {
         const string token = lower(tokens[start]);
         if( token.rfind("dipsw=", 0) == 0 ) {
-            if( frame.has_dipsw ) throw runtime_error("duplicate dipsw entry at cabinet line " + to_string(line_no));
-            frame.dipsw = parse_hex(token.substr(6), "dipsw value");
+            if( frame.has_dipsw ) throw CabinetError("duplicate dipsw entry at cabinet line " + to_string(line_no), line_no);
+            frame.dipsw = line_value(parse_hex, token.substr(6), "dipsw value", line_no);
             frame.has_dipsw = true;
             continue;
         }
         if( token.rfind("cheat=", 0) == 0 ) {
             const string name = token.substr(6);
-            if( !valid_identifier(name) ) throw runtime_error("invalid cheat name at cabinet line " + to_string(line_no));
+            if( !valid_identifier(name) ) throw CabinetError("invalid cheat name at cabinet line " + to_string(line_no), line_no);
             frame.cheats.push_back(name);
             continue;
         }
         if( token == "tracing_on" ) {
-            if( frame.tracing_on ) throw runtime_error("duplicate tracing_on entry at cabinet line " + to_string(line_no));
+            if( frame.tracing_on ) throw CabinetError("duplicate tracing_on entry at cabinet line " + to_string(line_no), line_no);
             frame.tracing_on = true;
             continue;
         }
         if( token == "dump" ) {
-            if( frame.dump ) throw runtime_error("duplicate dump entry at cabinet line " + to_string(line_no));
+            if( frame.dump ) throw CabinetError("duplicate dump entry at cabinet line " + to_string(line_no), line_no);
             frame.dump = true;
             continue;
         }
         const auto action = actions().find(token);
         if( action == actions().end() ) {
-            throw runtime_error("unknown cabinet action '" + tokens[start] + "' at line " + to_string(line_no));
+            throw CabinetError("unknown cabinet action '" + tokens[start] + "' at line " + to_string(line_no), line_no);
         }
         frame.inputs |= action->second;
     }
@@ -67,17 +77,17 @@ static uint64_t duration(const vector<string>& tokens, size_t& start, uint64_t f
     const string& first = tokens.front();
     if( first[0] == '=' ) {
         absolute = true;
-        const uint64_t final_frame = parse_number(first.substr(1), "final frame");
+        const uint64_t final_frame = line_value(parse_number, first.substr(1), "final frame", line_no);
         if( final_frame + 1 < frame_count ) {
-            throw runtime_error("final frame is before the current frame at cabinet line " + to_string(line_no));
+            throw CabinetError("final frame is before the current frame at cabinet line " + to_string(line_no), line_no);
         }
         start = 1;
         return final_frame - frame_count + 1;
     }
     char *end;
     const long number = strtol(first.c_str(), &end, 0);
-    if( *end == 0 ) {
-        if( number < 0 ) throw runtime_error("negative frame count at cabinet line " + to_string(line_no));
+    if( *end == 0 && !binary_number(first) ) {
+        if( number < 0 ) throw CabinetError("negative frame count at cabinet line " + to_string(line_no), line_no);
         start = 1;
         return static_cast<uint64_t>(number);
     }
@@ -118,6 +128,9 @@ CabinetScript::CabinetScript(istream& input, const string& source_name) {
 void CabinetScript::parse(istream& input, const string&) {
     vector<CabinetRun> loop;
     bool looping = false;
+    bool statements = false;
+    int loop_line = 0;
+    int capture_line = 0;
     string line;
     int line_no = 0;
     while( getline(input, line) ) {
@@ -127,16 +140,23 @@ void CabinetScript::parse(istream& input, const string&) {
         const vector<string> tokens = words(line);
         if( tokens.empty() ) continue;
         const string keyword = lower(tokens.front());
+        if( keyword == "capture" ) {
+            parse_capture(tokens, statements, line_no);
+            capture_line = line_no;
+            continue;
+        }
+        statements = true;
         if( keyword == "loop" ) {
-            if( tokens.size() != 1 || looping ) throw runtime_error("invalid loop at cabinet line " + to_string(line_no));
+            if( tokens.size() != 1 || looping ) throw CabinetError("invalid loop at cabinet line " + to_string(line_no), line_no);
             loop.clear();
             looping = true;
+            loop_line = line_no;
             continue;
         }
         if( keyword == "repeat" ) {
-            if( !looping || tokens.size() != 2 ) throw runtime_error("invalid repeat at cabinet line " + to_string(line_no));
-            const uint64_t repeats = parse_number(tokens[1], "repeat count");
-            if( repeats == 0 ) throw runtime_error("repeat count must be positive at cabinet line " + to_string(line_no));
+            if( !looping || tokens.size() != 2 ) throw CabinetError("invalid repeat at cabinet line " + to_string(line_no), line_no);
+            const uint64_t repeats = line_value(parse_number, tokens[1], "repeat count", line_no);
+            if( repeats == 0 ) throw CabinetError("repeat count must be positive at cabinet line " + to_string(line_no), line_no);
             if( !loop.empty() ) segments.push_back({loop, repeats});
             frames += run_count(loop) * repeats;
             looping = false;
@@ -165,7 +185,25 @@ void CabinetScript::parse(istream& input, const string&) {
             }
         }
     }
-    if( looping ) throw runtime_error("cabinet script ends with an unclosed loop");
+    if( looping ) throw CabinetError("cabinet script ends with an unclosed loop opened at line " + to_string(loop_line), loop_line);
+    if( capture_set && (capture == 0 || capture >= frames) ) {
+        throw CabinetError("capture frame must be between 1 and the last line index at cabinet line " +
+            to_string(capture_line), capture_line);
+    }
+}
+
+// capture <n>: once, before any frame line or loop, one decimal argument of up to 19 digits
+void CabinetScript::parse_capture(const vector<string>& tokens, bool statements, int line_no) {
+    const string where = " at cabinet line " + to_string(line_no);
+    if( capture_set ) throw CabinetError("duplicate capture" + where, line_no);
+    if( statements ) throw CabinetError("capture must come before any frame line or loop" + where, line_no);
+    if( tokens.size() != 2 ) throw CabinetError("capture needs one frame number" + where, line_no);
+    const string& text = tokens[1];
+    if( text.empty() || text.size() > 19 || text.find_first_not_of("0123456789") != string::npos ) {
+        throw CabinetError("invalid capture frame" + where, line_no);
+    }
+    capture = stoull(text);
+    capture_set = true;
 }
 
 bool CabinetScript::done() const {
@@ -179,19 +217,41 @@ const CabinetFrame& CabinetScript::next() {
     if( run_remaining == 0 ) run_remaining = run.count;
     const CabinetFrame& frame = run.frame;
     if( --run_remaining == 0 ) {
-        run_position++;
-        if( run_position == segment.runs.size() ) {
-            run_position = 0;
-            segment_repeat++;
-            if( segment_repeat == segment.repeats ) {
-                segment_repeat = 0;
-                segment_position++;
-            }
-        }
+        advance_run();
     }
     return frame;
 }
 
+void CabinetScript::advance_run() {
+    const Segment& segment = segments[segment_position];
+    run_position++;
+    if( run_position == segment.runs.size() ) {
+        run_position = 0;
+        segment_repeat++;
+        if( segment_repeat == segment.repeats ) {
+            segment_repeat = 0;
+            segment_position++;
+        }
+    }
+}
+
+CabinetRun CabinetScript::next_run() {
+    if( done() ) throw out_of_range("cabinet script has no more runs");
+    const CabinetRun& run = segments[segment_position].runs[run_position];
+    CabinetRun result = {run.frame, run_remaining ? run_remaining : run.count};
+    run_remaining = 0;
+    advance_run();
+    return result;
+}
+
 uint64_t CabinetScript::frame_count() const {
     return frames;
+}
+
+bool CabinetScript::has_capture() const {
+    return capture_set;
+}
+
+uint64_t CabinetScript::capture_first() const {
+    return capture;
 }

@@ -39,6 +39,13 @@ TECHNICAL INFORMATION
 -YM2203 phi M =3.7MHz, phi S = 1.2MHz (measured with broken Z80, so default divider)
 -DMA duration was measured to be xxx, matching the expected behaviour
 
+CPU BUS TIMING
+==============
+
+Bionic Commando: the 11E LS161 counts CPU clocks from AS and its carry gives DTACK. It loads 13 for the program ROM (/PRCS), so it takes two counts to carry: 2 wait states. Other regions load 15 and carry at once. Video RAM waits for VWAIT and SCWAIT, which are board waits, so the core does not recover those CPU clocks. Tiger Road counts asynchronously to the CPU and is left without fixed waits.
+
+These wait states were derived from the schematics and have not been checked on a PCB yet.
+
 REVISION HISTORY
 ================
 21st Nov 2019

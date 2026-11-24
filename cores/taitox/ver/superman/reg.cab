@@ -1,8 +1,10 @@
+capture 100
 =100
-tracing_on
+1
 loop
 4 coin
 40
 repeat 5
 4 1p
 10
+=4000

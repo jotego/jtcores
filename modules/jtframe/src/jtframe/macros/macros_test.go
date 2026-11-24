@@ -1,8 +1,13 @@
 package macros
 
 import (
+	"bytes"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -70,6 +75,49 @@ func Test_uses_sdram_cache(t *testing.T) {
 	}
 	if !uses_sdram_cache("cachecore") {
 		t.Fatal("Expected cache-lane usage to be detected")
+	}
+}
+
+func Test_make_credits_pages_boundaries(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("JTROOT", root)
+	msgpath := filepath.Join(root, "cores", "msgcore", "cfg", "msg")
+	if err := os.MkdirAll(filepath.Dir(msgpath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct{ rows, pages int }{
+		{0, 1}, {1, 1}, {32, 1}, {33, 2}, {96, 3}, {129, 5}, {512, 16}, {513, 17},
+	} {
+		contents := [][]byte{[]byte(strings.Repeat("\n", tc.rows))}
+		if tc.rows > 0 {
+			contents = append(contents, []byte(strings.Repeat("\n", tc.rows-1)+"row"))
+		}
+		for _, content := range contents {
+			if err := os.WriteFile(msgpath, content, 0o644); err != nil {
+				t.Fatal(err)
+			}
+			make_credits_pages("msgcore")
+			if got := Get("JTFRAME_CREDITS_PAGES"); got != strconv.Itoa(tc.pages) {
+				t.Fatalf("Expected %d pages for %d rows, got %s", tc.pages, tc.rows, got)
+			}
+			err := check_credits_pages()
+			if tc.pages > 16 && err == nil {
+				t.Fatalf("Expected %d pages to be rejected", tc.pages)
+			}
+			if tc.pages <= 16 && err != nil {
+				t.Fatalf("Unexpected error for %d pages: %v", tc.pages, err)
+			}
+		}
+	}
+}
+
+func Test_make_credits_pages_keeps_default_without_msg(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("JTROOT", root)
+	Set("JTFRAME_CREDITS_PAGES", "3")
+	make_credits_pages("missing")
+	if got := Get("JTFRAME_CREDITS_PAGES"); got != "3" {
+		t.Fatalf("Expected the 3-page fallback without cfg/msg, got %s", got)
 	}
 }
 
@@ -263,5 +311,140 @@ func Test_check_macros_rejects_sdram_xl_ba_start(t *testing.T) {
 	})
 	if err := CheckMacros(); err == nil {
 		t.Fatal("Expected JTFRAME_SDRAM_XL with JTFRAME_BA1_START to be rejected")
+	}
+}
+
+func Test_check_macros_game_ddr_mister(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":              "mister",
+		"JTFRAME_MR_GAME_DDR": "1",
+		"JTFRAME_LF_HW":       "9",
+		"JTFRAME_LF_VW":       "9",
+		"JTFRAME_WIDTH":       "512",
+		"JTFRAME_HEIGHT":      "400",
+	})
+	if err := CheckMacros(); err != nil {
+		t.Fatalf("Expected JTFRAME_MR_GAME_DDR on MiSTer to be accepted: %v", err)
+	}
+}
+
+func Test_check_macros_game_ddr_conflicts(t *testing.T) {
+	for _, name := range []string{"JTFRAME_VERTICAL", "JTFRAME_LF_BUFFER", "JTFRAME_MR_DDRLOAD"} {
+		MakeFromMap(map[string]string{
+			"TARGET":              "mister",
+			"JTFRAME_MR_GAME_DDR": "1",
+			"JTFRAME_LF_HW":       "9",
+			"JTFRAME_LF_VW":       "9",
+			"JTFRAME_WIDTH":       "512",
+			"JTFRAME_HEIGHT":      "400",
+			name:                  "1",
+		})
+		if err := CheckMacros(); err == nil || !strings.Contains(err.Error(), "JTFRAME_MR_GAME_DDR") {
+			t.Fatalf("Expected JTFRAME_MR_GAME_DDR with %s to be rejected", name)
+		}
+	}
+}
+
+func Test_pixel_clock_16_requires_sdram96(t *testing.T) {
+	for _, override := range []bool{false, true} {
+		macros := map[string]string{
+			"JTFRAME_PXLCLK": "16",
+			"JTFRAME_LF_HW":  "9",
+			"JTFRAME_LF_VW":  "9",
+			"JTFRAME_WIDTH":  "512",
+			"JTFRAME_HEIGHT": "400",
+		}
+		if override {
+			macros["JTFRAME_HSIZE_DIV"] = "6"
+		}
+		MakeFromMap(macros)
+		if err := CheckMacros(); err == nil || !strings.Contains(err.Error(), "JTFRAME_PXLCLK=16 requires JTFRAME_SDRAM96") {
+			t.Fatalf("Expected JTFRAME_PXLCLK=16 without SDRAM96 to be rejected (override=%v), got %v", override, err)
+		}
+	}
+	MakeFromMap(map[string]string{
+		"JTFRAME_PXLCLK":  "16",
+		"JTFRAME_SDRAM96": "1",
+		"JTFRAME_LF_HW":   "9",
+		"JTFRAME_LF_VW":   "9",
+		"JTFRAME_WIDTH":   "512",
+		"JTFRAME_HEIGHT":  "400",
+	})
+	if err := CheckMacros(); err != nil {
+		t.Fatalf("Expected 16 MHz pixels with SDRAM96 to be accepted: %v", err)
+	}
+}
+
+func Test_make_clocks_rejects_pixel_16_without_sdram96(t *testing.T) {
+	const childEnv = "JTFRAME_TEST_INVALID_PXLCLK"
+	if os.Getenv(childEnv) == "1" {
+		MakeFromMap(map[string]string{
+			"JTFRAME_PXLCLK":    "16",
+			"JTFRAME_HSIZE_DIV": "6",
+		})
+		make_clocks("MISTER")
+		t.Fatal("make_clocks accepted JTFRAME_PXLCLK=16 without JTFRAME_SDRAM96")
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=^Test_make_clocks_rejects_pixel_16_without_sdram96$")
+	cmd.Env = append(os.Environ(), childEnv+"=1")
+	output, err := cmd.CombinedOutput()
+	if err == nil || !strings.Contains(string(output), "JTFRAME_PXLCLK=16 requires JTFRAME_SDRAM96") {
+		t.Fatalf("Expected make_clocks to reject 16 MHz without SDRAM96, got err=%v output=%s", err, output)
+	}
+
+	MakeFromMap(map[string]string{
+		"JTFRAME_PXLCLK":  "16",
+		"JTFRAME_SDRAM96": "1",
+	})
+	if got := make_clocks("MISTER"); got != 96000000 {
+		t.Fatalf("Expected 96 MHz clock with valid 16 MHz pixel setup, got %d", got)
+	}
+}
+
+func Test_hsize_explicit_divisor(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"JTFRAME_SDRAM96": "1",
+		"JTFRAME_HSIZE_DIV": "14",
+		"JTFRAME_WIDTH": "384",
+	})
+	set_hsize_params(112000000)
+	if Get("JTFRAME_HSIZE_DIV") != "14" || Get("JTFRAME_HSIZE_DEPTH") != "64" {
+		t.Fatal("CPS3 native pixel ratio or FIFO depth changed")
+	}
+}
+
+func Test_hsize_missing_ratio_warning(t *testing.T) {
+	var output bytes.Buffer
+	previous := log.Writer()
+	log.SetOutput(&output)
+	defer log.SetOutput(previous)
+	for _, tc := range []struct {
+		core string
+		values map[string]string
+		warn bool
+	}{
+		{"custom", map[string]string{}, true},
+		{"custom", map[string]string{"JTFRAME_SDRAM96": "1"}, true},
+		{"custom", map[string]string{"JTFRAME_PXLCLK": "8"}, false},
+		{"cps3", map[string]string{"JTFRAME_HSIZE_DIV": "14"}, false},
+		{"custom", map[string]string{"JTFRAME_HSIZE_DIV": "14", "JTFRAME_PXLCLK": "8"}, false},
+		{"ngp", map[string]string{}, false},
+		{"ngpc", map[string]string{}, false},
+	} {
+		MakeFromMap(tc.values)
+		output.Reset()
+		warn_hsize_clock(tc.core)
+		warned := strings.Contains(output.String(), "WARNING: " + tc.core + " defines neither JTFRAME_HSIZE_DIV nor JTFRAME_PXLCLK")
+		if warned != tc.warn {
+			t.Fatalf("Unexpected warning for %s %v: %s", tc.core, tc.values, output.String())
+		}
+		set_hsize_params(48000000)
+		if tc.warn {
+			want := "8"
+			if IsSet("JTFRAME_SDRAM96") { want = "16" }
+			if Get("JTFRAME_HSIZE_DIV") != want {
+				t.Fatalf("Warning changed legacy divisor: got %s, want %s", Get("JTFRAME_HSIZE_DIV"), want)
+			}
+		}
 	}
 }

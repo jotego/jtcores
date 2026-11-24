@@ -19,6 +19,8 @@ module jtframe_inputs(
     output            game_pause,
 
     input      [15:0] board_joy1, board_joy2, board_joy3, board_joy4, ana1, ana2,
+    input             cab_active,
+    input      [20:0] cab_inputs,
     input       [3:0] board_coin, board_start,
 
     input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
@@ -76,7 +78,8 @@ module jtframe_inputs(
     output       [1:0] debug_plus,
     output       [1:0] debug_minus,
     // For simulation only
-    input              ioctl_rom
+    input              ioctl_rom,
+    input              joy_aux_en
 );
 
 parameter BUTTONS    = 2, WIDTH = 384, HEIGHT = 224;
@@ -92,19 +95,26 @@ localparam START_BIT  = 6+(BUTTONS-2);
 localparam COIN_BIT   = START_BIT+1;
 localparam PAUSE_BIT  = COIN_BIT+1;
 
-reg        joy_pause=0, joy_test=0;
+reg        joy_pause=0, joy_test=0, joy_service=0;
 wire [3:0] joy_start, joy_coin;
 
 `ifdef POCKET   // The Pocket only uses the small buttons at the front for these functions
     always @(posedge clk) begin
         joy_pause <= board_coin[0] & board_joy1[4];
         joy_test  <= board_coin[0] & board_joy1[5];
+        joy_service <= 0;
     end
     assign joy_start = 0;
     assign joy_coin  = 0;
 `else
     always @(posedge clk) begin
+        if(cab_active) joy_pause <= 0;
+        else
         joy_pause <= board_joy1[PAUSE_BIT] | board_joy2[PAUSE_BIT] | board_joy3[PAUSE_BIT] | board_joy4[PAUSE_BIT];
+        joy_test <= joy_aux_en && !cab_active &&
+            (board_joy1[BUTTONS+7] | board_joy2[BUTTONS+7] | board_joy3[BUTTONS+7] | board_joy4[BUTTONS+7]);
+        joy_service <= joy_aux_en && !cab_active &&
+            (board_joy1[BUTTONS+8] | board_joy2[BUTTONS+8] | board_joy3[BUTTONS+8] | board_joy4[BUTTONS+8]);
     end
     assign joy_start = { board_joy4[START_BIT], board_joy3[START_BIT], board_joy2[START_BIT], board_joy1[START_BIT]};
     assign joy_coin  = { board_joy4[COIN_BIT] , board_joy3[COIN_BIT] , board_joy2[COIN_BIT] , board_joy1[COIN_BIT]};
@@ -124,6 +134,9 @@ jtframe_joysticks u_joysticks(
     .key_coin   ( key_coin      ),
     .key_start  ( key_start     ),
     .key_service( key_service   ),
+    .joy_service( joy_service   ),
+    .cab_active ( cab_active    ),
+    .cab_inputs ( cab_inputs    ),
     .key_reset  ( key_reset     ),
     .joy_coin   ( joy_coin      ),
     .joy_start  ( joy_start     ),
@@ -181,13 +194,18 @@ jtframe_debug_keys u_debugkeys(
     .debug_minus( debug_minus   )
 );
 
+wire pause_key, pause_osd, advance_key;
+assign pause_key = key_pause && !cab_active;
+assign pause_osd = osd_pause && !cab_active;
+assign advance_key = (key_service | joy_service) && !cab_active;
+
 jtframe_pause u_pause(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .key_pause  ( key_pause     ),
+    .key_pause  ( pause_key     ),
     .joy_pause  ( joy_pause     ),
-    .osd_pause  ( osd_pause     ),
-    .adv_frame  ( key_service   ),
+    .osd_pause  ( pause_osd     ),
+    .adv_frame  ( advance_key   ),
     .lvbl       ( lvbl          ),
     .game_pause ( game_pause    )
 );

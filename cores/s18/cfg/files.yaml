@@ -2,7 +2,6 @@ s18:
   - get:
     - "*.v"
     - "*.sv"
-    - timing.sdc
 s16b:
   - get:
     - jts16b_mapper.v

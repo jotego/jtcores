@@ -1,0 +1,1429 @@
+case_id,instruction,bytes,tstates,run_group,oracle_status,UM0080 printed page or alias rationale
+0,"LD r0,r0",40,4,fixed,documented,p. 71
+1,"LD r0,r1",41,4,fixed,documented,p. 71
+2,"LD r0,r2",42,4,fixed,documented,p. 71
+3,"LD r0,r3",43,4,fixed,documented,p. 71
+4,"LD r0,r4",44,4,fixed,documented,p. 71
+5,"LD r0,r5",45,4,fixed,documented,p. 71
+6,"LD r0,r6",46,7,fixed,documented,p. 74
+7,"LD r0,r7",47,4,fixed,documented,p. 71
+8,"LD r1,r0",48,4,fixed,documented,p. 71
+9,"LD r1,r1",49,4,fixed,documented,p. 71
+10,"LD r1,r2",4A,4,fixed,documented,p. 71
+11,"LD r1,r3",4B,4,fixed,documented,p. 71
+12,"LD r1,r4",4C,4,fixed,documented,p. 71
+13,"LD r1,r5",4D,4,fixed,documented,p. 71
+14,"LD r1,r6",4E,7,fixed,documented,p. 74
+15,"LD r1,r7",4F,4,fixed,documented,p. 71
+16,"LD r2,r0",50,4,fixed,documented,p. 71
+17,"LD r2,r1",51,4,fixed,documented,p. 71
+18,"LD r2,r2",52,4,fixed,documented,p. 71
+19,"LD r2,r3",53,4,fixed,documented,p. 71
+20,"LD r2,r4",54,4,fixed,documented,p. 71
+21,"LD r2,r5",55,4,fixed,documented,p. 71
+22,"LD r2,r6",56,7,fixed,documented,p. 74
+23,"LD r2,r7",57,4,fixed,documented,p. 71
+24,"LD r3,r0",58,4,fixed,documented,p. 71
+25,"LD r3,r1",59,4,fixed,documented,p. 71
+26,"LD r3,r2",5A,4,fixed,documented,p. 71
+27,"LD r3,r3",5B,4,fixed,documented,p. 71
+28,"LD r3,r4",5C,4,fixed,documented,p. 71
+29,"LD r3,r5",5D,4,fixed,documented,p. 71
+30,"LD r3,r6",5E,7,fixed,documented,p. 74
+31,"LD r3,r7",5F,4,fixed,documented,p. 71
+32,"LD r4,r0",60,4,fixed,documented,p. 71
+33,"LD r4,r1",61,4,fixed,documented,p. 71
+34,"LD r4,r2",62,4,fixed,documented,p. 71
+35,"LD r4,r3",63,4,fixed,documented,p. 71
+36,"LD r4,r4",64,4,fixed,documented,p. 71
+37,"LD r4,r5",65,4,fixed,documented,p. 71
+38,"LD r4,r6",66,7,fixed,documented,p. 74
+39,"LD r4,r7",67,4,fixed,documented,p. 71
+40,"LD r5,r0",68,4,fixed,documented,p. 71
+41,"LD r5,r1",69,4,fixed,documented,p. 71
+42,"LD r5,r2",6A,4,fixed,documented,p. 71
+43,"LD r5,r3",6B,4,fixed,documented,p. 71
+44,"LD r5,r4",6C,4,fixed,documented,p. 71
+45,"LD r5,r5",6D,4,fixed,documented,p. 71
+46,"LD r5,r6",6E,7,fixed,documented,p. 74
+47,"LD r5,r7",6F,4,fixed,documented,p. 71
+48,"LD r6,r0",70,7,fixed,documented,p. 79
+49,"LD r6,r1",71,7,fixed,documented,p. 79
+50,"LD r6,r2",72,7,fixed,documented,p. 79
+51,"LD r6,r3",73,7,fixed,documented,p. 79
+52,"LD r6,r4",74,7,fixed,documented,p. 79
+53,"LD r6,r5",75,7,fixed,documented,p. 79
+54,"LD r6,r7",77,7,fixed,documented,p. 79
+55,"LD r7,r0",78,4,fixed,documented,p. 71
+56,"LD r7,r1",79,4,fixed,documented,p. 71
+57,"LD r7,r2",7A,4,fixed,documented,p. 71
+58,"LD r7,r3",7B,4,fixed,documented,p. 71
+59,"LD r7,r4",7C,4,fixed,documented,p. 71
+60,"LD r7,r5",7D,4,fixed,documented,p. 71
+61,"LD r7,r6",7E,7,fixed,documented,p. 74
+62,"LD r7,r7",7F,4,fixed,documented,p. 71
+63,"LD r0,n",06 A5,7,fixed,documented,"pp. 72, 85"
+64,"LD r1,n",0E A5,7,fixed,documented,"pp. 72, 85"
+65,"LD r2,n",16 A5,7,fixed,documented,"pp. 72, 85"
+66,"LD r3,n",1E A5,7,fixed,documented,"pp. 72, 85"
+67,"LD r4,n",26 A5,7,fixed,documented,"pp. 72, 85"
+68,"LD r5,n",2E A5,7,fixed,documented,"pp. 72, 85"
+69,"LD r6,n",36 A5,10,fixed,documented,"pp. 72, 85"
+70,"LD r7,n",3E A5,7,fixed,documented,"pp. 72, 85"
+71,"LD (BC),A",02,7,fixed,documented,p. 91
+72,"LD (DE),A",12,7,fixed,documented,p. 92
+73,"LD A,(BC)",0A,7,fixed,documented,p. 88
+74,"LD A,(DE)",1A,7,fixed,documented,p. 89
+75,"LD (nn),HL",22 00 52,16,fixed,documented,p. 107
+76,"LD HL,(nn)",2A 00 52,16,fixed,documented,p. 102
+77,"LD (nn),A",32 00 52,13,fixed,documented,p. 93
+78,"LD A,(nn)",3A 00 52,13,fixed,documented,p. 90
+79,"LD rp0,nn",01 34 12,10,fixed,documented,p. 99
+80,"LD rp1,nn",11 34 12,10,fixed,documented,p. 99
+81,"LD rp2,nn",21 34 12,10,fixed,documented,p. 99
+82,"LD rp3,nn",31 34 12,10,fixed,documented,p. 99
+83,"ADD HL,BC",09,11,fixed,documented,p. 188
+84,"ADD HL,DE",19,11,fixed,documented,p. 188
+85,"ADD HL,HL",29,11,fixed,documented,p. 188
+86,"ADD HL,SP",39,11,fixed,documented,p. 188
+87,INC/DEC rp $03,03,6,fixed,documented,pp. 198-203
+88,INC/DEC rp $13,13,6,fixed,documented,pp. 198-203
+89,INC/DEC rp $23,23,6,fixed,documented,pp. 198-203
+90,INC/DEC rp $33,33,6,fixed,documented,pp. 198-203
+91,INC/DEC rp $0B,0B,6,fixed,documented,pp. 198-203
+92,INC/DEC rp $1B,1B,6,fixed,documented,pp. 198-203
+93,INC/DEC rp $2B,2B,6,fixed,documented,pp. 198-203
+94,INC/DEC rp $3B,3B,6,fixed,documented,pp. 198-203
+95,INC/DEC r $04,04,4,fixed,documented,pp. 165-170
+96,INC/DEC r $0C,0C,4,fixed,documented,pp. 165-170
+97,INC/DEC r $14,14,4,fixed,documented,pp. 165-170
+98,INC/DEC r $1C,1C,4,fixed,documented,pp. 165-170
+99,INC/DEC r $24,24,4,fixed,documented,pp. 165-170
+100,INC/DEC r $2C,2C,4,fixed,documented,pp. 165-170
+101,INC/DEC r $3C,3C,4,fixed,documented,pp. 165-170
+102,INC/DEC r $05,05,4,fixed,documented,pp. 165-170
+103,INC/DEC r $0D,0D,4,fixed,documented,pp. 165-170
+104,INC/DEC r $15,15,4,fixed,documented,pp. 165-170
+105,INC/DEC r $1D,1D,4,fixed,documented,pp. 165-170
+106,INC/DEC r $25,25,4,fixed,documented,pp. 165-170
+107,INC/DEC r $2D,2D,4,fixed,documented,pp. 165-170
+108,INC/DEC r $3D,3D,4,fixed,documented,pp. 165-170
+109,INC/DEC (HL) $34,34,11,fixed,documented,"pp. 167,170"
+110,INC/DEC (HL) $35,35,11,fixed,documented,"pp. 167,170"
+111,ALU0 r0,80,4,fixed,documented,p. 145
+112,ALU0 r1,81,4,fixed,documented,p. 145
+113,ALU0 r2,82,4,fixed,documented,p. 145
+114,ALU0 r3,83,4,fixed,documented,p. 145
+115,ALU0 r4,84,4,fixed,documented,p. 145
+116,ALU0 r5,85,4,fixed,documented,p. 145
+117,ALU0 r6,86,7,fixed,documented,p. 148
+118,ALU0 r7,87,4,fixed,documented,p. 145
+119,ALU0 n,C6 5A,7,fixed,documented,p. 147
+120,ALU1 r0,88,4,fixed,documented,p. 151
+121,ALU1 r1,89,4,fixed,documented,p. 151
+122,ALU1 r2,8A,4,fixed,documented,p. 151
+123,ALU1 r3,8B,4,fixed,documented,p. 151
+124,ALU1 r4,8C,4,fixed,documented,p. 151
+125,ALU1 r5,8D,4,fixed,documented,p. 151
+126,ALU1 r6,8E,7,fixed,documented,p. 151
+127,ALU1 r7,8F,4,fixed,documented,p. 151
+128,ALU1 n,CE 5A,7,fixed,documented,p. 151
+129,ALU2 r0,90,4,fixed,documented,p. 153
+130,ALU2 r1,91,4,fixed,documented,p. 153
+131,ALU2 r2,92,4,fixed,documented,p. 153
+132,ALU2 r3,93,4,fixed,documented,p. 153
+133,ALU2 r4,94,4,fixed,documented,p. 153
+134,ALU2 r5,95,4,fixed,documented,p. 153
+135,ALU2 r6,96,7,fixed,documented,p. 153
+136,ALU2 r7,97,4,fixed,documented,p. 153
+137,ALU2 n,D6 5A,7,fixed,documented,p. 153
+138,ALU3 r0,98,4,fixed,documented,p. 155
+139,ALU3 r1,99,4,fixed,documented,p. 155
+140,ALU3 r2,9A,4,fixed,documented,p. 155
+141,ALU3 r3,9B,4,fixed,documented,p. 155
+142,ALU3 r4,9C,4,fixed,documented,p. 155
+143,ALU3 r5,9D,4,fixed,documented,p. 155
+144,ALU3 r6,9E,7,fixed,documented,p. 155
+145,ALU3 r7,9F,4,fixed,documented,p. 155
+146,ALU3 n,DE 5A,7,fixed,documented,p. 155
+147,ALU4 r0,A0,4,fixed,documented,p. 157
+148,ALU4 r1,A1,4,fixed,documented,p. 157
+149,ALU4 r2,A2,4,fixed,documented,p. 157
+150,ALU4 r3,A3,4,fixed,documented,p. 157
+151,ALU4 r4,A4,4,fixed,documented,p. 157
+152,ALU4 r5,A5,4,fixed,documented,p. 157
+153,ALU4 r6,A6,7,fixed,documented,p. 157
+154,ALU4 r7,A7,4,fixed,documented,p. 157
+155,ALU4 n,E6 5A,7,fixed,documented,p. 157
+156,ALU5 r0,A8,4,fixed,documented,p. 161
+157,ALU5 r1,A9,4,fixed,documented,p. 161
+158,ALU5 r2,AA,4,fixed,documented,p. 161
+159,ALU5 r3,AB,4,fixed,documented,p. 161
+160,ALU5 r4,AC,4,fixed,documented,p. 161
+161,ALU5 r5,AD,4,fixed,documented,p. 161
+162,ALU5 r6,AE,7,fixed,documented,p. 161
+163,ALU5 r7,AF,4,fixed,documented,p. 161
+164,ALU5 n,EE 5A,7,fixed,documented,p. 161
+165,ALU6 r0,B0,4,fixed,documented,p. 159
+166,ALU6 r1,B1,4,fixed,documented,p. 159
+167,ALU6 r2,B2,4,fixed,documented,p. 159
+168,ALU6 r3,B3,4,fixed,documented,p. 159
+169,ALU6 r4,B4,4,fixed,documented,p. 159
+170,ALU6 r5,B5,4,fixed,documented,p. 159
+171,ALU6 r6,B6,7,fixed,documented,p. 159
+172,ALU6 r7,B7,4,fixed,documented,p. 159
+173,ALU6 n,F6 5A,7,fixed,documented,p. 159
+174,ALU7 r0,B8,4,fixed,documented,p. 163
+175,ALU7 r1,B9,4,fixed,documented,p. 163
+176,ALU7 r2,BA,4,fixed,documented,p. 163
+177,ALU7 r3,BB,4,fixed,documented,p. 163
+178,ALU7 r4,BC,4,fixed,documented,p. 163
+179,ALU7 r5,BD,4,fixed,documented,p. 163
+180,ALU7 r6,BE,7,fixed,documented,p. 163
+181,ALU7 r7,BF,4,fixed,documented,p. 163
+182,ALU7 n,FE 5A,7,fixed,documented,p. 163
+183,NOP,00,4,fixed,documented,p. 180
+184,RLCA,07,4,fixed,documented,p. 205
+185,RRCA,0F,4,fixed,documented,p. 209
+186,RLA,17,4,fixed,documented,p. 207
+187,RRA,1F,4,fixed,documented,p. 211
+188,DAA,27,4,fixed,documented,p. 173
+189,CPL,2F,4,fixed,documented,p. 175
+190,SCF,37,4,fixed,documented,p. 179
+191,CCF,3F,4,fixed,documented,p. 178
+192,"EX AF,AF'",08,4,fixed,documented,p. 125
+193,EXX,D9,4,fixed,documented,p. 126
+194,"EX DE,HL",EB,4,fixed,documented,p. 124
+195,DI,F3,4,fixed,documented,p. 182
+196,EI,FB,4,fixed,documented,p. 183
+197,"EX (SP),HL",E3,19,fixed,documented,p. 127
+198,"LD SP,HL",F9,6,fixed,documented,p. 112
+199,PUSH BC,C5,11,fixed,documented,p. 115
+200,PUSH DE,D5,11,fixed,documented,p. 115
+201,PUSH HL,E5,11,fixed,documented,p. 115
+202,PUSH AF,F5,11,fixed,documented,p. 115
+203,POP BC,C1,10,directed,documented,p. 119
+204,POP DE,D1,10,directed,documented,p. 119
+205,POP HL,E1,10,directed,documented,p. 119
+206,POP AF,F1,10,directed,documented,p. 119
+207,"OUT (n),A",D3 02,11,fixed,documented,p. 306
+208,"IN A,(n)",DB 02,11,fixed,documented,p. 295
+209,HALT,76,4,halt,documented,p. 181
+210,JP nn,C3 30 00,10,flow,documented,p. 262
+211,CALL nn,CD 30 00,17,flow,documented,p. 281
+212,RET,C9,10,flow,documented,p. 285
+213,JP (HL),E9,4,flow,documented,p. 275
+214,JR e,18 1E,12,flow,documented,p. 265
+215,RST $00,C7,11,flow,documented,p. 292
+216,RST $08,CF,11,flow,documented,p. 292
+217,RST $10,D7,11,flow,documented,p. 292
+218,RST $18,DF,11,flow,documented,p. 292
+219,RST $20,E7,11,flow,documented,p. 292
+220,RST $28,EF,11,flow,documented,p. 292
+221,RST $30,F7,11,flow,documented,p. 292
+222,RST $38,FF,11,flow,documented,p. 292
+223,JR cc0 taken=0,20 1E,7,branch,documented,pp. 267-273
+224,JR cc0 taken=1,20 1E,12,branch,documented,pp. 267-273
+225,JR cc1 taken=0,28 1E,7,branch,documented,pp. 267-273
+226,JR cc1 taken=1,28 1E,12,branch,documented,pp. 267-273
+227,JR cc2 taken=0,30 1E,7,branch,documented,pp. 267-273
+228,JR cc2 taken=1,30 1E,12,branch,documented,pp. 267-273
+229,JR cc3 taken=0,38 1E,7,branch,documented,pp. 267-273
+230,JR cc3 taken=1,38 1E,12,branch,documented,pp. 267-273
+231,JP cc0 taken=0,C2 30 00,10,branch,documented,p. 263
+232,JP cc0 taken=1,C2 30 00,10,branch,documented,p. 263
+233,JP cc1 taken=0,CA 30 00,10,branch,documented,p. 263
+234,JP cc1 taken=1,CA 30 00,10,branch,documented,p. 263
+235,JP cc2 taken=0,D2 30 00,10,branch,documented,p. 263
+236,JP cc2 taken=1,D2 30 00,10,branch,documented,p. 263
+237,JP cc3 taken=0,DA 30 00,10,branch,documented,p. 263
+238,JP cc3 taken=1,DA 30 00,10,branch,documented,p. 263
+239,JP cc4 taken=0,E2 30 00,10,branch,documented,p. 263
+240,JP cc4 taken=1,E2 30 00,10,branch,documented,p. 263
+241,JP cc5 taken=0,EA 30 00,10,branch,documented,p. 263
+242,JP cc5 taken=1,EA 30 00,10,branch,documented,p. 263
+243,JP cc6 taken=0,F2 30 00,10,branch,documented,p. 263
+244,JP cc6 taken=1,F2 30 00,10,branch,documented,p. 263
+245,JP cc7 taken=0,FA 30 00,10,branch,documented,p. 263
+246,JP cc7 taken=1,FA 30 00,10,branch,documented,p. 263
+247,CALL cc0 taken=0,C4 30 00,10,branch,documented,p. 283
+248,CALL cc0 taken=1,C4 30 00,17,branch,documented,p. 283
+249,CALL cc1 taken=0,CC 30 00,10,branch,documented,p. 283
+250,CALL cc1 taken=1,CC 30 00,17,branch,documented,p. 283
+251,CALL cc2 taken=0,D4 30 00,10,branch,documented,p. 283
+252,CALL cc2 taken=1,D4 30 00,17,branch,documented,p. 283
+253,CALL cc3 taken=0,DC 30 00,10,branch,documented,p. 283
+254,CALL cc3 taken=1,DC 30 00,17,branch,documented,p. 283
+255,CALL cc4 taken=0,E4 30 00,10,branch,documented,p. 283
+256,CALL cc4 taken=1,E4 30 00,17,branch,documented,p. 283
+257,CALL cc5 taken=0,EC 30 00,10,branch,documented,p. 283
+258,CALL cc5 taken=1,EC 30 00,17,branch,documented,p. 283
+259,CALL cc6 taken=0,F4 30 00,10,branch,documented,p. 283
+260,CALL cc6 taken=1,F4 30 00,17,branch,documented,p. 283
+261,CALL cc7 taken=0,FC 30 00,10,branch,documented,p. 283
+262,CALL cc7 taken=1,FC 30 00,17,branch,documented,p. 283
+263,RET cc0 taken=0,C0,5,branch,documented,p. 286
+264,RET cc0 taken=1,C0,11,branch,documented,p. 286
+265,RET cc1 taken=0,C8,5,branch,documented,p. 286
+266,RET cc1 taken=1,C8,11,branch,documented,p. 286
+267,RET cc2 taken=0,D0,5,branch,documented,p. 286
+268,RET cc2 taken=1,D0,11,branch,documented,p. 286
+269,RET cc3 taken=0,D8,5,branch,documented,p. 286
+270,RET cc3 taken=1,D8,11,branch,documented,p. 286
+271,RET cc4 taken=0,E0,5,branch,documented,p. 286
+272,RET cc4 taken=1,E0,11,branch,documented,p. 286
+273,RET cc5 taken=0,E8,5,branch,documented,p. 286
+274,RET cc5 taken=1,E8,11,branch,documented,p. 286
+275,RET cc6 taken=0,F0,5,branch,documented,p. 286
+276,RET cc6 taken=1,F0,11,branch,documented,p. 286
+277,RET cc7 taken=0,F8,5,branch,documented,p. 286
+278,RET cc7 taken=1,F8,11,branch,documented,p. 286
+279,DJNZ B=0,10 0E,13,djnz,documented,p. 278
+280,DJNZ B=1,10 0E,8,djnz,documented,p. 278
+281,DJNZ B=2,10 0E,13,djnz,documented,p. 278
+282,CB $00,CB 00,8,cb,documented,pp. 213-259
+283,CB $01,CB 01,8,cb,documented,pp. 213-259
+284,CB $02,CB 02,8,cb,documented,pp. 213-259
+285,CB $03,CB 03,8,cb,documented,pp. 213-259
+286,CB $04,CB 04,8,cb,documented,pp. 213-259
+287,CB $05,CB 05,8,cb,documented,pp. 213-259
+288,CB $06,CB 06,15,cb,documented,pp. 213-259
+289,CB $07,CB 07,8,cb,documented,pp. 213-259
+290,CB $08,CB 08,8,cb,documented,pp. 213-259
+291,CB $09,CB 09,8,cb,documented,pp. 213-259
+292,CB $0A,CB 0A,8,cb,documented,pp. 213-259
+293,CB $0B,CB 0B,8,cb,documented,pp. 213-259
+294,CB $0C,CB 0C,8,cb,documented,pp. 213-259
+295,CB $0D,CB 0D,8,cb,documented,pp. 213-259
+296,CB $0E,CB 0E,15,cb,documented,pp. 213-259
+297,CB $0F,CB 0F,8,cb,documented,pp. 213-259
+298,CB $10,CB 10,8,cb,documented,pp. 213-259
+299,CB $11,CB 11,8,cb,documented,pp. 213-259
+300,CB $12,CB 12,8,cb,documented,pp. 213-259
+301,CB $13,CB 13,8,cb,documented,pp. 213-259
+302,CB $14,CB 14,8,cb,documented,pp. 213-259
+303,CB $15,CB 15,8,cb,documented,pp. 213-259
+304,CB $16,CB 16,15,cb,documented,pp. 213-259
+305,CB $17,CB 17,8,cb,documented,pp. 213-259
+306,CB $18,CB 18,8,cb,documented,pp. 213-259
+307,CB $19,CB 19,8,cb,documented,pp. 213-259
+308,CB $1A,CB 1A,8,cb,documented,pp. 213-259
+309,CB $1B,CB 1B,8,cb,documented,pp. 213-259
+310,CB $1C,CB 1C,8,cb,documented,pp. 213-259
+311,CB $1D,CB 1D,8,cb,documented,pp. 213-259
+312,CB $1E,CB 1E,15,cb,documented,pp. 213-259
+313,CB $1F,CB 1F,8,cb,documented,pp. 213-259
+314,CB $20,CB 20,8,cb,documented,pp. 213-259
+315,CB $21,CB 21,8,cb,documented,pp. 213-259
+316,CB $22,CB 22,8,cb,documented,pp. 213-259
+317,CB $23,CB 23,8,cb,documented,pp. 213-259
+318,CB $24,CB 24,8,cb,documented,pp. 213-259
+319,CB $25,CB 25,8,cb,documented,pp. 213-259
+320,CB $26,CB 26,15,cb,documented,pp. 213-259
+321,CB $27,CB 27,8,cb,documented,pp. 213-259
+322,CB $28,CB 28,8,cb,documented,pp. 213-259
+323,CB $29,CB 29,8,cb,documented,pp. 213-259
+324,CB $2A,CB 2A,8,cb,documented,pp. 213-259
+325,CB $2B,CB 2B,8,cb,documented,pp. 213-259
+326,CB $2C,CB 2C,8,cb,documented,pp. 213-259
+327,CB $2D,CB 2D,8,cb,documented,pp. 213-259
+328,CB $2E,CB 2E,15,cb,documented,pp. 213-259
+329,CB $2F,CB 2F,8,cb,documented,pp. 213-259
+330,CB $30,CB 30,8,alias,undocumented/alias supplemental,undocumented SLL
+331,CB $31,CB 31,8,alias,undocumented/alias supplemental,undocumented SLL
+332,CB $32,CB 32,8,alias,undocumented/alias supplemental,undocumented SLL
+333,CB $33,CB 33,8,alias,undocumented/alias supplemental,undocumented SLL
+334,CB $34,CB 34,8,alias,undocumented/alias supplemental,undocumented SLL
+335,CB $35,CB 35,8,alias,undocumented/alias supplemental,undocumented SLL
+336,CB $36,CB 36,15,alias,undocumented/alias supplemental,undocumented SLL
+337,CB $37,CB 37,8,alias,undocumented/alias supplemental,undocumented SLL
+338,CB $38,CB 38,8,cb,documented,pp. 213-259
+339,CB $39,CB 39,8,cb,documented,pp. 213-259
+340,CB $3A,CB 3A,8,cb,documented,pp. 213-259
+341,CB $3B,CB 3B,8,cb,documented,pp. 213-259
+342,CB $3C,CB 3C,8,cb,documented,pp. 213-259
+343,CB $3D,CB 3D,8,cb,documented,pp. 213-259
+344,CB $3E,CB 3E,15,cb,documented,pp. 213-259
+345,CB $3F,CB 3F,8,cb,documented,pp. 213-259
+346,CB $40,CB 40,8,cb,documented,pp. 213-259
+347,CB $41,CB 41,8,cb,documented,pp. 213-259
+348,CB $42,CB 42,8,cb,documented,pp. 213-259
+349,CB $43,CB 43,8,cb,documented,pp. 213-259
+350,CB $44,CB 44,8,cb,documented,pp. 213-259
+351,CB $45,CB 45,8,cb,documented,pp. 213-259
+352,CB $46,CB 46,12,cb,documented,pp. 213-259
+353,CB $47,CB 47,8,cb,documented,pp. 213-259
+354,CB $48,CB 48,8,cb,documented,pp. 213-259
+355,CB $49,CB 49,8,cb,documented,pp. 213-259
+356,CB $4A,CB 4A,8,cb,documented,pp. 213-259
+357,CB $4B,CB 4B,8,cb,documented,pp. 213-259
+358,CB $4C,CB 4C,8,cb,documented,pp. 213-259
+359,CB $4D,CB 4D,8,cb,documented,pp. 213-259
+360,CB $4E,CB 4E,12,cb,documented,pp. 213-259
+361,CB $4F,CB 4F,8,cb,documented,pp. 213-259
+362,CB $50,CB 50,8,cb,documented,pp. 213-259
+363,CB $51,CB 51,8,cb,documented,pp. 213-259
+364,CB $52,CB 52,8,cb,documented,pp. 213-259
+365,CB $53,CB 53,8,cb,documented,pp. 213-259
+366,CB $54,CB 54,8,cb,documented,pp. 213-259
+367,CB $55,CB 55,8,cb,documented,pp. 213-259
+368,CB $56,CB 56,12,cb,documented,pp. 213-259
+369,CB $57,CB 57,8,cb,documented,pp. 213-259
+370,CB $58,CB 58,8,cb,documented,pp. 213-259
+371,CB $59,CB 59,8,cb,documented,pp. 213-259
+372,CB $5A,CB 5A,8,cb,documented,pp. 213-259
+373,CB $5B,CB 5B,8,cb,documented,pp. 213-259
+374,CB $5C,CB 5C,8,cb,documented,pp. 213-259
+375,CB $5D,CB 5D,8,cb,documented,pp. 213-259
+376,CB $5E,CB 5E,12,cb,documented,pp. 213-259
+377,CB $5F,CB 5F,8,cb,documented,pp. 213-259
+378,CB $60,CB 60,8,cb,documented,pp. 213-259
+379,CB $61,CB 61,8,cb,documented,pp. 213-259
+380,CB $62,CB 62,8,cb,documented,pp. 213-259
+381,CB $63,CB 63,8,cb,documented,pp. 213-259
+382,CB $64,CB 64,8,cb,documented,pp. 213-259
+383,CB $65,CB 65,8,cb,documented,pp. 213-259
+384,CB $66,CB 66,12,cb,documented,pp. 213-259
+385,CB $67,CB 67,8,cb,documented,pp. 213-259
+386,CB $68,CB 68,8,cb,documented,pp. 213-259
+387,CB $69,CB 69,8,cb,documented,pp. 213-259
+388,CB $6A,CB 6A,8,cb,documented,pp. 213-259
+389,CB $6B,CB 6B,8,cb,documented,pp. 213-259
+390,CB $6C,CB 6C,8,cb,documented,pp. 213-259
+391,CB $6D,CB 6D,8,cb,documented,pp. 213-259
+392,CB $6E,CB 6E,12,cb,documented,pp. 213-259
+393,CB $6F,CB 6F,8,cb,documented,pp. 213-259
+394,CB $70,CB 70,8,cb,documented,pp. 213-259
+395,CB $71,CB 71,8,cb,documented,pp. 213-259
+396,CB $72,CB 72,8,cb,documented,pp. 213-259
+397,CB $73,CB 73,8,cb,documented,pp. 213-259
+398,CB $74,CB 74,8,cb,documented,pp. 213-259
+399,CB $75,CB 75,8,cb,documented,pp. 213-259
+400,CB $76,CB 76,12,cb,documented,pp. 213-259
+401,CB $77,CB 77,8,cb,documented,pp. 213-259
+402,CB $78,CB 78,8,cb,documented,pp. 213-259
+403,CB $79,CB 79,8,cb,documented,pp. 213-259
+404,CB $7A,CB 7A,8,cb,documented,pp. 213-259
+405,CB $7B,CB 7B,8,cb,documented,pp. 213-259
+406,CB $7C,CB 7C,8,cb,documented,pp. 213-259
+407,CB $7D,CB 7D,8,cb,documented,pp. 213-259
+408,CB $7E,CB 7E,12,cb,documented,pp. 213-259
+409,CB $7F,CB 7F,8,cb,documented,pp. 213-259
+410,CB $80,CB 80,8,cb,documented,pp. 213-259
+411,CB $81,CB 81,8,cb,documented,pp. 213-259
+412,CB $82,CB 82,8,cb,documented,pp. 213-259
+413,CB $83,CB 83,8,cb,documented,pp. 213-259
+414,CB $84,CB 84,8,cb,documented,pp. 213-259
+415,CB $85,CB 85,8,cb,documented,pp. 213-259
+416,CB $86,CB 86,15,cb,documented,pp. 213-259
+417,CB $87,CB 87,8,cb,documented,pp. 213-259
+418,CB $88,CB 88,8,cb,documented,pp. 213-259
+419,CB $89,CB 89,8,cb,documented,pp. 213-259
+420,CB $8A,CB 8A,8,cb,documented,pp. 213-259
+421,CB $8B,CB 8B,8,cb,documented,pp. 213-259
+422,CB $8C,CB 8C,8,cb,documented,pp. 213-259
+423,CB $8D,CB 8D,8,cb,documented,pp. 213-259
+424,CB $8E,CB 8E,15,cb,documented,pp. 213-259
+425,CB $8F,CB 8F,8,cb,documented,pp. 213-259
+426,CB $90,CB 90,8,cb,documented,pp. 213-259
+427,CB $91,CB 91,8,cb,documented,pp. 213-259
+428,CB $92,CB 92,8,cb,documented,pp. 213-259
+429,CB $93,CB 93,8,cb,documented,pp. 213-259
+430,CB $94,CB 94,8,cb,documented,pp. 213-259
+431,CB $95,CB 95,8,cb,documented,pp. 213-259
+432,CB $96,CB 96,15,cb,documented,pp. 213-259
+433,CB $97,CB 97,8,cb,documented,pp. 213-259
+434,CB $98,CB 98,8,cb,documented,pp. 213-259
+435,CB $99,CB 99,8,cb,documented,pp. 213-259
+436,CB $9A,CB 9A,8,cb,documented,pp. 213-259
+437,CB $9B,CB 9B,8,cb,documented,pp. 213-259
+438,CB $9C,CB 9C,8,cb,documented,pp. 213-259
+439,CB $9D,CB 9D,8,cb,documented,pp. 213-259
+440,CB $9E,CB 9E,15,cb,documented,pp. 213-259
+441,CB $9F,CB 9F,8,cb,documented,pp. 213-259
+442,CB $A0,CB A0,8,cb,documented,pp. 213-259
+443,CB $A1,CB A1,8,cb,documented,pp. 213-259
+444,CB $A2,CB A2,8,cb,documented,pp. 213-259
+445,CB $A3,CB A3,8,cb,documented,pp. 213-259
+446,CB $A4,CB A4,8,cb,documented,pp. 213-259
+447,CB $A5,CB A5,8,cb,documented,pp. 213-259
+448,CB $A6,CB A6,15,cb,documented,pp. 213-259
+449,CB $A7,CB A7,8,cb,documented,pp. 213-259
+450,CB $A8,CB A8,8,cb,documented,pp. 213-259
+451,CB $A9,CB A9,8,cb,documented,pp. 213-259
+452,CB $AA,CB AA,8,cb,documented,pp. 213-259
+453,CB $AB,CB AB,8,cb,documented,pp. 213-259
+454,CB $AC,CB AC,8,cb,documented,pp. 213-259
+455,CB $AD,CB AD,8,cb,documented,pp. 213-259
+456,CB $AE,CB AE,15,cb,documented,pp. 213-259
+457,CB $AF,CB AF,8,cb,documented,pp. 213-259
+458,CB $B0,CB B0,8,cb,documented,pp. 213-259
+459,CB $B1,CB B1,8,cb,documented,pp. 213-259
+460,CB $B2,CB B2,8,cb,documented,pp. 213-259
+461,CB $B3,CB B3,8,cb,documented,pp. 213-259
+462,CB $B4,CB B4,8,cb,documented,pp. 213-259
+463,CB $B5,CB B5,8,cb,documented,pp. 213-259
+464,CB $B6,CB B6,15,cb,documented,pp. 213-259
+465,CB $B7,CB B7,8,cb,documented,pp. 213-259
+466,CB $B8,CB B8,8,cb,documented,pp. 213-259
+467,CB $B9,CB B9,8,cb,documented,pp. 213-259
+468,CB $BA,CB BA,8,cb,documented,pp. 213-259
+469,CB $BB,CB BB,8,cb,documented,pp. 213-259
+470,CB $BC,CB BC,8,cb,documented,pp. 213-259
+471,CB $BD,CB BD,8,cb,documented,pp. 213-259
+472,CB $BE,CB BE,15,cb,documented,pp. 213-259
+473,CB $BF,CB BF,8,cb,documented,pp. 213-259
+474,CB $C0,CB C0,8,cb,documented,pp. 213-259
+475,CB $C1,CB C1,8,cb,documented,pp. 213-259
+476,CB $C2,CB C2,8,cb,documented,pp. 213-259
+477,CB $C3,CB C3,8,cb,documented,pp. 213-259
+478,CB $C4,CB C4,8,cb,documented,pp. 213-259
+479,CB $C5,CB C5,8,cb,documented,pp. 213-259
+480,CB $C6,CB C6,15,cb,documented,pp. 213-259
+481,CB $C7,CB C7,8,cb,documented,pp. 213-259
+482,CB $C8,CB C8,8,cb,documented,pp. 213-259
+483,CB $C9,CB C9,8,cb,documented,pp. 213-259
+484,CB $CA,CB CA,8,cb,documented,pp. 213-259
+485,CB $CB,CB CB,8,cb,documented,pp. 213-259
+486,CB $CC,CB CC,8,cb,documented,pp. 213-259
+487,CB $CD,CB CD,8,cb,documented,pp. 213-259
+488,CB $CE,CB CE,15,cb,documented,pp. 213-259
+489,CB $CF,CB CF,8,cb,documented,pp. 213-259
+490,CB $D0,CB D0,8,cb,documented,pp. 213-259
+491,CB $D1,CB D1,8,cb,documented,pp. 213-259
+492,CB $D2,CB D2,8,cb,documented,pp. 213-259
+493,CB $D3,CB D3,8,cb,documented,pp. 213-259
+494,CB $D4,CB D4,8,cb,documented,pp. 213-259
+495,CB $D5,CB D5,8,cb,documented,pp. 213-259
+496,CB $D6,CB D6,15,cb,documented,pp. 213-259
+497,CB $D7,CB D7,8,cb,documented,pp. 213-259
+498,CB $D8,CB D8,8,cb,documented,pp. 213-259
+499,CB $D9,CB D9,8,cb,documented,pp. 213-259
+500,CB $DA,CB DA,8,cb,documented,pp. 213-259
+501,CB $DB,CB DB,8,cb,documented,pp. 213-259
+502,CB $DC,CB DC,8,cb,documented,pp. 213-259
+503,CB $DD,CB DD,8,cb,documented,pp. 213-259
+504,CB $DE,CB DE,15,cb,documented,pp. 213-259
+505,CB $DF,CB DF,8,cb,documented,pp. 213-259
+506,CB $E0,CB E0,8,cb,documented,pp. 213-259
+507,CB $E1,CB E1,8,cb,documented,pp. 213-259
+508,CB $E2,CB E2,8,cb,documented,pp. 213-259
+509,CB $E3,CB E3,8,cb,documented,pp. 213-259
+510,CB $E4,CB E4,8,cb,documented,pp. 213-259
+511,CB $E5,CB E5,8,cb,documented,pp. 213-259
+512,CB $E6,CB E6,15,cb,documented,pp. 213-259
+513,CB $E7,CB E7,8,cb,documented,pp. 213-259
+514,CB $E8,CB E8,8,cb,documented,pp. 213-259
+515,CB $E9,CB E9,8,cb,documented,pp. 213-259
+516,CB $EA,CB EA,8,cb,documented,pp. 213-259
+517,CB $EB,CB EB,8,cb,documented,pp. 213-259
+518,CB $EC,CB EC,8,cb,documented,pp. 213-259
+519,CB $ED,CB ED,8,cb,documented,pp. 213-259
+520,CB $EE,CB EE,15,cb,documented,pp. 213-259
+521,CB $EF,CB EF,8,cb,documented,pp. 213-259
+522,CB $F0,CB F0,8,cb,documented,pp. 213-259
+523,CB $F1,CB F1,8,cb,documented,pp. 213-259
+524,CB $F2,CB F2,8,cb,documented,pp. 213-259
+525,CB $F3,CB F3,8,cb,documented,pp. 213-259
+526,CB $F4,CB F4,8,cb,documented,pp. 213-259
+527,CB $F5,CB F5,8,cb,documented,pp. 213-259
+528,CB $F6,CB F6,15,cb,documented,pp. 213-259
+529,CB $F7,CB F7,8,cb,documented,pp. 213-259
+530,CB $F8,CB F8,8,cb,documented,pp. 213-259
+531,CB $F9,CB F9,8,cb,documented,pp. 213-259
+532,CB $FA,CB FA,8,cb,documented,pp. 213-259
+533,CB $FB,CB FB,8,cb,documented,pp. 213-259
+534,CB $FC,CB FC,8,cb,documented,pp. 213-259
+535,CB $FD,CB FD,8,cb,documented,pp. 213-259
+536,CB $FE,CB FE,15,cb,documented,pp. 213-259
+537,CB $FF,CB FF,8,cb,documented,pp. 213-259
+538,"IN r,(C) $40",ED 40,12,fixed,documented,p. 296
+539,"IN r,(C) $48",ED 48,12,fixed,documented,p. 296
+540,"IN r,(C) $50",ED 50,12,fixed,documented,p. 296
+541,"IN r,(C) $58",ED 58,12,fixed,documented,p. 296
+542,"IN r,(C) $60",ED 60,12,fixed,documented,p. 296
+543,"IN r,(C) $68",ED 68,12,fixed,documented,p. 296
+544,"IN r,(C) $70",ED 70,12,alias,undocumented/alias supplemental,undocumented IN (C)
+545,"IN r,(C) $78",ED 78,12,fixed,documented,p. 296
+546,"OUT (C),r $41",ED 41,12,fixed,documented,p. 307
+547,"OUT (C),r $49",ED 49,12,fixed,documented,p. 307
+548,"OUT (C),r $51",ED 51,12,fixed,documented,p. 307
+549,"OUT (C),r $59",ED 59,12,fixed,documented,p. 307
+550,"OUT (C),r $61",ED 61,12,fixed,documented,p. 307
+551,"OUT (C),r $69",ED 69,12,fixed,documented,p. 307
+552,"OUT (C),r $71",ED 71,12,alias,undocumented/alias supplemental,"undocumented OUT (C),0"
+553,"OUT (C),r $79",ED 79,12,fixed,documented,p. 307
+554,"ADC/SBC HL,rp $42",ED 42,15,fixed,documented,pp. 190-192
+555,"ADC/SBC HL,rp $52",ED 52,15,fixed,documented,pp. 190-192
+556,"ADC/SBC HL,rp $62",ED 62,15,fixed,documented,pp. 190-192
+557,"ADC/SBC HL,rp $72",ED 72,15,fixed,documented,pp. 190-192
+558,"ADC/SBC HL,rp $4A",ED 4A,15,fixed,documented,pp. 190-192
+559,"ADC/SBC HL,rp $5A",ED 5A,15,fixed,documented,pp. 190-192
+560,"ADC/SBC HL,rp $6A",ED 6A,15,fixed,documented,pp. 190-192
+561,"ADC/SBC HL,rp $7A",ED 7A,15,fixed,documented,pp. 190-192
+562,LD (nn)/rr $43,ED 43 00 52,20,fixed,documented,pp. 103-108
+563,LD (nn)/rr $53,ED 53 00 52,20,fixed,documented,pp. 103-108
+564,LD (nn)/rr $63,ED 63 00 52,20,fixed,documented,pp. 103-108
+565,LD (nn)/rr $73,ED 73 00 52,20,fixed,documented,pp. 103-108
+566,LD (nn)/rr $4B,ED 4B 00 52,20,fixed,documented,pp. 103-108
+567,LD (nn)/rr $5B,ED 5B 00 52,20,fixed,documented,pp. 103-108
+568,LD (nn)/rr $6B,ED 6B 00 52,20,fixed,documented,pp. 103-108
+569,LD (nn)/rr $7B,ED 7B 00 52,20,fixed,documented,pp. 103-108
+570,NEG,ED 44,8,fixed,documented,p. 176
+571,RETN,ED 45,14,directed,documented,p. 290
+572,RETI,ED 4D,14,directed,documented,p. 288
+573,IM 0,ED 46,8,fixed,documented,p. 184
+574,IM 1,ED 56,8,fixed,documented,p. 185
+575,IM 2,ED 5E,8,fixed,documented,p. 186
+576,"LD I,A",ED 47,9,fixed,documented,p. 96
+577,"LD R,A",ED 4F,9,fixed,documented,p. 97
+578,"LD A,I",ED 57,9,fixed,documented,p. 94
+579,"LD A,R",ED 5F,9,fixed,documented,p. 95
+580,RRD,ED 67,18,fixed,documented,p. 240
+581,RLD,ED 6F,18,fixed,documented,p. 238
+582,LDI,ED A0,16,directed,documented,p. 130
+583,LDD,ED A8,16,directed,documented,p. 134
+584,CPI,ED A1,16,directed,documented,p. 138
+585,CPD,ED A9,16,directed,documented,p. 141
+586,INI,ED A2,16,directed,documented,p. 298
+587,IND,ED AA,16,directed,documented,p. 302
+588,OUTI,ED A3,16,directed,documented,p. 309
+589,OUTD,ED AB,16,directed,documented,p. 313
+590,IXCB $00,DD CB 10 00,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+591,IXCB $01,DD CB 10 01,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+592,IXCB $02,DD CB 10 02,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+593,IXCB $03,DD CB 10 03,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+594,IXCB $04,DD CB 10 04,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+595,IXCB $05,DD CB 10 05,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+596,IXCB $06,DD CB 10 06,23,indexed_cb,documented,pp. 217-219
+597,IXCB $07,DD CB 10 07,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+598,IXCB $08,DD CB 10 08,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+599,IXCB $09,DD CB 10 09,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+600,IXCB $0A,DD CB 10 0A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+601,IXCB $0B,DD CB 10 0B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+602,IXCB $0C,DD CB 10 0C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+603,IXCB $0D,DD CB 10 0D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+604,IXCB $0E,DD CB 10 0E,23,indexed_cb,documented,pp. 224-226
+605,IXCB $0F,DD CB 10 0F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+606,IXCB $10,DD CB 10 10,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+607,IXCB $11,DD CB 10 11,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+608,IXCB $12,DD CB 10 12,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+609,IXCB $13,DD CB 10 13,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+610,IXCB $14,DD CB 10 14,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+611,IXCB $15,DD CB 10 15,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+612,IXCB $16,DD CB 10 16,23,indexed_cb,documented,pp. 221-223
+613,IXCB $17,DD CB 10 17,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+614,IXCB $18,DD CB 10 18,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+615,IXCB $19,DD CB 10 19,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+616,IXCB $1A,DD CB 10 1A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+617,IXCB $1B,DD CB 10 1B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+618,IXCB $1C,DD CB 10 1C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+619,IXCB $1D,DD CB 10 1D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+620,IXCB $1E,DD CB 10 1E,23,indexed_cb,documented,pp. 227-229
+621,IXCB $1F,DD CB 10 1F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+622,IXCB $20,DD CB 10 20,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+623,IXCB $21,DD CB 10 21,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+624,IXCB $22,DD CB 10 22,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+625,IXCB $23,DD CB 10 23,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+626,IXCB $24,DD CB 10 24,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+627,IXCB $25,DD CB 10 25,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+628,IXCB $26,DD CB 10 26,23,indexed_cb,documented,pp. 230-232
+629,IXCB $27,DD CB 10 27,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+630,IXCB $28,DD CB 10 28,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+631,IXCB $29,DD CB 10 29,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+632,IXCB $2A,DD CB 10 2A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+633,IXCB $2B,DD CB 10 2B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+634,IXCB $2C,DD CB 10 2C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+635,IXCB $2D,DD CB 10 2D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+636,IXCB $2E,DD CB 10 2E,23,indexed_cb,documented,pp. 233-235
+637,IXCB $2F,DD CB 10 2F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+638,IXCB $30,DD CB 10 30,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+639,IXCB $31,DD CB 10 31,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+640,IXCB $32,DD CB 10 32,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+641,IXCB $33,DD CB 10 33,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+642,IXCB $34,DD CB 10 34,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+643,IXCB $35,DD CB 10 35,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+644,IXCB $36,DD CB 10 36,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+645,IXCB $37,DD CB 10 37,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+646,IXCB $38,DD CB 10 38,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+647,IXCB $39,DD CB 10 39,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+648,IXCB $3A,DD CB 10 3A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+649,IXCB $3B,DD CB 10 3B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+650,IXCB $3C,DD CB 10 3C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+651,IXCB $3D,DD CB 10 3D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+652,IXCB $3E,DD CB 10 3E,23,indexed_cb,documented,pp. 236-237
+653,IXCB $3F,DD CB 10 3F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+654,IXCB $40,DD CB 10 40,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+655,IXCB $41,DD CB 10 41,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+656,IXCB $42,DD CB 10 42,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+657,IXCB $43,DD CB 10 43,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+658,IXCB $44,DD CB 10 44,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+659,IXCB $45,DD CB 10 45,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+660,IXCB $46,DD CB 10 46,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+661,IXCB $47,DD CB 10 47,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+662,IXCB $48,DD CB 10 48,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+663,IXCB $49,DD CB 10 49,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+664,IXCB $4A,DD CB 10 4A,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+665,IXCB $4B,DD CB 10 4B,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+666,IXCB $4C,DD CB 10 4C,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+667,IXCB $4D,DD CB 10 4D,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+668,IXCB $4E,DD CB 10 4E,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+669,IXCB $4F,DD CB 10 4F,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+670,IXCB $50,DD CB 10 50,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+671,IXCB $51,DD CB 10 51,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+672,IXCB $52,DD CB 10 52,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+673,IXCB $53,DD CB 10 53,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+674,IXCB $54,DD CB 10 54,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+675,IXCB $55,DD CB 10 55,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+676,IXCB $56,DD CB 10 56,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+677,IXCB $57,DD CB 10 57,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+678,IXCB $58,DD CB 10 58,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+679,IXCB $59,DD CB 10 59,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+680,IXCB $5A,DD CB 10 5A,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+681,IXCB $5B,DD CB 10 5B,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+682,IXCB $5C,DD CB 10 5C,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+683,IXCB $5D,DD CB 10 5D,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+684,IXCB $5E,DD CB 10 5E,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+685,IXCB $5F,DD CB 10 5F,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+686,IXCB $60,DD CB 10 60,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+687,IXCB $61,DD CB 10 61,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+688,IXCB $62,DD CB 10 62,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+689,IXCB $63,DD CB 10 63,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+690,IXCB $64,DD CB 10 64,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+691,IXCB $65,DD CB 10 65,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+692,IXCB $66,DD CB 10 66,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+693,IXCB $67,DD CB 10 67,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+694,IXCB $68,DD CB 10 68,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+695,IXCB $69,DD CB 10 69,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+696,IXCB $6A,DD CB 10 6A,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+697,IXCB $6B,DD CB 10 6B,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+698,IXCB $6C,DD CB 10 6C,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+699,IXCB $6D,DD CB 10 6D,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+700,IXCB $6E,DD CB 10 6E,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+701,IXCB $6F,DD CB 10 6F,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+702,IXCB $70,DD CB 10 70,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+703,IXCB $71,DD CB 10 71,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+704,IXCB $72,DD CB 10 72,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+705,IXCB $73,DD CB 10 73,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+706,IXCB $74,DD CB 10 74,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+707,IXCB $75,DD CB 10 75,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+708,IXCB $76,DD CB 10 76,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+709,IXCB $77,DD CB 10 77,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+710,IXCB $78,DD CB 10 78,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+711,IXCB $79,DD CB 10 79,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+712,IXCB $7A,DD CB 10 7A,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+713,IXCB $7B,DD CB 10 7B,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+714,IXCB $7C,DD CB 10 7C,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+715,IXCB $7D,DD CB 10 7D,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+716,IXCB $7E,DD CB 10 7E,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+717,IXCB $7F,DD CB 10 7F,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+718,IXCB $80,DD CB 10 80,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+719,IXCB $81,DD CB 10 81,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+720,IXCB $82,DD CB 10 82,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+721,IXCB $83,DD CB 10 83,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+722,IXCB $84,DD CB 10 84,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+723,IXCB $85,DD CB 10 85,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+724,IXCB $86,DD CB 10 86,23,indexed_cb,documented,pp. 259-260
+725,IXCB $87,DD CB 10 87,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+726,IXCB $88,DD CB 10 88,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+727,IXCB $89,DD CB 10 89,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+728,IXCB $8A,DD CB 10 8A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+729,IXCB $8B,DD CB 10 8B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+730,IXCB $8C,DD CB 10 8C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+731,IXCB $8D,DD CB 10 8D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+732,IXCB $8E,DD CB 10 8E,23,indexed_cb,documented,pp. 259-260
+733,IXCB $8F,DD CB 10 8F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+734,IXCB $90,DD CB 10 90,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+735,IXCB $91,DD CB 10 91,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+736,IXCB $92,DD CB 10 92,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+737,IXCB $93,DD CB 10 93,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+738,IXCB $94,DD CB 10 94,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+739,IXCB $95,DD CB 10 95,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+740,IXCB $96,DD CB 10 96,23,indexed_cb,documented,pp. 259-260
+741,IXCB $97,DD CB 10 97,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+742,IXCB $98,DD CB 10 98,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+743,IXCB $99,DD CB 10 99,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+744,IXCB $9A,DD CB 10 9A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+745,IXCB $9B,DD CB 10 9B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+746,IXCB $9C,DD CB 10 9C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+747,IXCB $9D,DD CB 10 9D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+748,IXCB $9E,DD CB 10 9E,23,indexed_cb,documented,pp. 259-260
+749,IXCB $9F,DD CB 10 9F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+750,IXCB $A0,DD CB 10 A0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+751,IXCB $A1,DD CB 10 A1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+752,IXCB $A2,DD CB 10 A2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+753,IXCB $A3,DD CB 10 A3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+754,IXCB $A4,DD CB 10 A4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+755,IXCB $A5,DD CB 10 A5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+756,IXCB $A6,DD CB 10 A6,23,indexed_cb,documented,pp. 259-260
+757,IXCB $A7,DD CB 10 A7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+758,IXCB $A8,DD CB 10 A8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+759,IXCB $A9,DD CB 10 A9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+760,IXCB $AA,DD CB 10 AA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+761,IXCB $AB,DD CB 10 AB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+762,IXCB $AC,DD CB 10 AC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+763,IXCB $AD,DD CB 10 AD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+764,IXCB $AE,DD CB 10 AE,23,indexed_cb,documented,pp. 259-260
+765,IXCB $AF,DD CB 10 AF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+766,IXCB $B0,DD CB 10 B0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+767,IXCB $B1,DD CB 10 B1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+768,IXCB $B2,DD CB 10 B2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+769,IXCB $B3,DD CB 10 B3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+770,IXCB $B4,DD CB 10 B4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+771,IXCB $B5,DD CB 10 B5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+772,IXCB $B6,DD CB 10 B6,23,indexed_cb,documented,pp. 259-260
+773,IXCB $B7,DD CB 10 B7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+774,IXCB $B8,DD CB 10 B8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+775,IXCB $B9,DD CB 10 B9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+776,IXCB $BA,DD CB 10 BA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+777,IXCB $BB,DD CB 10 BB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+778,IXCB $BC,DD CB 10 BC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+779,IXCB $BD,DD CB 10 BD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+780,IXCB $BE,DD CB 10 BE,23,indexed_cb,documented,pp. 259-260
+781,IXCB $BF,DD CB 10 BF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+782,IXCB $C0,DD CB 10 C0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+783,IXCB $C1,DD CB 10 C1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+784,IXCB $C2,DD CB 10 C2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+785,IXCB $C3,DD CB 10 C3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+786,IXCB $C4,DD CB 10 C4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+787,IXCB $C5,DD CB 10 C5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+788,IXCB $C6,DD CB 10 C6,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+789,IXCB $C7,DD CB 10 C7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+790,IXCB $C8,DD CB 10 C8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+791,IXCB $C9,DD CB 10 C9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+792,IXCB $CA,DD CB 10 CA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+793,IXCB $CB,DD CB 10 CB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+794,IXCB $CC,DD CB 10 CC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+795,IXCB $CD,DD CB 10 CD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+796,IXCB $CE,DD CB 10 CE,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+797,IXCB $CF,DD CB 10 CF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+798,IXCB $D0,DD CB 10 D0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+799,IXCB $D1,DD CB 10 D1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+800,IXCB $D2,DD CB 10 D2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+801,IXCB $D3,DD CB 10 D3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+802,IXCB $D4,DD CB 10 D4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+803,IXCB $D5,DD CB 10 D5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+804,IXCB $D6,DD CB 10 D6,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+805,IXCB $D7,DD CB 10 D7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+806,IXCB $D8,DD CB 10 D8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+807,IXCB $D9,DD CB 10 D9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+808,IXCB $DA,DD CB 10 DA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+809,IXCB $DB,DD CB 10 DB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+810,IXCB $DC,DD CB 10 DC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+811,IXCB $DD,DD CB 10 DD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+812,IXCB $DE,DD CB 10 DE,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+813,IXCB $DF,DD CB 10 DF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+814,IXCB $E0,DD CB 10 E0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+815,IXCB $E1,DD CB 10 E1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+816,IXCB $E2,DD CB 10 E2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+817,IXCB $E3,DD CB 10 E3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+818,IXCB $E4,DD CB 10 E4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+819,IXCB $E5,DD CB 10 E5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+820,IXCB $E6,DD CB 10 E6,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+821,IXCB $E7,DD CB 10 E7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+822,IXCB $E8,DD CB 10 E8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+823,IXCB $E9,DD CB 10 E9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+824,IXCB $EA,DD CB 10 EA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+825,IXCB $EB,DD CB 10 EB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+826,IXCB $EC,DD CB 10 EC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+827,IXCB $ED,DD CB 10 ED,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+828,IXCB $EE,DD CB 10 EE,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+829,IXCB $EF,DD CB 10 EF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+830,IXCB $F0,DD CB 10 F0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+831,IXCB $F1,DD CB 10 F1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+832,IXCB $F2,DD CB 10 F2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+833,IXCB $F3,DD CB 10 F3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+834,IXCB $F4,DD CB 10 F4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+835,IXCB $F5,DD CB 10 F5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+836,IXCB $F6,DD CB 10 F6,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+837,IXCB $F7,DD CB 10 F7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+838,IXCB $F8,DD CB 10 F8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+839,IXCB $F9,DD CB 10 F9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+840,IXCB $FA,DD CB 10 FA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+841,IXCB $FB,DD CB 10 FB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+842,IXCB $FC,DD CB 10 FC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+843,IXCB $FD,DD CB 10 FD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+844,IXCB $FE,DD CB 10 FE,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+845,IXCB $FF,DD CB 10 FF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+846,IYCB $00,FD CB 10 00,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+847,IYCB $01,FD CB 10 01,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+848,IYCB $02,FD CB 10 02,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+849,IYCB $03,FD CB 10 03,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+850,IYCB $04,FD CB 10 04,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+851,IYCB $05,FD CB 10 05,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+852,IYCB $06,FD CB 10 06,23,indexed_cb,documented,pp. 217-219
+853,IYCB $07,FD CB 10 07,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+854,IYCB $08,FD CB 10 08,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+855,IYCB $09,FD CB 10 09,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+856,IYCB $0A,FD CB 10 0A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+857,IYCB $0B,FD CB 10 0B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+858,IYCB $0C,FD CB 10 0C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+859,IYCB $0D,FD CB 10 0D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+860,IYCB $0E,FD CB 10 0E,23,indexed_cb,documented,pp. 224-226
+861,IYCB $0F,FD CB 10 0F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+862,IYCB $10,FD CB 10 10,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+863,IYCB $11,FD CB 10 11,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+864,IYCB $12,FD CB 10 12,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+865,IYCB $13,FD CB 10 13,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+866,IYCB $14,FD CB 10 14,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+867,IYCB $15,FD CB 10 15,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+868,IYCB $16,FD CB 10 16,23,indexed_cb,documented,pp. 221-223
+869,IYCB $17,FD CB 10 17,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+870,IYCB $18,FD CB 10 18,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+871,IYCB $19,FD CB 10 19,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+872,IYCB $1A,FD CB 10 1A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+873,IYCB $1B,FD CB 10 1B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+874,IYCB $1C,FD CB 10 1C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+875,IYCB $1D,FD CB 10 1D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+876,IYCB $1E,FD CB 10 1E,23,indexed_cb,documented,pp. 227-229
+877,IYCB $1F,FD CB 10 1F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+878,IYCB $20,FD CB 10 20,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+879,IYCB $21,FD CB 10 21,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+880,IYCB $22,FD CB 10 22,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+881,IYCB $23,FD CB 10 23,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+882,IYCB $24,FD CB 10 24,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+883,IYCB $25,FD CB 10 25,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+884,IYCB $26,FD CB 10 26,23,indexed_cb,documented,pp. 230-232
+885,IYCB $27,FD CB 10 27,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+886,IYCB $28,FD CB 10 28,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+887,IYCB $29,FD CB 10 29,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+888,IYCB $2A,FD CB 10 2A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+889,IYCB $2B,FD CB 10 2B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+890,IYCB $2C,FD CB 10 2C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+891,IYCB $2D,FD CB 10 2D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+892,IYCB $2E,FD CB 10 2E,23,indexed_cb,documented,pp. 233-235
+893,IYCB $2F,FD CB 10 2F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+894,IYCB $30,FD CB 10 30,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+895,IYCB $31,FD CB 10 31,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+896,IYCB $32,FD CB 10 32,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+897,IYCB $33,FD CB 10 33,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+898,IYCB $34,FD CB 10 34,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+899,IYCB $35,FD CB 10 35,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+900,IYCB $36,FD CB 10 36,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+901,IYCB $37,FD CB 10 37,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+902,IYCB $38,FD CB 10 38,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+903,IYCB $39,FD CB 10 39,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+904,IYCB $3A,FD CB 10 3A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+905,IYCB $3B,FD CB 10 3B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+906,IYCB $3C,FD CB 10 3C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+907,IYCB $3D,FD CB 10 3D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+908,IYCB $3E,FD CB 10 3E,23,indexed_cb,documented,pp. 236-237
+909,IYCB $3F,FD CB 10 3F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+910,IYCB $40,FD CB 10 40,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+911,IYCB $41,FD CB 10 41,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+912,IYCB $42,FD CB 10 42,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+913,IYCB $43,FD CB 10 43,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+914,IYCB $44,FD CB 10 44,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+915,IYCB $45,FD CB 10 45,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+916,IYCB $46,FD CB 10 46,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+917,IYCB $47,FD CB 10 47,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+918,IYCB $48,FD CB 10 48,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+919,IYCB $49,FD CB 10 49,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+920,IYCB $4A,FD CB 10 4A,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+921,IYCB $4B,FD CB 10 4B,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+922,IYCB $4C,FD CB 10 4C,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+923,IYCB $4D,FD CB 10 4D,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+924,IYCB $4E,FD CB 10 4E,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+925,IYCB $4F,FD CB 10 4F,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+926,IYCB $50,FD CB 10 50,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+927,IYCB $51,FD CB 10 51,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+928,IYCB $52,FD CB 10 52,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+929,IYCB $53,FD CB 10 53,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+930,IYCB $54,FD CB 10 54,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+931,IYCB $55,FD CB 10 55,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+932,IYCB $56,FD CB 10 56,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+933,IYCB $57,FD CB 10 57,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+934,IYCB $58,FD CB 10 58,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+935,IYCB $59,FD CB 10 59,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+936,IYCB $5A,FD CB 10 5A,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+937,IYCB $5B,FD CB 10 5B,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+938,IYCB $5C,FD CB 10 5C,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+939,IYCB $5D,FD CB 10 5D,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+940,IYCB $5E,FD CB 10 5E,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+941,IYCB $5F,FD CB 10 5F,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+942,IYCB $60,FD CB 10 60,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+943,IYCB $61,FD CB 10 61,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+944,IYCB $62,FD CB 10 62,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+945,IYCB $63,FD CB 10 63,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+946,IYCB $64,FD CB 10 64,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+947,IYCB $65,FD CB 10 65,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+948,IYCB $66,FD CB 10 66,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+949,IYCB $67,FD CB 10 67,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+950,IYCB $68,FD CB 10 68,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+951,IYCB $69,FD CB 10 69,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+952,IYCB $6A,FD CB 10 6A,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+953,IYCB $6B,FD CB 10 6B,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+954,IYCB $6C,FD CB 10 6C,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+955,IYCB $6D,FD CB 10 6D,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+956,IYCB $6E,FD CB 10 6E,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+957,IYCB $6F,FD CB 10 6F,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+958,IYCB $70,FD CB 10 70,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+959,IYCB $71,FD CB 10 71,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+960,IYCB $72,FD CB 10 72,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+961,IYCB $73,FD CB 10 73,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+962,IYCB $74,FD CB 10 74,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+963,IYCB $75,FD CB 10 75,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+964,IYCB $76,FD CB 10 76,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+965,IYCB $77,FD CB 10 77,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+966,IYCB $78,FD CB 10 78,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+967,IYCB $79,FD CB 10 79,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+968,IYCB $7A,FD CB 10 7A,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+969,IYCB $7B,FD CB 10 7B,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+970,IYCB $7C,FD CB 10 7C,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+971,IYCB $7D,FD CB 10 7D,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+972,IYCB $7E,FD CB 10 7E,20,indexed_cb,documented,p. 247 (IX) / p. 249 (IY)
+973,IYCB $7F,FD CB 10 7F,20,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+974,IYCB $80,FD CB 10 80,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+975,IYCB $81,FD CB 10 81,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+976,IYCB $82,FD CB 10 82,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+977,IYCB $83,FD CB 10 83,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+978,IYCB $84,FD CB 10 84,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+979,IYCB $85,FD CB 10 85,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+980,IYCB $86,FD CB 10 86,23,indexed_cb,documented,pp. 259-260
+981,IYCB $87,FD CB 10 87,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+982,IYCB $88,FD CB 10 88,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+983,IYCB $89,FD CB 10 89,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+984,IYCB $8A,FD CB 10 8A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+985,IYCB $8B,FD CB 10 8B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+986,IYCB $8C,FD CB 10 8C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+987,IYCB $8D,FD CB 10 8D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+988,IYCB $8E,FD CB 10 8E,23,indexed_cb,documented,pp. 259-260
+989,IYCB $8F,FD CB 10 8F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+990,IYCB $90,FD CB 10 90,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+991,IYCB $91,FD CB 10 91,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+992,IYCB $92,FD CB 10 92,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+993,IYCB $93,FD CB 10 93,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+994,IYCB $94,FD CB 10 94,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+995,IYCB $95,FD CB 10 95,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+996,IYCB $96,FD CB 10 96,23,indexed_cb,documented,pp. 259-260
+997,IYCB $97,FD CB 10 97,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+998,IYCB $98,FD CB 10 98,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+999,IYCB $99,FD CB 10 99,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1000,IYCB $9A,FD CB 10 9A,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1001,IYCB $9B,FD CB 10 9B,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1002,IYCB $9C,FD CB 10 9C,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1003,IYCB $9D,FD CB 10 9D,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1004,IYCB $9E,FD CB 10 9E,23,indexed_cb,documented,pp. 259-260
+1005,IYCB $9F,FD CB 10 9F,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1006,IYCB $A0,FD CB 10 A0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1007,IYCB $A1,FD CB 10 A1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1008,IYCB $A2,FD CB 10 A2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1009,IYCB $A3,FD CB 10 A3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1010,IYCB $A4,FD CB 10 A4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1011,IYCB $A5,FD CB 10 A5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1012,IYCB $A6,FD CB 10 A6,23,indexed_cb,documented,pp. 259-260
+1013,IYCB $A7,FD CB 10 A7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1014,IYCB $A8,FD CB 10 A8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1015,IYCB $A9,FD CB 10 A9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1016,IYCB $AA,FD CB 10 AA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1017,IYCB $AB,FD CB 10 AB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1018,IYCB $AC,FD CB 10 AC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1019,IYCB $AD,FD CB 10 AD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1020,IYCB $AE,FD CB 10 AE,23,indexed_cb,documented,pp. 259-260
+1021,IYCB $AF,FD CB 10 AF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1022,IYCB $B0,FD CB 10 B0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1023,IYCB $B1,FD CB 10 B1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1024,IYCB $B2,FD CB 10 B2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1025,IYCB $B3,FD CB 10 B3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1026,IYCB $B4,FD CB 10 B4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1027,IYCB $B5,FD CB 10 B5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1028,IYCB $B6,FD CB 10 B6,23,indexed_cb,documented,pp. 259-260
+1029,IYCB $B7,FD CB 10 B7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1030,IYCB $B8,FD CB 10 B8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1031,IYCB $B9,FD CB 10 B9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1032,IYCB $BA,FD CB 10 BA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1033,IYCB $BB,FD CB 10 BB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1034,IYCB $BC,FD CB 10 BC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1035,IYCB $BD,FD CB 10 BD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1036,IYCB $BE,FD CB 10 BE,23,indexed_cb,documented,pp. 259-260
+1037,IYCB $BF,FD CB 10 BF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1038,IYCB $C0,FD CB 10 C0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1039,IYCB $C1,FD CB 10 C1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1040,IYCB $C2,FD CB 10 C2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1041,IYCB $C3,FD CB 10 C3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1042,IYCB $C4,FD CB 10 C4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1043,IYCB $C5,FD CB 10 C5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1044,IYCB $C6,FD CB 10 C6,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+1045,IYCB $C7,FD CB 10 C7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1046,IYCB $C8,FD CB 10 C8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1047,IYCB $C9,FD CB 10 C9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1048,IYCB $CA,FD CB 10 CA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1049,IYCB $CB,FD CB 10 CB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1050,IYCB $CC,FD CB 10 CC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1051,IYCB $CD,FD CB 10 CD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1052,IYCB $CE,FD CB 10 CE,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+1053,IYCB $CF,FD CB 10 CF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1054,IYCB $D0,FD CB 10 D0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1055,IYCB $D1,FD CB 10 D1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1056,IYCB $D2,FD CB 10 D2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1057,IYCB $D3,FD CB 10 D3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1058,IYCB $D4,FD CB 10 D4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1059,IYCB $D5,FD CB 10 D5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1060,IYCB $D6,FD CB 10 D6,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+1061,IYCB $D7,FD CB 10 D7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1062,IYCB $D8,FD CB 10 D8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1063,IYCB $D9,FD CB 10 D9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1064,IYCB $DA,FD CB 10 DA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1065,IYCB $DB,FD CB 10 DB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1066,IYCB $DC,FD CB 10 DC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1067,IYCB $DD,FD CB 10 DD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1068,IYCB $DE,FD CB 10 DE,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+1069,IYCB $DF,FD CB 10 DF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1070,IYCB $E0,FD CB 10 E0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1071,IYCB $E1,FD CB 10 E1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1072,IYCB $E2,FD CB 10 E2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1073,IYCB $E3,FD CB 10 E3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1074,IYCB $E4,FD CB 10 E4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1075,IYCB $E5,FD CB 10 E5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1076,IYCB $E6,FD CB 10 E6,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+1077,IYCB $E7,FD CB 10 E7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1078,IYCB $E8,FD CB 10 E8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1079,IYCB $E9,FD CB 10 E9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1080,IYCB $EA,FD CB 10 EA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1081,IYCB $EB,FD CB 10 EB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1082,IYCB $EC,FD CB 10 EC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1083,IYCB $ED,FD CB 10 ED,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1084,IYCB $EE,FD CB 10 EE,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+1085,IYCB $EF,FD CB 10 EF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1086,IYCB $F0,FD CB 10 F0,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1087,IYCB $F1,FD CB 10 F1,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1088,IYCB $F2,FD CB 10 F2,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1089,IYCB $F3,FD CB 10 F3,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1090,IYCB $F4,FD CB 10 F4,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1091,IYCB $F5,FD CB 10 F5,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1092,IYCB $F6,FD CB 10 F6,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+1093,IYCB $F7,FD CB 10 F7,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1094,IYCB $F8,FD CB 10 F8,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1095,IYCB $F9,FD CB 10 F9,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1096,IYCB $FA,FD CB 10 FA,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1097,IYCB $FB,FD CB 10 FB,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1098,IYCB $FC,FD CB 10 FC,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1099,IYCB $FD,FD CB 10 FD,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1100,IYCB $FE,FD CB 10 FE,23,indexed_cb,documented,p. 255 (IX) / p. 257 (IY)
+1101,IYCB $FF,FD CB 10 FF,23,alias,undocumented/alias supplemental,undocumented indexed-CB alias
+1102,"LD IX,nn",DD 21 34 12,14,fixed,documented,pp. 100-106
+1103,"LD (nn),IX",DD 22 00 52,20,fixed,documented,pp. 110-111
+1104,"LD IX,(nn)",DD 2A 00 52,20,fixed,documented,pp. 105-106
+1105,IX form $23,DD 23,10,fixed,documented,p. 199
+1106,IX form $2B,DD 2B,10,fixed,documented,p. 202
+1107,IX form $09,DD 09,15,fixed,documented,p. 194
+1108,IX form $19,DD 19,15,fixed,documented,p. 194
+1109,IX form $29,DD 29,15,fixed,documented,p. 194
+1110,IX form $39,DD 39,15,fixed,documented,p. 194
+1111,IX form $E5,DD E5,15,fixed,documented,p. 117
+1112,IX form $E1,DD E1,14,fixed,documented,p. 121
+1113,IX form $E9,DD E9,8,directed,documented,p. 276
+1114,IX form $F9,DD F9,10,fixed,documented,p. 113
+1115,IX form $E3,DD E3,23,directed,documented,p. 128
+1116,IX LD $40,DD 40,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1117,IX LD $41,DD 41,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1118,IX LD $42,DD 42,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1119,IX LD $43,DD 43,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1120,IX LD $44,DD 44,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1121,IX LD $45,DD 45,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1122,IX LD $46,DD 46 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1123,IX LD $47,DD 47,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1124,IX LD $48,DD 48,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1125,IX LD $49,DD 49,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1126,IX LD $4A,DD 4A,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1127,IX LD $4B,DD 4B,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1128,IX LD $4C,DD 4C,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1129,IX LD $4D,DD 4D,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1130,IX LD $4E,DD 4E 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1131,IX LD $4F,DD 4F,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1132,IX LD $50,DD 50,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1133,IX LD $51,DD 51,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1134,IX LD $52,DD 52,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1135,IX LD $53,DD 53,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1136,IX LD $54,DD 54,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1137,IX LD $55,DD 55,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1138,IX LD $56,DD 56 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1139,IX LD $57,DD 57,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1140,IX LD $58,DD 58,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1141,IX LD $59,DD 59,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1142,IX LD $5A,DD 5A,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1143,IX LD $5B,DD 5B,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1144,IX LD $5C,DD 5C,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1145,IX LD $5D,DD 5D,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1146,IX LD $5E,DD 5E 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1147,IX LD $5F,DD 5F,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1148,IX LD $60,DD 60,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1149,IX LD $61,DD 61,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1150,IX LD $62,DD 62,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1151,IX LD $63,DD 63,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1152,IX LD $64,DD 64,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1153,IX LD $65,DD 65,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1154,IX LD $66,DD 66 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1155,IX LD $67,DD 67,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1156,IX LD $68,DD 68,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1157,IX LD $69,DD 69,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1158,IX LD $6A,DD 6A,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1159,IX LD $6B,DD 6B,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1160,IX LD $6C,DD 6C,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1161,IX LD $6D,DD 6D,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1162,IX LD $6E,DD 6E 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1163,IX LD $6F,DD 6F,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1164,IX LD $70,DD 70 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1165,IX LD $71,DD 71 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1166,IX LD $72,DD 72 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1167,IX LD $73,DD 73 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1168,IX LD $74,DD 74 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1169,IX LD $75,DD 75 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1170,IX LD $77,DD 77 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1171,IX LD $78,DD 78,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1172,IX LD $79,DD 79,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1173,IX LD $7A,DD 7A,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1174,IX LD $7B,DD 7B,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1175,IX LD $7C,DD 7C,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1176,IX LD $7D,DD 7D,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1177,IX LD $7E,DD 7E 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1178,IX LD $7F,DD 7F,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1179,IX ALU alias $80,DD 80,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1180,IX ALU alias $81,DD 81,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1181,IX ALU alias $82,DD 82,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1182,IX ALU alias $83,DD 83,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1183,IX ALU $84,DD 84,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1184,IX ALU $85,DD 85,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1185,IX ALU $86,DD 86 10,19,fixed,documented,pp. 149-164
+1186,IX ALU alias $87,DD 87,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1187,IX ALU alias $88,DD 88,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1188,IX ALU alias $89,DD 89,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1189,IX ALU alias $8A,DD 8A,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1190,IX ALU alias $8B,DD 8B,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1191,IX ALU $8C,DD 8C,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1192,IX ALU $8D,DD 8D,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1193,IX ALU $8E,DD 8E 10,19,fixed,documented,pp. 149-164
+1194,IX ALU alias $8F,DD 8F,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1195,IX ALU alias $90,DD 90,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1196,IX ALU alias $91,DD 91,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1197,IX ALU alias $92,DD 92,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1198,IX ALU alias $93,DD 93,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1199,IX ALU $94,DD 94,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1200,IX ALU $95,DD 95,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1201,IX ALU $96,DD 96 10,19,fixed,documented,pp. 149-164
+1202,IX ALU alias $97,DD 97,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1203,IX ALU alias $98,DD 98,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1204,IX ALU alias $99,DD 99,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1205,IX ALU alias $9A,DD 9A,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1206,IX ALU alias $9B,DD 9B,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1207,IX ALU $9C,DD 9C,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1208,IX ALU $9D,DD 9D,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1209,IX ALU $9E,DD 9E 10,19,fixed,documented,pp. 149-164
+1210,IX ALU alias $9F,DD 9F,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1211,IX ALU alias $A0,DD A0,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1212,IX ALU alias $A1,DD A1,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1213,IX ALU alias $A2,DD A2,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1214,IX ALU alias $A3,DD A3,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1215,IX ALU $A4,DD A4,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1216,IX ALU $A5,DD A5,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1217,IX ALU $A6,DD A6 10,19,fixed,documented,pp. 149-164
+1218,IX ALU alias $A7,DD A7,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1219,IX ALU alias $A8,DD A8,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1220,IX ALU alias $A9,DD A9,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1221,IX ALU alias $AA,DD AA,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1222,IX ALU alias $AB,DD AB,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1223,IX ALU $AC,DD AC,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1224,IX ALU $AD,DD AD,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1225,IX ALU $AE,DD AE 10,19,fixed,documented,pp. 149-164
+1226,IX ALU alias $AF,DD AF,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1227,IX ALU alias $B0,DD B0,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1228,IX ALU alias $B1,DD B1,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1229,IX ALU alias $B2,DD B2,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1230,IX ALU alias $B3,DD B3,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1231,IX ALU $B4,DD B4,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1232,IX ALU $B5,DD B5,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1233,IX ALU $B6,DD B6 10,19,fixed,documented,pp. 149-164
+1234,IX ALU alias $B7,DD B7,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1235,IX ALU alias $B8,DD B8,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1236,IX ALU alias $B9,DD B9,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1237,IX ALU alias $BA,DD BA,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1238,IX ALU alias $BB,DD BB,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1239,IX ALU $BC,DD BC,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1240,IX ALU $BD,DD BD,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1241,IX ALU $BE,DD BE 10,19,fixed,documented,pp. 149-164
+1242,IX ALU alias $BF,DD BF,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1243,IX INC/DEC $24,DD 24,8,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1244,IX INC/DEC $25,DD 25,8,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1245,IX INC/DEC $2C,DD 2C,8,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1246,IX INC/DEC $2D,DD 2D,8,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1247,IX INC/DEC $26,DD 26 5A,11,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1248,IX INC/DEC $2E,DD 2E 5A,11,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1249,IX INC/DEC $34,DD 34 10,23,fixed,documented,p. 168
+1250,IX INC/DEC $35,DD 35 10,23,fixed,documented,p. 170
+1251,"LD (IX+d),n",DD 36 10 5A,19,fixed,documented,p. 86
+1252,"LD IY,nn",FD 21 34 12,14,fixed,documented,pp. 100-106
+1253,"LD (nn),IY",FD 22 00 52,20,fixed,documented,pp. 110-111
+1254,"LD IY,(nn)",FD 2A 00 52,20,fixed,documented,pp. 105-106
+1255,IY form $23,FD 23,10,fixed,documented,p. 200
+1256,IY form $2B,FD 2B,10,fixed,documented,p. 203
+1257,IY form $09,FD 09,15,fixed,documented,p. 196
+1258,IY form $19,FD 19,15,fixed,documented,p. 196
+1259,IY form $29,FD 29,15,fixed,documented,p. 196
+1260,IY form $39,FD 39,15,fixed,documented,p. 196
+1261,IY form $E5,FD E5,15,fixed,documented,p. 118
+1262,IY form $E1,FD E1,14,fixed,documented,p. 122
+1263,IY form $E9,FD E9,8,directed,documented,p. 277
+1264,IY form $F9,FD F9,10,fixed,documented,p. 114
+1265,IY form $E3,FD E3,23,directed,documented,p. 129
+1266,IY LD $40,FD 40,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1267,IY LD $41,FD 41,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1268,IY LD $42,FD 42,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1269,IY LD $43,FD 43,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1270,IY LD $44,FD 44,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1271,IY LD $45,FD 45,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1272,IY LD $46,FD 46 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1273,IY LD $47,FD 47,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1274,IY LD $48,FD 48,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1275,IY LD $49,FD 49,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1276,IY LD $4A,FD 4A,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1277,IY LD $4B,FD 4B,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1278,IY LD $4C,FD 4C,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1279,IY LD $4D,FD 4D,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1280,IY LD $4E,FD 4E 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1281,IY LD $4F,FD 4F,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1282,IY LD $50,FD 50,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1283,IY LD $51,FD 51,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1284,IY LD $52,FD 52,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1285,IY LD $53,FD 53,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1286,IY LD $54,FD 54,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1287,IY LD $55,FD 55,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1288,IY LD $56,FD 56 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1289,IY LD $57,FD 57,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1290,IY LD $58,FD 58,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1291,IY LD $59,FD 59,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1292,IY LD $5A,FD 5A,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1293,IY LD $5B,FD 5B,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1294,IY LD $5C,FD 5C,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1295,IY LD $5D,FD 5D,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1296,IY LD $5E,FD 5E 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1297,IY LD $5F,FD 5F,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1298,IY LD $60,FD 60,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1299,IY LD $61,FD 61,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1300,IY LD $62,FD 62,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1301,IY LD $63,FD 63,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1302,IY LD $64,FD 64,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1303,IY LD $65,FD 65,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1304,IY LD $66,FD 66 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1305,IY LD $67,FD 67,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1306,IY LD $68,FD 68,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1307,IY LD $69,FD 69,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1308,IY LD $6A,FD 6A,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1309,IY LD $6B,FD 6B,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1310,IY LD $6C,FD 6C,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1311,IY LD $6D,FD 6D,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1312,IY LD $6E,FD 6E 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1313,IY LD $6F,FD 6F,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1314,IY LD $70,FD 70 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1315,IY LD $71,FD 71 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1316,IY LD $72,FD 72 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1317,IY LD $73,FD 73 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1318,IY LD $74,FD 74 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1319,IY LD $75,FD 75 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1320,IY LD $77,FD 77 10,19,fixed,documented,p. 81 (IX) / p. 83 (IY)
+1321,IY LD $78,FD 78,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1322,IY LD $79,FD 79,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1323,IY LD $7A,FD 7A,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1324,IY LD $7B,FD 7B,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1325,IY LD $7C,FD 7C,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1326,IY LD $7D,FD 7D,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1327,IY LD $7E,FD 7E 10,19,fixed,documented,p. 75 (IX) / p. 77 (IY)
+1328,IY LD $7F,FD 7F,8,alias,undocumented/alias supplemental,undocumented ignored-prefix register form
+1329,IY ALU alias $80,FD 80,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1330,IY ALU alias $81,FD 81,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1331,IY ALU alias $82,FD 82,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1332,IY ALU alias $83,FD 83,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1333,IY ALU $84,FD 84,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1334,IY ALU $85,FD 85,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1335,IY ALU $86,FD 86 10,19,fixed,documented,pp. 149-164
+1336,IY ALU alias $87,FD 87,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1337,IY ALU alias $88,FD 88,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1338,IY ALU alias $89,FD 89,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1339,IY ALU alias $8A,FD 8A,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1340,IY ALU alias $8B,FD 8B,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1341,IY ALU $8C,FD 8C,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1342,IY ALU $8D,FD 8D,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1343,IY ALU $8E,FD 8E 10,19,fixed,documented,pp. 149-164
+1344,IY ALU alias $8F,FD 8F,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1345,IY ALU alias $90,FD 90,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1346,IY ALU alias $91,FD 91,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1347,IY ALU alias $92,FD 92,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1348,IY ALU alias $93,FD 93,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1349,IY ALU $94,FD 94,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1350,IY ALU $95,FD 95,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1351,IY ALU $96,FD 96 10,19,fixed,documented,pp. 149-164
+1352,IY ALU alias $97,FD 97,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1353,IY ALU alias $98,FD 98,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1354,IY ALU alias $99,FD 99,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1355,IY ALU alias $9A,FD 9A,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1356,IY ALU alias $9B,FD 9B,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1357,IY ALU $9C,FD 9C,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1358,IY ALU $9D,FD 9D,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1359,IY ALU $9E,FD 9E 10,19,fixed,documented,pp. 149-164
+1360,IY ALU alias $9F,FD 9F,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1361,IY ALU alias $A0,FD A0,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1362,IY ALU alias $A1,FD A1,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1363,IY ALU alias $A2,FD A2,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1364,IY ALU alias $A3,FD A3,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1365,IY ALU $A4,FD A4,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1366,IY ALU $A5,FD A5,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1367,IY ALU $A6,FD A6 10,19,fixed,documented,pp. 149-164
+1368,IY ALU alias $A7,FD A7,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1369,IY ALU alias $A8,FD A8,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1370,IY ALU alias $A9,FD A9,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1371,IY ALU alias $AA,FD AA,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1372,IY ALU alias $AB,FD AB,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1373,IY ALU $AC,FD AC,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1374,IY ALU $AD,FD AD,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1375,IY ALU $AE,FD AE 10,19,fixed,documented,pp. 149-164
+1376,IY ALU alias $AF,FD AF,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1377,IY ALU alias $B0,FD B0,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1378,IY ALU alias $B1,FD B1,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1379,IY ALU alias $B2,FD B2,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1380,IY ALU alias $B3,FD B3,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1381,IY ALU $B4,FD B4,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1382,IY ALU $B5,FD B5,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1383,IY ALU $B6,FD B6 10,19,fixed,documented,pp. 149-164
+1384,IY ALU alias $B7,FD B7,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1385,IY ALU alias $B8,FD B8,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1386,IY ALU alias $B9,FD B9,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1387,IY ALU alias $BA,FD BA,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1388,IY ALU alias $BB,FD BB,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1389,IY ALU $BC,FD BC,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1390,IY ALU $BD,FD BD,8,alias,undocumented/alias supplemental,undocumented IXH/IXL arithmetic form
+1391,IY ALU $BE,FD BE 10,19,fixed,documented,pp. 149-164
+1392,IY ALU alias $BF,FD BF,8,alias,undocumented/alias supplemental,ignored-prefix alias
+1393,IY INC/DEC $24,FD 24,8,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1394,IY INC/DEC $25,FD 25,8,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1395,IY INC/DEC $2C,FD 2C,8,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1396,IY INC/DEC $2D,FD 2D,8,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1397,IY INC/DEC $26,FD 26 5A,11,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1398,IY INC/DEC $2E,FD 2E 5A,11,alias,undocumented/alias supplemental,undocumented IXH/IXL form
+1399,IY INC/DEC $34,FD 34 10,23,fixed,documented,p. 169
+1400,IY INC/DEC $35,FD 35 10,23,fixed,documented,p. 170
+1401,"LD (IY+d),n",FD 36 10 5A,19,fixed,documented,p. 87
+1402,LDIR terminal,ED B0,16,repeat,documented,p. 132
+1403,LDIR continue,ED B0,21,repeat,documented,p. 132
+1404,LDDR terminal,ED B8,16,repeat,documented,p. 136
+1405,LDDR continue,ED B8,21,repeat,documented,p. 136
+1406,CPIR terminal,ED B1,16,repeat,documented,p. 139
+1407,CPIR continue,ED B1,21,repeat,documented,p. 139
+1408,CPDR terminal,ED B9,16,repeat,documented,p. 142
+1409,CPDR continue,ED B9,21,repeat,documented,p. 142
+1410,INIR terminal,ED B2,16,repeat,documented,p. 300
+1411,INIR continue,ED B2,21,repeat,documented,p. 300
+1412,INDR terminal,ED BA,16,repeat,documented,p. 304
+1413,INDR continue,ED BA,21,repeat,documented,p. 304
+1414,OTIR terminal,ED B3,16,repeat,documented,p. 311
+1415,OTIR continue,ED B3,21,repeat,documented,p. 311
+1416,OTDR terminal,ED BB,16,repeat,documented,p. 315
+1417,OTDR continue,ED BB,21,repeat,documented,p. 315
+1418,CPIR equality exit,ED B1,16,repeat,documented,p. 139
+1419,CPDR equality exit,ED B9,16,repeat,documented,p. 142
+1420,LDI,ED A0,16,single_block,documented,pp. 130-315
+1421,LDD,ED A8,16,single_block,documented,pp. 130-315
+1422,CPI,ED A1,16,single_block,documented,pp. 130-315
+1423,CPD,ED A9,16,single_block,documented,pp. 130-315
+1424,INI,ED A2,16,single_block,documented,pp. 130-315
+1425,IND,ED AA,16,single_block,documented,pp. 130-315
+1426,OUTI,ED A3,16,single_block,documented,pp. 130-315
+1427,OUTD,ED AB,16,single_block,documented,pp. 130-315

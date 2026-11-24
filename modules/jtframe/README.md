@@ -40,6 +40,21 @@ Set `JOTEGO` to the private support-files directory used by JTCORES regressions 
 
 When `jtsim -s <scene>` runs from `cores/<core-name>/ver/<set-name>`, it requires `JOTEGO` and creates the local `scenes` symbolic link to that private scene directory.
 
+## Local Build Cache
+
+The node installer configures Go's build and test cache under
+`/tmp/jtcores-<uid>/go-build`, shared across worktrees on the same host. Existing
+nodes can select the same default with:
+
+```sh
+go env -w GOCACHE=/tmp/jtcores-$(id -u)/go-build
+```
+
+Downloaded modules remain in `GOMODCACHE`. The build cache is disposable; Go
+ages unused entries. When disk space is needed and no builds are active,
+`go clean -cache` clears it. Explicit `GOCACHE` environment settings override
+the persisted default.
+
 ## Target Specific
 * [Pocket](target/pocket/README.md)
 * [MiSTer](target/mister/README.md)

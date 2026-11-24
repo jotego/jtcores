@@ -1,0 +1,4 @@
+jteeprom:
+  - get:
+    - jt9346.v
+    - jt9346_16b8b.v

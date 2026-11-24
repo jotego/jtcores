@@ -5,6 +5,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -29,6 +30,8 @@ commands, for example "man jtutil-sdram", "man jtutil-vcd", or
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
+		var coded interface{ ExitCode() int }
+		if errors.As(err, &coded) { os.Exit(coded.ExitCode()) }
 		os.Exit(1)
 	}
 }

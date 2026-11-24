@@ -28,14 +28,6 @@ wire char_on, scr1_on, scr2_on, obj_on;
 localparam PROM_IRQ = 0;
 reg  [11:0] prom;
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
-
-always @(*) begin
-    prom = 0;
-    if( prom_we ) prom[ prog_addr[11:8] ] = 1;
-end
-
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
@@ -55,6 +47,11 @@ jtframe_cen48 u_cen(
     .cen3qb (           ),
     .cen1p5b(           )
 );
+
+always @(*) begin
+    prom = 0;
+    if( prom_we ) prom[ prog_addr[11:8] ] = 1;
+end
 
 wire RnW;
 // sound
@@ -181,9 +178,9 @@ jtexed_sound u_sound(
 jtexed_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
+    .cen12      ( pxl2_cen      ),
     .cen8       ( cen8          ),
-    .cen6       ( cen6          ),
+    .cen6       ( pxl_cen       ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),

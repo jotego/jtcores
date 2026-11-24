@@ -144,7 +144,7 @@ jt51 u_jt51(
 /* verilator tracing_on */
 wire [2:0] nc;
 
-jt539 #(.VOLSHIFT(1)) u_k54539(
+jt539_single #(.VOLSHIFT(1)) u_k54539(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),

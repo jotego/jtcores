@@ -14,6 +14,7 @@ module jtframe_mister #(parameter
     input           clk_rom,
     input           clk_pico,
     input           pll_locked,
+    input           ph24,
     // interface with microcontroller
     output [63:0]   status,
     inout  [48:0]   HPS_BUS,
@@ -72,6 +73,18 @@ module jtframe_mister #(parameter
 `ifdef JTFRAME_LF_ZOOM
     input        [ 8:0] game_h_step,
     input        [ 8:0] game_v_step,
+`endif
+`ifdef JTFRAME_MR_GAME_DDR
+    // DDR3 for the game logic, on clk_rom. Not compatible with rotation, the line-frame buffer or DDR loading
+    input        [ 7:0] game_ddr_burstcnt,
+    input        [28:0] game_ddr_addr,
+    input               game_ddr_rd,
+    input               game_ddr_we,
+    input        [ 7:0] game_ddr_be,
+    input        [63:0] game_ddr_din,
+    output              game_ddr_busy,
+    output       [63:0] game_ddr_dout,
+    output              game_ddr_dout_ready,
 `endif
 
     // Signals to rotate the screen
@@ -196,6 +209,17 @@ module jtframe_mister #(parameter
     output          scan2x_cen,
     output          scan2x_de,
     output    [1:0] scan2x_sl,
+    // analogue h-size, applied by sys_top on the VGA branch only
+    output    [4:0] hsize_ctl,
+`ifdef JTFRAME_CRT480I
+    // Analog output. MRA mod bit 18 selects 15 kHz 480i (jtframe_crt_480i); otherwise the
+    // scan2x_* picture as in any JTFRAME core. scan2x_* always feeds the HDMI scaler.
+    output    [7:0] crt_r, crt_g, crt_b,
+    output          crt_hs, crt_vs, crt_de, crt_cen, crt_f1,
+    output    [1:0] crt_sl,
+    output          crt_on,     // 480i selected, or still waiting for the mod bytes: sys_top keeps the scaler off
+                                // the analog output and gives HDMI the native picture
+`endif
     // non standard:
     output            dip_pause,
     inout             dip_flip,
@@ -211,9 +235,49 @@ module jtframe_mister #(parameter
     input     [ 7:0]  st_dout
 );
 
+`ifdef JTFRAME_REGRESSION
+    `ifndef MISTER_DEBUG_NOHDMI
+localparam REGRESSION_BUILD=1;
+    `else
+localparam REGRESSION_BUILD=0;
+    `endif
+`else
+localparam REGRESSION_BUILD=0;
+`endif
+
+`ifdef JTFRAME_CRT480I
+localparam CAPTURE_BUILD=0;
+`elsif JTFRAME_INTERLACED
+localparam CAPTURE_BUILD=0;
+`else
+localparam CAPTURE_BUILD=REGRESSION_BUILD;
+`endif
+
+
 wire [21:0] gamma_bus;
 wire [31:0] timestamp;
 wire [ 7:0] ioctl_index;
+wire [35:0] hps_ext_bus;
+wire [31:0] hps_dipsw;
+wire [20:0] cab_inputs;
+wire [31:0] cab_dipsw;
+wire [14:0] cab_frame_index;
+wire [ 2:0] cab_state;
+wire cab_active, cab_hold_reset, cab_dipsw_valid, cab_frame_start;
+wire ext_response_enable;
+wire [15:0] ext_response_word;
+wire io_strobe, io_enable;
+wire [15:0] host_word;
+wire uio_start, uio_finish, uio_active, uio_bad_word;
+wire [15:0] uio_command;
+wire [ 6:0] uio_words;
+wire [ 6:0] uio_bad_index;
+wire [95:0] uio_payload;
+wire [127:0] uio_cab_caps, uio_cap_caps;
+wire [255:0] uio_snapshot;
+wire [127:0] uio_cap_result;
+wire uio_snapshot_valid, uio_rst;
+wire [127:0] hps_status_full;
 
 wire [3*COLORW-1:0] base_rgb;
 wire        base_lhbl, base_lvbl, base_hs, base_vs;
@@ -228,7 +292,12 @@ wire        force_scan2x, direct_video;
 wire        video_rotated;
 wire        lightgun_en;
 
+`ifdef JTFRAME_CRT480I
+wire [18:0] core_mod;
+wire        core_mod_ok;
+`else
 wire [17:0] core_mod;
+`endif
 wire [ 7:0] st_lpbuf, game_vol;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
@@ -319,6 +388,9 @@ always @(posedge clk_sys)
 
 jtframe_mister_status u_status(
     .status         ( status         ),
+`ifdef JTFRAME_CRT480I
+    .crt_on         ( crt_on         ),
+`endif
     .crop_en        ( crop_en        ),
     .vcopt          ( vcopt          ),
     .crop_scale     ( crop_scale     ),
@@ -378,9 +450,16 @@ reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotat
 
 // OSD option visibility. This is linked to the d(D) and h(H) prefixes in cfgstr
 wire [15:0] status_menumask; // a high value hides the menu item
-wire        vertical;
+wire        vertical, db15_osd_combo_en;
 
-assign status_menumask[15:7] = 0,
+assign db15_osd_combo_en = ~status[61];
+assign status_menumask[15:9] = 0,
+       status_menumask[8]    = ~(db15_en | uart_en),
+`ifdef JTFRAME_CRT480I
+       status_menumask[7]    = ~crt_on, // extra CRT height/filter options in the Video page
+`else
+       status_menumask[7]    = 0,
+`endif
        status_menumask[6]    = ~lightgun_en, // sinden lightgun borders
        status_menumask[5]    = crop_ok, // video crop options
 `ifdef JTFRAME_ROTATE       // extra rotate options for vertical games
@@ -395,7 +474,7 @@ assign status_menumask[15:7] = 0,
        status_menumask[0]    = direct_video;
 
 always @(posedge clk_sys) begin
-    framebuf_flip <= status[39:38]==2;
+    framebuf_flip <= status[40:39]==2;
 end
 
 // this places the pxl1_cen in the pixel centre
@@ -429,9 +508,12 @@ jtframe_mister_dwnld u_dwnld(
 
     // Configuration
     .core_mod       ( core_mod       ),
+`ifdef JTFRAME_CRT480I
+    .core_mod_ok    ( core_mod_ok    ),
+`endif
     .game_vol       ( game_vol       ),
     .status         ( status         ),
-    .dipsw          ( dipsw          ),
+    .dipsw          ( hps_dipsw      ),
     .cheat          ( cheat          ),
 
     // DDR
@@ -460,6 +542,7 @@ jtframe_joymux #(.BUTTONS(BUTTONS)) u_joymux(
 
     // joystick mux
     .db15_en    ( db15_en   ),
+    .osd_combo_en ( db15_osd_combo_en ),
     .joyusb_1   ( joyusb_1  ),
     .joyusb_2   ( joyusb_2  ),
     .joymux_1   ( joystick1 ),
@@ -494,15 +577,161 @@ assign joystick2 = joyusb_2;
     assign hps_din = ioctl_din;
 `endif
 
+`ifdef JTFRAME_CRT480I
+wire [127:0] status_full;   // CRT filter: 65:64; height: 69:67; bit 66 is free
+assign status_full = hps_status_full;
+`endif
+
+assign status = {hps_status_full[63:1],hps_status_full[0] | cab_hold_reset | cab_inputs[12]};
+assign dipsw = cab_dipsw_valid ? cab_dipsw : hps_dipsw;
+
+assign io_strobe = hps_ext_bus[33];
+assign io_enable = hps_ext_bus[34] && !hps_ext_bus[35];
+assign host_word = hps_ext_bus[31:16];
+assign uio_rst = rst;
+assign hps_ext_bus[32] = ext_response_enable;
+assign hps_ext_bus[15:0] = ext_response_enable ? ext_response_word : 16'hzzzz;
+
+generate if(REGRESSION_BUILD) begin: g_regression
+jtframe_mister_uio #(.CAPTURE_SUPPORT(CAPTURE_BUILD)) u_uio_transport(
+    .rst       ( uio_rst      ),
+    .clk       ( clk_rom      ),
+    .io_enable ( io_enable    ),
+    .io_strobe ( io_strobe    ),
+    .host_word ( host_word    ),
+    .cab_caps  ( uio_cab_caps ),
+    .cap_caps  ( uio_cap_caps ),
+    .cap_result( uio_cap_result ),
+    .cab_snapshot ( uio_snapshot ),
+    .cab_snapshot_valid ( uio_snapshot_valid ),
+    .response_enable ( ext_response_enable ),
+    .response_word ( ext_response_word ),
+    .start     ( uio_start    ),
+    .finish    ( uio_finish   ),
+    .active    ( uio_active   ),
+    .command   ( uio_command  ),
+    .words     ( uio_words    ),
+    .payload   ( uio_payload  ),
+    .bad_word  ( uio_bad_word  ),
+    .bad_index ( uio_bad_index )
+);
+jtframe_mister_cab u_cab_bridge(
+    .rst             ( rst             ),
+    .clk_rom         ( clk_rom         ),
+    .clk_sys         ( clk_sys         ),
+    .lvbl            ( LVBL            ),
+    .io_strobe       ( io_strobe       ),
+    .io_enable       ( io_enable       ),
+    .host_word       ( host_word       ),
+    .uio_start       ( uio_start       ),
+    .uio_finish      ( uio_finish      ),
+    .uio_active      ( uio_active      ),
+    .uio_command     ( uio_command     ),
+    .uio_words       ( uio_words       ),
+    .uio_payload     ( uio_payload     ),
+    .uio_bad_word    ( uio_bad_word    ),
+    .uio_bad_index   ( uio_bad_index   ),
+    .uio_caps        ( uio_cab_caps        ),
+    .uio_snapshot    ( uio_snapshot        ),
+    .uio_snapshot_valid ( uio_snapshot_valid ),
+    .cab_active      ( cab_active      ),
+    .cab_hold_reset  ( cab_hold_reset  ),
+    .cab_inputs      ( cab_inputs      ),
+    .cab_dipsw_valid ( cab_dipsw_valid ),
+    .cab_dipsw       ( cab_dipsw       ),
+    .cab_frame       (                 ),
+    .cab_frame_start ( cab_frame_start ),
+    .cab_frame_index ( cab_frame_index ),
+    .cab_state       ( cab_state       ),
+    .cab_error       (                 )
+);
+end else begin: g_no_regression
+    assign ext_response_enable=1'b0;
+    assign ext_response_word=16'd0;
+    assign cab_active=1'b0;
+    assign cab_hold_reset=1'b0;
+    assign cab_inputs=21'd0;
+    assign cab_dipsw_valid=1'b0;
+    assign cab_dipsw=32'd0;
+    assign cab_frame_start=1'b0;
+    assign cab_frame_index=15'd0;
+    assign cab_state=3'd0;
+end endgenerate
+
+// Regression capture: one clk_sys block (clk_sys = clk_rom = DDRAM_CLK)
+// stores native frames in the core DDR region, where the HPS copies them.
+wire        cap_ddr_sel, cap_ddr_lock, cap_ddr_we, cap_ddr_busy;
+wire [ 7:0] cap_ddr_burstcnt, cap_ddr_be;
+wire [28:0] cap_ddr_addr;
+wire [63:0] cap_ddr_din;
+
+generate if(CAPTURE_BUILD) begin: g_capture
+    reg cap_video_ok;
+
+    // native, untransformed video (no scan line effects, forced scan
+    // doubler, gamma table or rotation) and no DDR ROM download
+    always @(posedge clk_rom) begin
+        if(rst) cap_video_ok <= 1'b0;
+        else cap_video_ok <= status[5:3]==0 && !force_scan2x && !gamma_bus[19] &&
+                             !rotate[0] && !framebuf_flip && !ioctl_rom;
+    end
+
+    jtframe_mister_capture u_capture(
+        .rst              ( rst                     ),
+        .clk              ( clk_sys                 ),
+        .uio_finish       ( uio_finish              ),
+        .uio_command      ( uio_command             ),
+        .uio_words        ( uio_words               ),
+        .uio_payload      ( uio_payload[14:0]       ),
+        .uio_bad_word     ( uio_bad_word            ),
+        .uio_caps         ( uio_cap_caps            ),
+        .uio_result       ( uio_cap_result          ),
+        .lvbl             ( LVBL                    ),
+        .cab_frame_start  ( cab_frame_start         ),
+        .cab_frame_index  ( cab_frame_index         ),
+        .cab_state        ( cab_state               ),
+        .pxl_cen          ( scan2x_cen              ),
+        .red              ( scan2x_r                ),
+        .green            ( scan2x_g                ),
+        .blue             ( scan2x_b                ),
+        .de               ( raw_de                  ),
+        .video_ok         ( cap_video_ok            ),
+        .ddr_sel          ( cap_ddr_sel             ),
+        .ddr_lock         ( cap_ddr_lock            ),
+        .ddr_busy         ( cap_ddr_busy            ),
+        .ddr_burstcnt     ( cap_ddr_burstcnt        ),
+        .ddr_addr         ( cap_ddr_addr            ),
+        .ddr_we           ( cap_ddr_we              ),
+        .ddr_be           ( cap_ddr_be              ),
+        .ddr_din          ( cap_ddr_din             )
+    );
+end else begin: g_no_capture
+    assign uio_cap_caps     = 128'd0;
+    assign uio_cap_result   = 128'd0;
+    assign cap_ddr_sel      = 1'b0;
+    assign cap_ddr_lock     = 1'b0;
+    assign cap_ddr_we       = 1'b0;
+    assign cap_ddr_burstcnt = 8'd0;
+    assign cap_ddr_be       = 8'd0;
+    assign cap_ddr_addr     = 29'd0;
+    assign cap_ddr_din      = 64'd0;
+end endgenerate
+
 hps_io #(
-    .STRLEN(1024),.PS2DIV(32),.WIDE(`JTFRAME_MR_FASTIO),.BLKSZ(1)
+    .STRLEN(1024),
+    .PS2DIV(32),.WIDE(`JTFRAME_MR_FASTIO),.BLKSZ(1)
 ) u_hps_io
 (
     .clk_sys         ( clk_rom        ),
     .HPS_BUS         ( HPS_BUS        ),
+    .EXT_BUS         ( hps_ext_bus    ),
 
     .buttons         ( buttons        ),
-    .status          ( status         ),
+`ifdef JTFRAME_CRT480I
+    .status          ( hps_status_full),
+`else
+    .status          ( hps_status_full),
+`endif
     .status_menumask ( status_menumask),
     .gamma_bus       ( gamma_bus      ),
     .direct_video    ( direct_video   ),
@@ -610,42 +839,15 @@ jtframe_mister_cartsave u_save(
 assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
 `endif
 
-`ifndef DEBUG_NOHDMI
-    // scales base video horizontally
-    jtframe_hsize #(.COLORW(COLORW)) u_hsize(
-        .clk        ( clk_sys   ),
-        .pxl_cen    ( pxl1_cen  ),
-        .pxl2_cen   ( pxl2_cen  ),
-
-        .scale      ( hsize_scale  ),
-        .offset     ( 5'd0         ),
-        .enable     ( hsize_enable ),
-
-        .r_in       ( game_r    ),
-        .g_in       ( game_g    ),
-        .b_in       ( game_b    ),
-        .HS_in      ( hs_resync ),
-        .VS_in      ( vs_resync ),
-        .HB_in      ( ~LHBL     ),
-        .VB_in      ( ~LVBL     ),
-        // filtered video
-        .HS_out     ( hsize_hs  ),
-        .VS_out     ( hsize_vs  ),
-        .HB_out     ( hsize_hb  ),
-        .VB_out     ( hsize_vb  ),
-        .r_out      ( hsize_r   ),
-        .g_out      ( hsize_g   ),
-        .b_out      ( hsize_b   )
-    );
-`else
-    assign hsize_hs = hs_resync;
-    assign hsize_vs = vs_resync;
-    assign hsize_hb = ~LHBL;
-    assign hsize_vb = ~LVBL;
-    assign hsize_r  = game_r;
-    assign hsize_g  = game_g;
-    assign hsize_b  = game_b;
-`endif
+    // hretime lives in sys_top — pass signals through
+    assign hsize_ctl = { hsize_enable, hsize_scale };
+    assign hsize_hs  = hs_resync;
+    assign hsize_vs  = vs_resync;
+    assign hsize_hb  = ~LHBL;
+    assign hsize_vb  = ~LVBL;
+    assign hsize_r   = game_r;
+    assign hsize_g   = game_g;
+    assign hsize_b   = game_b;
 
 localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;
 
@@ -691,8 +893,114 @@ u_arcade_video(
 
     .gamma_bus  ( gamma_bus     ),
     .fx         ( status[5:3]   ), // scanlines
+`ifdef JTFRAME_CRT480I
+    .forced_scandoubler( force_scan2x & ~crt_on ) // with 480i this path feeds the HDMI scaler only
+`else
     .forced_scandoubler( force_scan2x )
+`endif
 );
+
+`ifdef JTFRAME_CRT480I
+// jtframe_crt_480i (GPL-2.0-or-later, Chris Watson) re-times the game's own video into 15 kHz 480i for
+// the analog output when the MRA sets mod bit 18. It takes the same video as arcade_video,
+// before any scaler or scan line effect. It runs on clk_pico (48 MHz / 4.5 = 10.67 MHz output
+// pixels), where it meets timing (at 96 MHz its deflicker blend does not): each game pixel is
+// handed over with a toggle, and its output comes back to clk_sys for the single video clock.
+// clk_pico and clk_sys come from the same PLL; a game pixel and an output pixel both last
+// at least two clk_pico cycles.
+// The mod bytes arrive after the ROM, so the analog output stays black with no syncs until
+// they have: a 15 kHz monitor never sees the native rate while a 480i MRA loads. Every
+// jtframe MRA has them; an MRA without them gets no analog output (HDMI is not affected).
+reg [2:0] c480_height_m, c480_height;
+reg [1:0] c480_dfl_m, c480_dfl;
+reg [60:53] crt_pos_m, crt_pos;
+reg [3*COLORW-1:0] v1_pix, v2_pix;
+reg         v1_de, v1_vs, v1_t=0, v2_de, v2_vs, v2_t=0, v2_ce=0, c480_cen_l=0;
+reg         ana_on=0, crt_sel=0;
+wire  [7:0] c480_r, c480_g, c480_b;
+wire  [2:0] c480_vh;
+wire signed [6:0] c480_hoffset, c480_voffset;
+
+// The height menu starts at 224; the filter menu uses the module's encoding.
+assign c480_vh = c480_height < 3'd3 ? c480_height + 3'd4 : c480_height - 3'd3;
+// Keep the regular signed four-bit CRT offsets. Each H step is four output
+// pixels (-32..+28), and each V step is two field lines (-16..+14).
+assign c480_hoffset = {crt_pos[56], crt_pos[56:53], 2'b00};
+assign c480_voffset = {{2{crt_pos[60]}}, crt_pos[60:57], 1'b0};
+
+assign crt_on = crt_sel | ~ana_on;
+wire        c480_hs, c480_vs, c480_de, c480_cen, c480_f1;
+
+always @(posedge clk_sys) if( pxl_cen ) begin
+    v1_pix <= base_rgb;
+    { v1_de, v1_vs } <= { base_lhbl & base_lvbl, hsize_vs };
+    v1_t   <= ~v1_t;
+end
+
+always @(posedge clk_pico) begin
+    c480_height_m <= status_full[69:67];
+    c480_height   <= c480_height_m;
+    c480_dfl_m    <= status_full[65:64];
+    c480_dfl      <= c480_dfl_m;
+    crt_pos_m <= status[60:53];
+    crt_pos   <= crt_pos_m;
+    v2_t    <= v1_t;
+    v2_ce   <= v2_t != v1_t;
+    if( v2_t != v1_t ) begin
+        v2_pix <= v1_pix;
+        { v2_de, v2_vs } <= { v1_de, v1_vs };
+    end
+end
+
+always @(posedge clk_sys) begin
+    c480_cen_l <= c480_cen;
+    // crt_on follows bit 18 after every mod download
+    if( core_mod_ok && !hps_download ) begin
+        crt_sel <= core_mod[18];
+        ana_on <= 1;
+    end
+end
+
+jtframe_crt_480i #(
+    .CLK_HZ     ( 48_000_000    ),
+    .CLK_DIV    ( 4             ),
+    .CLK_FRAC   ( 1             ),    // 48 MHz / 4.5 = 10.67 MHz
+`ifdef JTFRAME_CRT480I_RING
+    .RING       ( `JTFRAME_CRT480I_RING ),
+`endif
+    .PW         ( 3*COLORW      ),
+    .LUT_EXT    ( 0             )
+) u_crt_480i(
+    .clk        ( clk_pico      ),
+    .ce_in      ( v2_ce         ),
+    .pix_in     ( v2_pix        ),
+    .vs_in      ( v2_vs         ),
+    .de_in      ( v2_de         ),
+    .hoffset    ( c480_hoffset  ),
+    .voffset    ( c480_voffset  ),
+    .deflicker  ( c480_dfl      ),
+    .vheight    ( c480_vh       ),                              // 1:1, or 200..240 lines
+    .lut_addr   (               ),
+    .lut_rgb    ( 24'd0         ),
+    .ce_out     ( c480_cen      ),
+    .r_out      ( c480_r        ),
+    .g_out      ( c480_g        ),
+    .b_out      ( c480_b        ),
+    .hs_out     ( c480_hs       ),
+    .vs_out     ( c480_vs       ),
+    .de_out     ( c480_de       ),
+    .hb_out     (               ),
+    .vb_out     (               ),
+    .field      ( c480_f1       ),
+    .locked     (               )
+);
+
+assign { crt_r, crt_g, crt_b } = !ana_on ? 24'd0 : crt_on ? { c480_r, c480_g, c480_b } : { scan2x_r, scan2x_g, scan2x_b };
+assign { crt_hs, crt_vs, crt_de } = !ana_on ? 3'd0 : crt_on ? { c480_hs, c480_vs, c480_de } : { scan2x_hs, scan2x_vs, scan2x_de };
+assign crt_cen = crt_on ? c480_cen & ~c480_cen_l : scan2x_cen; // one clk_sys cycle per output pixel
+assign crt_f1  = crt_on & c480_f1;
+assign crt_sl  = crt_on ? 2'd0 : scan2x_sl;
+`endif
 
 jtframe_board #(
     .BUTTONS               ( BUTTONS              ),
@@ -705,12 +1013,17 @@ jtframe_board #(
 ) u_board(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),
+    .capture_pause  ( 1'b0            ),
+    .cab_active     ( cab_active      ),
+    .cab_inputs     ( cab_inputs      ),
+    .cab_dump_pause ( 1'b0            ),
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),
     .sdram_init     (                 ),
 
     .pll_locked     ( pll_locked      ),
+    .ph24           ( ph24            ),
 
     .ioctl_cart     ( ioctl_cart      ),
     .ioctl_ram      ( ioctl_ram       ),
@@ -720,7 +1033,7 @@ jtframe_board #(
     .clk_rom        ( clk_rom         ),
     .clk_pico       ( clk_pico        ),
 
-    .core_mod       ( core_mod        ),
+    .core_mod       ( core_mod[17:0]  ),
     .game_vol       ( game_vol        ),
     .vertical       ( vertical        ),
     .black_frame    (                 ),
@@ -741,6 +1054,7 @@ jtframe_board #(
     .board_joystick2( joystick2       ),
     .board_joystick3( joystick3       ),
     .board_joystick4( joystick4       ),
+    .joy_aux_en     ( 1'b1            ),
     .joyana_l1      ( joyana_l1       ),
     .joyana_r1      ( joyana_r1       ),
     .joyana_l2      ( joyana_l2       ),
@@ -964,7 +1278,19 @@ wire rot_clk;
         .DDRAM_DIN      ( rot_din        )
     );
 `else
-    `ifndef JTFRAME_LF_BUFFER
+    `ifdef JTFRAME_MR_GAME_DDR
+    assign rot_clk      = clk_rom;
+    assign rot_burstcnt = game_ddr_burstcnt;
+    assign rot_addr     = game_ddr_addr;
+    assign rot_rd       = game_ddr_rd;
+    assign rot_we       = game_ddr_we;
+    assign rot_be       = game_ddr_be;
+    assign rot_din      = game_ddr_din;
+    assign game_ddr_busy       = rot_busy;
+    assign game_ddr_dout       = DDRAM_DOUT;
+    assign game_ddr_dout_ready = DDRAM_DOUT_READY;
+    `elsif JTFRAME_LF_BUFFER
+    `else
     assign rot_clk      = clk_rom;
     assign rot_burstcnt = 8'd0;
     assign rot_addr     = 29'd0;
@@ -1066,6 +1392,23 @@ wire rot_clk;
 `endif
 `endif
 
+// The capture writer takes the video DDR client while it has data to write.
+// Capture requires rotation off, so screen_rotate is idle meanwhile. Cores
+// with other continuous video DDR use have no regression (see macros.go).
+wire        vid_busy, vid_rd, vid_we;
+wire [ 7:0] vid_burstcnt, vid_be;
+wire [28:0] vid_addr;
+wire [63:0] vid_din;
+
+assign vid_burstcnt = cap_ddr_sel ? cap_ddr_burstcnt : rot_burstcnt;
+assign vid_addr     = cap_ddr_sel ? cap_ddr_addr     : rot_addr;
+assign vid_rd       = cap_ddr_sel ? 1'b0             : rot_rd;
+assign vid_we       = cap_ddr_sel ? cap_ddr_we       : rot_we;
+assign vid_be       = cap_ddr_sel ? cap_ddr_be       : rot_be;
+assign vid_din      = cap_ddr_sel ? cap_ddr_din      : rot_din;
+assign rot_busy     = vid_busy |  cap_ddr_sel;
+assign cap_ddr_busy = vid_busy | ~cap_ddr_sel;
+
 jtframe_mr_ddrmux u_ddrmux(
         .rst            ( rst             ),
         .clk            ( clk_rom         ),
@@ -1077,13 +1420,14 @@ jtframe_mr_ddrmux u_ddrmux(
         .ddrld_busy     ( ddrld_busy      ),
         // Video DDR client
         .rot_clk        ( rot_clk         ),
-        .rot_burstcnt   ( rot_burstcnt    ),
-        .rot_addr       ( rot_addr        ),
-        .rot_rd         ( rot_rd          ),
-        .rot_we         ( rot_we          ),
-        .rot_be         ( rot_be          ),
-        .rot_din        ( rot_din         ),
-        .rot_busy       ( rot_busy        ),
+        .rot_burstcnt   ( vid_burstcnt    ),
+        .rot_addr       ( vid_addr        ),
+        .rot_rd         ( vid_rd          ),
+        .rot_we         ( vid_we          ),
+        .rot_lock       ( cap_ddr_lock    ),
+        .rot_be         ( vid_be          ),
+        .rot_din        ( vid_din         ),
+        .rot_busy       ( vid_busy        ),
         // DDR Signals
         .ddr_clk        ( DDRAM_CLK       ),
         .ddr_busy       ( DDRAM_BUSY      ),

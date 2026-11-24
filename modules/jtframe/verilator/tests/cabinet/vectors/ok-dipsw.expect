@@ -1,0 +1,5 @@
+capture -
+frames 6
+1 0 ff -- -
+2 1 a5 -- -
+3 0 - -- -

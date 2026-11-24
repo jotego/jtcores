@@ -2,7 +2,6 @@ jtframe:
   - get: [ jtframe_ff.v ]
   - from: clocking
     get:
-      - jtframe_cen48.v
       - jtframe_cen24.v
       - jtframe_frac_cen.v
   - from: video

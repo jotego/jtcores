@@ -125,6 +125,9 @@ jts16_tilemap #(.MODEL(0)) u_tilemap(
     .dswn       ( dsn           ),
     .char_dout  ( char_dout     ),
     .vint       (               ),  // the game uses ~LVBL
+    // ignored as DUAL_RATE is 0
+    .req_57Hz   ( 1'b0          ),
+    .is_57Hz    (               ),
 
     .flip       ( flip          ),
     .ext_flip   (               ),  // inout, driven by flip inside the module

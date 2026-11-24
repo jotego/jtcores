@@ -170,6 +170,14 @@ type AudioRC struct {
 	C string `yaml:"c"`
 }
 
+type AudioSallenKey struct {
+	R1 string `yaml:"R1"`
+	R2 string `yaml:"R2"`
+	R3 string `yaml:"R3"`
+	C1 string `yaml:"C1"`
+	C2 string `yaml:"C2"`
+}
+
 type AudioCh struct {
 	Name   string    `yaml:"name"`
 	Module string    `yaml:"module"`
@@ -179,6 +187,7 @@ type AudioCh struct {
 	Vpp    string    `yaml:"vpp`   // peak-to-peak voltage range, 1.0=>5V
 	RC     []AudioRC `yaml:"rc"`
 	Fir    string    `yaml:"fir"` // CSV file containing filter coefficients
+	SallenKey *AudioSallenKey `yaml:"sallen-key"`
 	DCrm   bool      `yaml:"dcrm"`
 	// These two are filled from Module, if the Module is present
 	Stereo     bool `yaml:"stereo"`

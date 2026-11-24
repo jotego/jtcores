@@ -14,7 +14,11 @@ and
 \fBmsg.bin\fR
 for the pause or credits screen used when
 \fBJTFRAME_CREDITS\fR
-is enabled.
+is enabled. It also writes one 1024-word page per pair of files:
+\fBmsg0.hex\fR and \fBmsg0.bin\fR, \fBmsg1.hex\fR and \fBmsg1.bin\fR, and so on.
+The generated \fBJTFRAME_CREDITS_PAGES\fR macro is derived from the number of
+rows in \fBcfg/msg\fR. The file supports up to 512 rows (16 pages); larger
+messages return an error.
 .SS Message Rules
 .IP \[bu] 2
 Lines cannot be longer than 32 characters.

@@ -116,6 +116,17 @@ u_game(
     .ln_we        ( ln_we            ),
     .fb_keep      ( fb_keep          ), `endif
 
+`ifdef JTFRAME_MR_GAME_DDR
+    .ddr_burstcnt  ( game_ddr_burstcnt   ),
+    .ddr_addr      ( game_ddr_addr       ),
+    .ddr_rd        ( game_ddr_rd         ),
+    .ddr_we        ( game_ddr_we         ),
+    .ddr_be        ( game_ddr_be         ),
+    .ddr_din       ( game_ddr_din        ),
+    .ddr_busy      ( game_ddr_busy       ),
+    .ddr_dout      ( game_ddr_dout       ),
+    .ddr_dout_ready( game_ddr_dout_ready ), `endif
+
 `ifdef JTFRAME_LF_ZOOM
     .h_step       ( game_h_step      ),
     .v_step       ( game_v_step      ), `endif

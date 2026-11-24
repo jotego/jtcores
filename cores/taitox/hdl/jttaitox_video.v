@@ -28,6 +28,7 @@ module jttaitox_video(
     output            HS,
     output            VS,
     output            flip,
+    output            vram_busy,    // video logic owns the video RAM slot
 
     // 68k side
     input             cpu_rnw,
@@ -76,6 +77,8 @@ localparam [8:0] OBJ_VOFF = 9'd0;
 
 wire [8:0] vdump, vrender, hdump,
            scr_pxl, obj_pxl, vdump_adj;
+
+assign vram_busy = hdump[1:0] != 2'd0;
 
 assign vdump_adj = vdump + OBJ_VOFF;
 
@@ -131,6 +134,7 @@ jtkiwi_gfx #(
     .vdump      ( vdump_adj ),
     .vrender    ( vrender   ),
     .hdump      ( hdump     ),
+    .obj_hshift ( 9'd0      ),
 
     .cpu_rnw    ( cpu_rnw   ),
     .cpu_dsn    ( cpu_dsn   ),

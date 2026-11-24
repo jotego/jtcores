@@ -47,7 +47,7 @@ ucode:
 
       - cc_rmux, ld0_opnd, s_ea
       - md_ld, psh8_jsr,   s_ea
-      - idle6_jsr
+      - idle4_jsr
       - ivrd_jsr
   - name: imm # 1+3 ucode cycles = 1 bus cycle
     start: 0x8F
@@ -399,7 +399,7 @@ ucode:
       - b_rmux, ld0_opnd
       - md_ld, psh8_jsr
 
-      - cc_rmux, md_ld
+      - cc_rmux, ld0_opnd
       - md_ld, psh8_jsr
       - alt, halt # alt means here not to push the registers on interrupt execution
   - mnemo: [ SWI ]

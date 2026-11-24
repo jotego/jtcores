@@ -5,6 +5,7 @@
 
 std::string trim(const std::string& text);
 std::string lower(const std::string& text);
+bool binary_number(const std::string& text);
 unsigned parse_number(const std::string& text, const std::string& what);
 unsigned parse_hex(const std::string& text, const std::string& what);
 bool valid_identifier(const std::string& text);

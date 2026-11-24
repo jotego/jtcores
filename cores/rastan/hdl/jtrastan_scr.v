@@ -12,8 +12,8 @@
 module jtrastan_scr(
     input           rst,
     input           clk,
-    output          pxl_cen,
-    output          pxl2_cen,
+    input           pxl_cen,
+    input           pxl2_cen,
 
     output          HS,
     output          VS,
@@ -92,16 +92,6 @@ jtrastan_mmr u_mmr(
     .ioctl_din  ( ioctl_din                          ),
     .debug_bus  ( debug_bus                          ),
     .st_dout    (                                    )
-);
-
-jtframe_frac_cen #(
-    .W (  2 )
-) u_cen (
-    .clk    ( clk       ),
-    .n      ( 10'd1     ),         // numerator
-    .m      ( 10'd4     ),         // denominator
-    .cen    ({pxl_cen,pxl2_cen}),
-    .cenb   (           )
 );
 
 // According to accurate PCB measurements

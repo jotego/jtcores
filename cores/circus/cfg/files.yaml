@@ -15,6 +15,7 @@ jtframe:
   - from: cpu
     get:
       - mc6809i.v
+      - jtframe_hd6309_arith.v
       - jtframe_sys6809.v
       - jtframe_z80wait.v
       - jtframe_z80.yaml
