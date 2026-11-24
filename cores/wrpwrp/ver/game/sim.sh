@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 23-11-2026
+set -euo pipefail
+
+frames="${1:-120}"
+[[ "$frames" =~ ^[1-9][0-9]*$ ]] || exit 2
+game_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$game_dir/../../../.." && pwd)"
+set_dir="$repo_root/cores/wrpwrp/ver/warpwarp"
+log=build/boot.log
+cabinet=()
+if [[ ${2:-} == play ]]; then
+    cabinet=("$game_dir/play.cab")
+    log=build/play.log
+fi
+
+mkdir -p "$set_dir/bin" "$set_dir/build" "$set_dir/frames"
+
+docker run --rm --pull=never --entrypoint /bin/bash \
+    -v "$repo_root:$repo_root" -w "$set_dir" \
+    jotego/simulator:arm64 -lc '
+set -euo pipefail
+export JTROOT="$(realpath "$PWD/../../../..")"
+export JTFRAME="$JTROOT/modules/jtframe"
+export MODULES="$JTROOT/modules"
+export CORES="$JTROOT/cores"
+export JTBIN="$JTROOT/release"
+export ROM="$JTROOT/rom"
+export RLS="$JTROOT/release"
+export MRA="$JTROOT/release/mra"
+export PATH="$PWD/bin:$JTFRAME/bin:$PATH"
+(cd "$JTFRAME/src/jtframe" && go build -o "$OLDPWD/bin/jtframe" .)
+frames="$1"
+log="$2"
+shift 2
+"$JTFRAME/bin/jtsim" -mister -setname warpwarp -skipROM -load -video "$frames" "$@" > "$log" 2>&1
+' _ "$frames" "$log" ${cabinet[@]+"${cabinet[@]}"}

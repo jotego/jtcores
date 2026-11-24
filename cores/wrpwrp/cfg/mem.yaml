@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 16-11-2026
+
+params: []
+
+clocks:
+  clk48:
+    - mul: 1
+      div: 24
+      outputs: [cpu]
+    - mul: 1
+      div: 1024
+      outputs: [audio]
+
+audio:
+  rsum: 10k
+  rc: { r: 7.62k, c: 2.2n }
+  channels:
+    - { name: effects, data_width: 16, unsigned: true, dcrm: true, rsum: 100k }
+    - { name: music,   data_width: 16, unsigned: true, dcrm: true, rsum: 47k }
+
+sdram:
+  banks:
+    - buses: []
+
+bram:
+  - name: maincpu
+    addr_width: 14
+    data_width: 8
+    prom: true
+  - name: gfx1
+    addr_width: 11
+    data_width: 8
+    prom: true
+  - name: vram1
+    addr_width: 10
+    data_width: 8
+    rw: true
+    dual_port:
+      name: vram1_video
+      addr: vram1_video_addr
+      dout: vram1_video_data
+  - name: vram2
+    addr_width: 10
+    data_width: 8
+    rw: true
+    dual_port:
+      name: vram2_video
+      addr: vram2_video_addr
+      dout: vram2_video_data
+  - name: workram
+    addr_width: 10
+    data_width: 8
+    rw: true

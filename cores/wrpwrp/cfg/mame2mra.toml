@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 16-11-2026
+
+[global]
+author=["Andrea Bogazzi"]
+
+[parse]
+sourcefile=["warpwarp.cpp"]
+mustbe.machines=["warpwarp"]
+skip.setnames=["warpwarpr", "warpwarpr2"]
+
+[buttons]
+names=[{ machine="warpwarp", names="Button" }]
+
+[ROM]
+regions=[
+    { name="maincpu", len=0x4000 },
+    { name="gfx1" }
+]
+order=["maincpu", "gfx1"]
