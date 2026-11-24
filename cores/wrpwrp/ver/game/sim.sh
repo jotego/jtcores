@@ -6,13 +6,21 @@ set -euo pipefail
 
 frames="${1:-120}"
 [[ "$frames" =~ ^[1-9][0-9]*$ ]] || exit 2
+setname="${3:-warpwarp}"
+case "$setname" in
+    warpwarp|warpwarpr|warpwarpr2|bombbee|cutieq) ;;
+    *) exit 2 ;;
+esac
 game_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$game_dir/../../../.." && pwd)"
-set_dir="$repo_root/cores/wrpwrp/ver/warpwarp"
+set_dir="$repo_root/cores/wrpwrp/ver/$setname"
 log=build/boot.log
 cabinet=()
 if [[ ${2:-} == play ]]; then
-    cabinet=("$game_dir/play.cab")
+    case "$setname" in
+        bombbee|cutieq) cabinet=("$game_dir/pinball.cab") ;;
+        *) cabinet=("$game_dir/play.cab") ;;
+    esac
     log=build/play.log
 fi
 
@@ -34,6 +42,7 @@ export PATH="$PWD/bin:$JTFRAME/bin:$PATH"
 (cd "$JTFRAME/src/jtframe" && go build -o "$OLDPWD/bin/jtframe" .)
 frames="$1"
 log="$2"
-shift 2
-"$JTFRAME/bin/jtsim" -mister -setname warpwarp -skipROM -load -video "$frames" "$@" > "$log" 2>&1
-' _ "$frames" "$log" ${cabinet[@]+"${cabinet[@]}"}
+setname="$3"
+shift 3
+"$JTFRAME/bin/jtsim" -mister -setname "$setname" -skipROM -load -video "$frames" "$@" > "$log" 2>&1
+' _ "$frames" "$log" "$setname" ${cabinet[@]+"${cabinet[@]}"}

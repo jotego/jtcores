@@ -15,32 +15,48 @@ wire [5:0] snd_din;
 wire [7:0] pixel_color;
 wire pixel, ball, irq;
 wire [7:0] switches, vol;
+wire paddle_board;
 
 assign gfx1_addr  = gfx_cpu_rd && !cmpblk_n ? gfx_cpu_addr : gfx_video_addr;
 assign debug_view = 8'd0;
 
+jtwrpwrp_header u_header(
+    .clk          ( clk            ),
+    .header       ( header         ),
+    .prog_we      ( prog_we        ),
+    .paddle_board ( paddle_board   ),
+    .prog_addr    ( prog_addr[2:0] ),
+    .prog_data    ( prog_data      )
+);
+
 jtwrpwrp_cab u_cab(
-    .clk       ( clk                 ),
-    .rst       ( rst                 ),
-    .pxl_cen   ( pxl_cen             ),
-    .h         ( h[3:0]              ),
-    .v         ( v                   ),
-    .joystick1 ( joystick1[4:0]       ),
-    .joystick2 ( joystick2[4:0]       ),
-    .cab_1p    ( cab_1p[1:0]          ),
-    .coin      ( coin[1:0]            ),
-    .credit    ( service              ),
-    .upright   ( dipsw[14]            ),
-    .service_n ( dip_test & dipsw[13] ),
-    .flip      ( outputs[7]           ),
-    .switches  ( switches             ),
-    .vol       ( vol                  )
+    .clk          ( clk                 ),
+    .rst          ( rst                 ),
+    .pxl_cen      ( pxl_cen             ),
+    .h            ( h[3:0]              ),
+    .v            ( v                   ),
+    .paddle_board ( paddle_board        ),
+    .joyana_l1    ( joyana_l1[7:0]      ),
+    .joyana_l2    ( joyana_l2[7:0]      ),
+    .dial_x       ( dial_x              ),
+    .dial_y       ( dial_y              ),
+    .joystick1    ( joystick1[4:0]      ),
+    .joystick2    ( joystick2[4:0]      ),
+    .cab_1p       ( cab_1p[1:0]         ),
+    .coin         ( coin[1:0]           ),
+    .credit       ( service             ),
+    .upright      ( dipsw[14]           ),
+    .service_n    ( dip_test & dipsw[13] ),
+    .flip         ( outputs[7]          ),
+    .switches     ( switches            ),
+    .vol          ( vol                 )
 );
 
 jtwrpwrp_main u_main(
     .clk          ( clk           ),
     .rst          ( rst           ),
     .cen_cpu      ( cpu_cen       ),
+    .paddle_board ( paddle_board  ),
     .irq          ( irq           ),
     .wrq_n        ( wrq_n         ),
     .vs           ( v[8]          ),

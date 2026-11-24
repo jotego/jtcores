@@ -4,6 +4,8 @@
 
 wrpwrp:
   - get: [ "*.v" ]
+geebee:
+  - get: [ jtgeebee_dial.v ]
 jtframe:
   - get: [ jtframe_counter.v ]
   - from: cpu

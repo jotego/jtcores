@@ -6,6 +6,7 @@ module jtwrpwrp_main(
     input             clk,
     input             rst,
     input             cen_cpu,
+    input             paddle_board,
     input             irq,
     input             wrq_n,
     input             vs,
@@ -46,7 +47,7 @@ wire int_ack = !m1_n && !iorq_n;
 wire bus_rd = !int_ack && !rd_n && (!mreq_n || !iorq_n);
 wire bus_wr = !wr_n && (!mreq_n || !iorq_n);
 // Sheet 1: 2E takes A15 on A and A14 on B.
-wire [1:0] quadrant = {addr[14], addr[15]};
+wire [1:0] quadrant = {addr[14], paddle_board ? addr[13] : addr[15]};
 wire rom_sel = quadrant == 2'd0;
 wire ram_sel = quadrant == 2'd1;
 wire vram_sel = quadrant == 2'd2;

@@ -7,11 +7,18 @@ author=["Andrea Bogazzi"]
 
 [parse]
 sourcefile=["warpwarp.cpp"]
-mustbe.machines=["warpwarp"]
-skip.setnames=["warpwarpr", "warpwarpr2"]
+mustbe.machines=["warpwarp", "bombbee", "cutieq"]
+
+[header]
+registers=[
+    { name="paddle_board", pos="0[0]", values=[{ machines=["bombbee", "cutieq"], value=1 }], desc="Bomb Bee and Cutie Q board" },
+]
 
 [buttons]
-names=[{ machine="warpwarp", names="Button" }]
+names=[
+    { machine="warpwarp", names="Fire" },
+    { machines=["bombbee", "cutieq"], names="Serve" },
+]
 
 [ROM]
 regions=[
