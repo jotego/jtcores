@@ -7,17 +7,6 @@ Special thanks to Blackwine
 and Ijor for helping with the
 CPU bus cycle problem
 
-Known issues:
--Body Slam:
-    -Missing some graphics
--Bus cycle accuracy is
- not perfect yet
--Shinobi set 2 sound code 30
- loops and breaks
--Glitches in scroll layer
- in Cotton title screen and
- 2nd stage boss
-
 Control:
     Some games need a gamepad
 with one analogue stick, some

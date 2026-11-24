@@ -1,5 +1,12 @@
 params:
   - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1"}
+clocks:
+  clk:
+    - freq: 4M
+      outputs: [cen4, cen2]
+  clk24:
+    - freq: 8M
+      outputs: [cen24_8]
 audio:
   # these values work well for the alternatives, but not for the main one
   # the main set volume is adjusted in the core

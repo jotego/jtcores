@@ -1,0 +1,36 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report sf <set>
+bustest:
+  sfw:
+    board: "Street Fighter (World, Capcom 87120-C CPU board, labels SF S 19E..24E)"
+    cpu: m68k
+    cpu_hz: 8000000
+    rom:
+      cpu_base: 0x0
+      even: "1A"
+      odd: "1B"
+      chip: "27C512 (MAME sfs19e / sfs22e, 64 KiB), 28-pin DIP"
+      pins: 28
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0xff8000, size: 0x4000}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w", expect: "program ROM, core: no wait beyond SDRAM"}
+      - {name: "ram", addr: 0xff8100, access: "write.w", expect: "work RAM 0xFF8000-0xFFDFFF, no wait"}
+      - {name: "char_rd", addr: 0x800100, access: "read.w", expect: "character RAM 0x800000-0x800FFF: core jtgng_char busy while H[2:1]!=3 (slot wait, up to 3 pixel slots)"}
+      - {name: "char_wr", addr: 0x800100, access: "write.w", expect: "same char slot wait as char_rd"}
+      - {name: "obj_rd", addr: 0xffe000, access: "read.w", expect: "object RAM 0xFFE000 (core BRAM obj_cs, no wait)"}
+      - {name: "pal_wr", addr: 0xb00000, access: "write.w", expect: "palette 0xB00000 (core col_cs, no wait). Write only: the core does not return palette data on reads"}
+      - {name: "io_rd", addr: 0xc00000, access: "read.w", expect: "IN0 0xC00000 (core io_cs, immediate DTACK)"}
+    checklist:
+      - "The program sockets take 27C512 (MAME sfs19e / sfs22e, 64 KiB), 28-pin DIP (28-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: JP1-JP6 next to the program ROMs (below 3A/3B, near the 16R4 PAL 'SF2'): probably 27256/27512 selection; not traced. Leave as found"
+      - "Our board (photo cores/sf/doc/IMG_0206.jpg) is a World set: EPROM labels 'SF S 19 E' (1A, D15-D8) and 'SF S 22 E' (1B, D7-D0), MAME sfw (MAME calls the locations 2a/2c, the 87120-C silkscreen says 1A/1B)."
+      - "The program ROMs are 28-pin 27C512: a 32-pin PicoROM does not fit directly."
+      - "Either use the two never-tried 28-pin PicoROMs, or a 32-to-28 adapter that drops pins 1, 2, 31, 32 (PicoROM pin 3 = socket pin 1 = A15; 27C512 pin 1 is A15, pin 22 /OE, pin 20 /CE)."
+      - "The recorder unit goes in 1A."
+      - "The i8751 MCU (sfw) only takes the bus after a write to 0xC0001E (not done)."
+      - "Sprite DMA may request the bus once a frame (OKOUT write at 0xC0001A, not done), so a bracket that overlaps a DMA can read high; use the median."
+      - "No watchdog in MAME or in the core."
+      - "Do not write 0xC0001A-0xC0001F (graphics control/DMA, sound command, MCU trigger)."
+      - "If the board in the box is a different version, check labels: sfd-xx (sf, US set 1), sfs19u (sfua), sf-19 (sfj); all use 27C512 at the same positions."

@@ -199,13 +199,14 @@ jtframe_68kdtack_cen #(.W(8),.WD(12)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 7'd5      ),  // 24 MHz * 5/12 = 10 MHz
     .den        ( 8'd12     ),
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     .fave       (           ),
     .fworst     (           )
 );

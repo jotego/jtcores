@@ -8,6 +8,11 @@ module jts18_game(
 
 localparam [24:0] MCU_START = `MCU_START;
 localparam VRAMW = 18;
+`ifdef DUAL_RATE
+localparam DUAL_RATE = 1;
+`else
+localparam DUAL_RATE = 0;
+`endif
 
 // clock enable signals
 wire    cpu_cen, cpu_cenb;
@@ -38,10 +43,18 @@ reg         cab3; // support for three players
 
 wire [ 7:0] sndmap_din, sndmap_dout;
 wire        snd_irqn, snd_ack, sndmap_rd, sndmap_wr, sndmap_pbf;
+wire        req_57Hz;
 
 // Status report
 wire [7:0] st_video, st_main;
 reg  [7:0] st_mux, game_id;
+
+`ifdef DUAL_RATE
+assign req_57Hz = status[14];
+`else
+// ignored as DUAL_RATE is 0
+assign req_57Hz = 1'b0;
+`endif
 
 assign dsn        = { UDSn, LDSn };
 assign dswn       = {2{main_rnw}} | dsn;
@@ -210,9 +223,8 @@ jts18_sound u_sound(
 );
 
 /* verilator tracing_off */
-jts18_video u_video(
+jts18_video #(.DUAL_RATE(DUAL_RATE)) u_video(
     .rst        ( rst       ),
-    .clk96      ( clk96     ),
     .clk48      ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
     .pxl_cen    ( pxl_cen   ),
@@ -222,6 +234,7 @@ jts18_video u_video(
     .flip       ( flip      ),
     .ext_flip   ( dip_flip  ),
     .vid16_en   ( vid16_en  ),
+    .req_57Hz   ( req_57Hz  ),
     .vdp_en     ( vdp_en    ),
     .gfx_en     ( gfx_en    ),
     .vdp_prio   ( vdp_prio  ),

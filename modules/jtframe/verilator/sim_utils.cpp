@@ -18,10 +18,17 @@ string lower(const string& text) {
     return result;
 }
 
+// C23 strtol accepts 0b prefixes but older C libraries do not: reject them everywhere
+bool binary_number(const string& text) {
+    const size_t start = !text.empty() && (text[0] == '+' || text[0] == '-') ? 1 : 0;
+    return text.size() > start + 1 && text[start] == '0' && (text[start + 1] == 'b' || text[start + 1] == 'B');
+}
+
 unsigned parse_number(const string& text, const string& what) {
     char *end;
     const string value = trim(text);
     if( value.empty() || value[0] == '-' ) throw runtime_error(what + " must be a non-negative number");
+    if( binary_number(value) ) throw runtime_error("cannot parse " + what + ": " + value);
     const unsigned long parsed = strtoul(value.c_str(), &end, 0);
     if( *end != 0 || parsed > 0xffffffffUL ) throw runtime_error("cannot parse " + what + ": " + value);
     return static_cast<unsigned>(parsed);

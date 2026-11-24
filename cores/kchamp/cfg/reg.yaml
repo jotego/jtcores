@@ -1,1 +1,3 @@
 kchamp:
+kchampvs:
+  skip: true # Required ROM archive unavailable.

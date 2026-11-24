@@ -213,16 +213,50 @@ bram:
   - without `JTFRAME_SDRAM96`, `clk48` becomes `clk`.
   - with `JTFRAME_SDRAM96`, `clk96` becomes `clk`.
 - SDRAM bus settings:
-  - `banks[].buses[].data_width` supports **8**, **16**, **32**.
+  - `banks[].buses[].data_width` supports **8**, **16**, **32**, and **64**.
+    The 64-bit client requires the large-cache support from
+    [PR #1685](https://github.com/jotego/jtcores/pull/1685), a string
+    `cache_size` and an explicit `JTFRAME_BAn_LEN=64` for its bank.
   - bus `addr_width` is counted in 16-bit words (LSB is bank address bit 0 for 8-bit, bit 1 for 16/32-bit).
   - `latch` passes a per-slot `SLOTn_LATCH` parameter into the generated SDRAM helper for read-only buses.
-  - Numeric `cache_size` values select the existing small request-cache path
-    (`0` selects the regular ROM request path). A string `cache_size`, such as
+  - A positive integer `cache_size` counts cached client words, not bytes;
+    `0` or an omitted setting selects the legacy two-block ROM burst buffer.
+    A string `cache_size`, such as
     `1kB` or `32kB`, selects a direct-mapped BRAM cache for a read-only ROM
     bus. It must be an exact power of two, at least 1 kB, and no more than one
     eighth of the bus address space (for example, `addr_width: 20` permits up
     to 128 kB). Its cache line is the bank burst (16, 32, or 64 bits); read/write
-    buses are rejected.
+    buses are rejected. See [SDRAM ROM caches and burst sizes](rom-caches.md)
+    for the three cache paths, supported widths, tags and sizing examples.
+  - `transform: true` (requires a string `cache_size`) exposes the large cache's
+    line-fill address to the game module as `<name>_pre_addr` and takes the
+    SDRAM-side address back on `<name>_post_addr` — the same concept as the
+    download's `post_addr`. The core can thus place an address transform between
+    the cache and the SDRAM, e.g. the descrambler of a CPU with on-chip ROM
+    decryption: the cache keys on the CPU-side address (where code locality
+    lives), the ROM stays in its native layout, and the scrambler runs on every
+    miss fill as it does on the real bus. The transform **must be combinational**
+    (`assign` or `always @*`): a registered transform lags the request by one
+    clock and the SDRAM controller can capture a stale address. It must also
+    keep the words of a line adjacent; with the burst equal to the data width
+    every line is a single word, so any word-level transform is valid. Supported
+    on banks with up to two buses.
+
+    ```yaml
+    sdram:
+      banks:
+        - buses:
+            - name: main
+              addr_width: 20
+              data_width: 32
+              cache_size: 4kB
+              transform: true
+    ```
+    ```verilog
+    // in the game module: pre_addr -> scrambled SDRAM address, combinational
+    assign main_post_addr = { main_pre_addr[24:19], scramble(main_pre_addr[18:1]),
+                              main_pre_addr[0] };
+    ```
   - `do_not_erase` is only meaningful for writable SDRAM banks.
   - `gfx_sort` is limited to supported patterns (`hvvv`, `hvvvv`, `hhvvv`, `hhvvvv`, `vhhvvv` and `x` variants).
 - Cache-lane settings:

@@ -38,8 +38,6 @@ wire prom_3d = prom_sel[2];
 // wire prom_6e = prom_sel[4];
 wire prom_6l = prom_sel[5];
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = flip;
@@ -47,7 +45,7 @@ assign debug_view = 0;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen6      ( cen6     ),
+    .cen6      ( pxl_cen  ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -172,8 +170,8 @@ jtgng_video #(
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen6       ( cen6          ),
+    .cen12      ( pxl2_cen      ),
+    .cen6       ( pxl_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),

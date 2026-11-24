@@ -32,8 +32,15 @@
 /* xxverilator lint_off UNOPTFLAT */
 /* xxxverilator tracing_on */
 module ym7101
+	#(parameter PASSIVE=0, parameter MODE4=1)
 	(
 	input MCLK,
+	input pxl_cen,
+	input pxl2_cen,
+	input HS,
+	input VS,
+	input LHBL,
+	input LVBL,
 	input [7:0] SD,
 	output SE1,
 	output SE0,
@@ -149,9 +156,52 @@ module ym7101
 	wire i_spa = ~SPA_B_i;
 	
 	wire reset_ext = ~RESET;
+	// MODE4=0 removes selected Mode4 rendering paths without changing CPU MMR behavior.
+	wire render_m5;
 	
 	wire clk1, clk2;
 	wire hclk1, hclk2;
+	wire legacy_clk1, legacy_clk2;
+	wire legacy_hclk1, legacy_hclk2;
+	assign render_m5 = !MODE4 | reg_m5;
+	localparam PASSIVE_Q0=2'd0;
+	localparam PASSIVE_Q1=2'd1;
+	localparam PASSIVE_Q2=2'd2;
+	localparam PASSIVE_Q3=2'd3;
+	reg [1:0] passive_quarter;
+	reg [2:0] passive_dwell;
+	reg [2:0] passive_tick;
+	wire passive_clk1 = passive_quarter==PASSIVE_Q0 | passive_quarter==PASSIVE_Q2;
+	wire passive_clk2 = passive_quarter==PASSIVE_Q1 | passive_quarter==PASSIVE_Q3;
+	wire passive_hclk1 = passive_quarter==PASSIVE_Q1 | passive_quarter==PASSIVE_Q2;
+	wire passive_hclk2 = passive_quarter==PASSIVE_Q0 | passive_quarter==PASSIVE_Q3;
+	wire passive_fast_req;
+	wire [ 9:0] passive_raster_x, passive_line_pixels, passive_active_pixels;
+	wire [ 9:0] passive_hs_to_active, passive_vs_to_active_pixel;
+	wire [ 8:0] passive_raster_y, passive_frame_y, passive_frame_lines, passive_active_lines;
+	wire [ 8:0] passive_vs_to_active_line, passive_active_origin_line;
+	wire [12:0] passive_hs_to_active_clks, passive_vs_to_active_clks;
+	wire passive_line_start, passive_frame_start;
+	wire passive_h_active_start, passive_h_active_end, passive_v_active_start, passive_v_active_end;
+	wire passive_raster_valid, passive_raster_locked, passive_raster_change, passive_raster_phase_error;
+	wire passive_geometry_supported;
+	wire [ 9:0] passive_fast_last;
+	wire [10:0] passive_fast_events;
+	reg  [ 6:0] passive_fast_quota;
+	reg  [12:0] passive_active_countdown;
+	reg passive_prime_pending, passive_seed_active, passive_seed_committed;
+	reg passive_v0_committed;
+	reg passive_render_ready;
+	wire passive_q0_extend, passive_seed_start;
+	wire [ 8:0] passive_v_next, passive_v_current;
+	wire [ 9:0] passive_frame_next, passive_frame_delta, passive_frame_v;
+	wire [ 9:0] passive_frame_current_delta, passive_frame_current_v;
+	wire [ 9:0] passive_line_value;
+	wire [ 8:0] cnt105_load_value, cnt106_load_value;
+	wire cnt105_load_sel, cnt105_cin_sel, cnt106_load_sel, cnt106_cin_sel;
+	wire passive_h_native_load, passive_h_native_carry;
+	wire passive_pixel_enable;
+	wire [7:0] dac_r_raw, dac_g_raw, dac_b_raw;
 	
 	wire reset_comb;
 	wire mclk_and1;
@@ -2158,6 +2208,53 @@ module ym7101
 	wire reg_8c_b6;
 	wire reg_rs0;
 	wire reg_rs1; // h40
+	assign passive_geometry_supported = passive_raster_locked & passive_raster_valid &
+		(passive_line_pixels==10'd400 | passive_line_pixels==10'd384) &
+		passive_active_pixels==10'd320 &
+		(passive_frame_lines>=9'd260 & passive_frame_lines<=9'd262) &
+		passive_active_lines==9'd224 & ~passive_raster_phase_error;
+	assign passive_fast_events = ({1'b0,10'd420} - {1'b0,passive_line_pixels}) << 1;
+	assign passive_fast_last = 10'd437 + {3'd0,passive_fast_quota};
+	assign passive_fast_req = reg_m5 & reg_rs1 &
+		((l106>=9'd346 & l106<=9'd364) |
+		 (l106>=9'd457 & l106<=passive_fast_last)) &
+		(passive_fast_quota!=0);
+	assign passive_active_origin_line =
+		(passive_vs_to_active_clks > passive_hs_to_active_clks) ?
+		(passive_vs_to_active_line+9'd1 >= passive_frame_lines ? 9'd0 : passive_vs_to_active_line+9'd1) :
+		passive_vs_to_active_line;
+	assign passive_frame_next = passive_frame_y+10'd1 >= {1'b0,passive_frame_lines} ? 10'd0 :
+		{1'b0,passive_frame_y}+10'd1;
+	assign passive_frame_delta = passive_frame_next >= {1'b0,passive_active_origin_line} ?
+		passive_frame_next-{1'b0,passive_active_origin_line} :
+		passive_frame_next+{1'b0,passive_frame_lines}-{1'b0,passive_active_origin_line};
+	assign passive_frame_v = passive_frame_delta<=10'd234 ? passive_frame_delta :
+		passive_frame_delta+10'd512-{1'b0,passive_frame_lines};
+	assign passive_v_next = passive_frame_v[8:0];
+	assign passive_frame_current_delta = passive_frame_y>={1'b0,passive_active_origin_line} ?
+		{1'b0,passive_frame_y}-{1'b0,passive_active_origin_line} :
+		{1'b0,passive_frame_y}+{1'b0,passive_frame_lines}-{1'b0,passive_active_origin_line};
+	assign passive_frame_current_v = passive_frame_current_delta<=10'd234 ? passive_frame_current_delta :
+		passive_frame_current_delta+10'd512-{1'b0,passive_frame_lines};
+	assign passive_v_current = passive_frame_current_v[8:0];
+	assign passive_line_value = passive_seed_active ? 10'd511 : {1'b0,passive_v_next};
+	assign passive_h_native_load = l112 | w88 | reset_comb;
+	assign passive_h_native_carry = ~(passive_h_native_load | reg_test1[3]) |
+		(reg_test1[3] & ~cpu_intak);
+	assign cnt105_load_sel = PASSIVE && passive_geometry_supported && reg_rs1 ?
+		(passive_seed_active | l115) : w437;
+	assign cnt105_cin_sel = PASSIVE && passive_geometry_supported && reg_rs1 ? 1'b0 : w436;
+	assign cnt105_load_value = PASSIVE && passive_geometry_supported && reg_rs1 ? passive_line_value[8:0] : w428;
+	assign cnt106_load_sel = PASSIVE ? (passive_h_native_load | passive_seed_active) : w361;
+	assign cnt106_cin_sel = PASSIVE ? (passive_seed_active ? 1'b0 : passive_h_native_carry) : w363;
+	assign cnt106_load_value = PASSIVE && passive_seed_active ? 9'd26 : w364;
+	// Q3 publishes H26 on the tracker-observed active-origin edge; the registered line_start consumer counts Hoffset-1, so the Q1 seed starts at countdown6.
+	assign passive_q0_extend = PASSIVE && passive_prime_pending && !passive_render_ready &&
+		passive_quarter==PASSIVE_Q0 && passive_tick+3'd1>=passive_dwell &&
+		passive_active_countdown>13'd6 && passive_active_countdown<=13'd13;
+	assign passive_seed_start = PASSIVE && passive_prime_pending && !passive_render_ready &&
+		passive_quarter==PASSIVE_Q0 && passive_tick+3'd1>=passive_dwell &&
+		passive_active_countdown==13'd6;
 	wire reg_81_b0;
 	wire reg_81_b1;
 	// wire reg_m5;
@@ -2342,9 +2439,88 @@ module ym7101
 		dclk_l4 <= mclk_dclk;
 	end
 	
-	assign clk1 = ~mclk_dclk & dclk_l;
-	assign clk2 = mclk_dclk & ~dclk_l;
-	
+	assign legacy_clk1 = ~mclk_dclk & dclk_l;
+	assign legacy_clk2 = mclk_dclk & ~dclk_l;
+	assign clk1 = PASSIVE ? passive_clk1 : legacy_clk1;
+	assign clk2 = PASSIVE ? passive_clk2 : legacy_clk2;
+	always @(posedge MCLK)
+	begin
+		if (reset_ext)
+		begin
+			passive_quarter <= PASSIVE_Q0;
+			passive_dwell <= 3'd2;
+			passive_tick <= 3'd0;
+			passive_fast_quota <= 0;
+		end
+		else begin
+			if (PASSIVE && passive_h_active_start && passive_geometry_supported)
+				passive_fast_quota <= passive_fast_events[6:0];
+			if (passive_tick+3'd1>=passive_dwell)
+			begin
+				if (passive_q0_extend) begin
+					passive_tick <= passive_dwell-3'd1;
+				end else begin
+					passive_tick <= 3'd0;
+					passive_quarter <= passive_quarter+2'd1;
+					if (passive_quarter==PASSIVE_Q0)
+						passive_dwell <= passive_seed_start ? 3'd2 : (passive_fast_req ? 3'd1 : 3'd2);
+				end
+			end
+			else passive_tick <= passive_tick+3'd1;
+		end
+	end
+
+	always @(posedge MCLK)
+	begin
+		if( reset_ext ) begin
+			passive_active_countdown <= 0;
+			passive_prime_pending <= 0;
+			passive_seed_active <= 0;
+			passive_seed_committed <= 0;
+			passive_v0_committed <= 0;
+			passive_render_ready <= 0;
+		end else if( PASSIVE ) begin
+			if( !passive_geometry_supported || !reg_m5 || !reg_rs1 || !reg_disp || passive_raster_change ) begin
+				passive_prime_pending <= 0;
+				passive_seed_active <= 0;
+				passive_seed_committed <= 0;
+				passive_v0_committed <= 0;
+				passive_render_ready <= 0;
+				passive_active_countdown <= 0;
+			end else begin
+				if( passive_seed_start ) begin
+					passive_prime_pending <= 0;
+					passive_seed_active <= 1;
+				end else if( passive_seed_active && passive_quarter==PASSIVE_Q3 && passive_tick==0 ) begin
+					passive_seed_active <= 0;
+					passive_seed_committed <= 1;
+				end else if( passive_prime_pending && passive_active_countdown<13'd6 &&
+					!(passive_quarter==PASSIVE_Q0 && passive_tick+3'd1>=passive_dwell) ) begin
+					passive_prime_pending <= 0;
+				end else if( passive_line_start && !passive_render_ready &&
+					(passive_frame_y == (passive_active_origin_line==0 ? passive_frame_lines-9'd1 : passive_active_origin_line-9'd1)) ) begin
+					passive_prime_pending <= 1;
+					passive_active_countdown <= {3'd0,passive_hs_to_active_clks}-13'd1;
+				end else if( passive_prime_pending && passive_active_countdown!=0 ) begin
+					passive_active_countdown <= passive_active_countdown-13'd1;
+				end
+				if( passive_seed_committed && passive_frame_y==(passive_active_origin_line==0 ? passive_frame_lines-9'd1 : passive_active_origin_line-9'd1) &&
+					l106==9'd330 && l105==9'd0 ) begin
+					passive_v0_committed <= 1;
+				end
+				if( passive_h_active_start && passive_seed_committed && passive_v0_committed &&
+					passive_frame_y==passive_active_origin_line && l106==9'd26 && l105==9'd0 ) begin
+					passive_render_ready <= 1;
+				end else if( passive_h_active_start && passive_render_ready &&
+					(l106!=9'd26 || l105!=passive_v_current) ) begin
+					passive_render_ready <= 0;
+					passive_seed_committed <= 0;
+					passive_v0_committed <= 0;
+				end
+			end
+		end
+	end
+
 	/*reg dclk_l;
 	reg tclk1_l;
 	reg tclk2_l;
@@ -2376,8 +2552,10 @@ module ym7101
 	wire dclk_prescaler_l3_o;
 	wire dclk_prescaler_dff1_l2;
 	wire dclk_prescaler_dff2_l2;
-	assign hclk1 = ~dclk_prescaler_dff1_l2;
-	assign hclk2 = ~dclk_prescaler_dff2_l2;
+	assign legacy_hclk1 = ~dclk_prescaler_dff1_l2;
+	assign legacy_hclk2 = ~dclk_prescaler_dff2_l2;
+	assign hclk1 = PASSIVE ? passive_hclk1 : legacy_hclk1;
+	assign hclk2 = PASSIVE ? passive_hclk2 : legacy_hclk2;
 	ym_sr_bit dclk_prescaler_l1(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(~(dclk_prescaler_l1_o | reset_pulse)), .sr_out(dclk_prescaler_l1_o));
 	ym_dlatch_1 dclk_prescaler_l2(.MCLK(MCLK), .c1(clk1), .inp(dclk_prescaler_l1_o), .val(dclk_prescaler_l2_o));
 	ym_dlatch_1 dclk_prescaler_l3(.MCLK(MCLK), .c1(clk1), .inp(~dclk_prescaler_l1_o), .val(dclk_prescaler_l3_o));
@@ -3434,12 +3612,12 @@ module ym7101
 	// FSM block
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(9)) cnt105(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w436), .reset(1'h0), .load(w437), .load_val(w428), .val(l105));
+		.c_in(cnt105_cin_sel), .reset(1'h0), .load(cnt105_load_sel), .load_val(cnt105_load_value), .val(l105));
 	
 	assign w355 = w106 ? { l105, w446 } : { 1'h0, l105 };
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(9)) cnt106(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
-		.c_in(w363), .reset(1'h0), .load(w361), .load_val(w364), .val(l106));
+		.c_in(cnt106_cin_sel), .reset(1'h0), .load(cnt106_load_sel), .load_val(cnt106_load_value), .val(l106));
 	
 	ym_sr_bit #(.SR_LENGTH(8)) sr107(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l663), .sr_out(l107));
 	
@@ -3799,10 +3977,11 @@ module ym7101
 	assign w457 = ~l170;
 	
 	assign w458 = reset_comb | w457;
+	wire passive_t38_clear = PASSIVE && !passive_v0_committed;
 	
 	assign w459 = ~l170 & l110;
 	
-	ym7101_rs_trig rs38(.MCLK(MCLK), .set(l172), .rst(w458), .q(t38));
+	ym7101_rs_trig rs38(.MCLK(MCLK), .set(l172), .rst(w458 | passive_t38_clear), .q(t38));
 	
 	ym_sr_bit sr171(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .bit_in(l114), .sr_out(l171));
 	
@@ -4076,7 +4255,7 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl179(.MCLK(MCLK), .en(w230), .inp(reg_data_l2[7:0]), .val(l179));
 	
-	assign w515 = reg_m5 ? vsram_out : { 3'h0, l179 };
+	assign w515 = render_m5 ? vsram_out : { 3'h0, l179 };
 	
 	ym_slatch #(.DATA_WIDTH(11)) sl180(.MCLK(MCLK), .en(w516), .inp(vsram_out), .val(l180));
 	
@@ -4100,7 +4279,7 @@ module ym7101
 	
 	assign w519 = ~(l106[7:6] == 2'h3 & reg_80_b7);
 	
-	assign w520 = reg_m5 & (l178 | reg_vscr);
+	assign w520 = render_m5 & (l178 | reg_vscr);
 	
 	assign w521 = w520 ? l185 : w518;
 	
@@ -4127,7 +4306,7 @@ module ym7101
 	
 	assign w528 = { reg_vsz[1] & w526[6], reg_vsz[0] & w526[5], w528_sum, w526[1:0] };
 	
-	assign w529 = ~reg_m5 & w530;
+	assign w529 = ~render_m5 & w530;
 	
 	assign w530 = w526[4:2] == 3'h7 | w526[5];
 	
@@ -4141,7 +4320,7 @@ module ym7101
 	
 	assign w532 = l200 ? reg_sb : reg_sa;
 	
-	assign w533 = reg_m5 ? w527[6:5] : reg_nt;
+	assign w533 = render_m5 ? w527[6:5] : reg_nt;
 	
 	ym_slatch sl_8e_b0(.MCLK(MCLK), .en(w232), .inp(reg_data_l2[0]), .val(reg_8e_b0));
 	
@@ -4213,7 +4392,7 @@ module ym7101
 	
 	assign w552 = ~(~reg_80_b6 | w355[5] | w355[6] | w355[4] | w355[7]);
 	
-	assign w553 = w552 | reg_m5;
+	assign w553 = w552 | render_m5;
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl193(.MCLK(MCLK), .en(w547), .inp(reg_88), .val(l193));
 	
@@ -4261,11 +4440,11 @@ module ym7101
 	
 	assign w561 = reg_rs1 ? w568 : l106[8];
 	
-	assign w562 = ~(w561 | reg_m5);
+	assign w562 = ~(w561 | render_m5);
 	
 	assign w563 = w562 & l106[3];
 	
-	assign w564 = w554[3] | reg_m5;
+	assign w564 = w554[3] | render_m5;
 	
 	assign w565 = w561 ? 4'hf : l106[7:4];
 	
@@ -4339,10 +4518,10 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl222(.MCLK(MCLK), .en(w618), .inp(vram_serial), .val(l222));
 	
-	assign w584 = reg_m5 ? l220[3] : l220[1];
-	assign w585 = reg_m5 ? l220[4] : l220[2];
-	assign w586 = reg_m5 ? l220[6:5] : { 1'h0, l220[3] };
-	assign w587 = reg_m5 ? l220[7] : l220[4];
+	assign w584 = render_m5 ? l220[3] : l220[1];
+	assign w585 = render_m5 ? l220[4] : l220[2];
+	assign w586 = render_m5 ? l220[6:5] : { 1'h0, l220[3] };
+	assign w587 = render_m5 ? l220[7] : l220[4];
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl223(.MCLK(MCLK), .en(w591), .inp(vram_serial), .val(l223));
 	
@@ -4452,13 +4631,13 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl265(.MCLK(MCLK), .en(w611), .inp(l260), .val(l265));
 	
-	assign w598 = reg_m5 ? l302 : l231;
+	assign w598 = render_m5 ? l302 : l231;
 	
-	assign w599 = reg_m5 & l241[3];
+	assign w599 = render_m5 & l241[3];
 	
 	assign w600 = ~(hclk1 & w612);
 	
-	assign w601 = reg_m5 ^ l241[1];
+	assign w601 = render_m5 ^ l241[1];
 	
 	assign w602 = w599 ? l265[0] : l265[1];
 	
@@ -4514,11 +4693,11 @@ module ym7101
 		(w606_sel[0] ? l240[7:4] : 4'h0);
 	
 	assign w607 =
-		(~reg_m5 ? w607_m4 : 4'h0) |
-		((reg_m5 & ~l241[3]) ? w607_m5_1 : 4'h0) |
-		((reg_m5 & l241[3]) ? w607_m5_2 : 4'h0);
+		(~render_m5 ? w607_m4 : 4'h0) |
+		((render_m5 & ~l241[3]) ? w607_m5_1 : 4'h0) |
+		((render_m5 & l241[3]) ? w607_m5_2 : 4'h0);
 	
-	assign w608 = l241[3] | ~reg_m5;
+	assign w608 = l241[3] | ~render_m5;
 	
 	assign w609 = w608 & l241[2:0] == 3'h7;
 	
@@ -5335,15 +5514,15 @@ module ym7101
 	
 	assign w794 = w793 | w796;
 	
-	assign w795 = l439 & reg_m5;
+	assign w795 = l439 & render_m5;
 	
-	assign w796 = ~reg_m5 & reg_80_b3;
+	assign w796 = ~render_m5 & reg_80_b3;
 	
-	assign w797 = reg_m5 | w796;
+	assign w797 = render_m5 | w796;
 	
 	assign w798 = w789 & ~l449;
 	
-	assign w799 = reg_m5 ? l443 : { 1'h0, l437 };
+	assign w799 = render_m5 ? l443 : { 1'h0, l437 };
 	
 	assign w800 = w799[8:3] + {5'h0, w795} + { w797, w797, w796, w796, w794, w791 };
 	
@@ -5379,16 +5558,16 @@ module ym7101
 	
 	assign w805 = l456 & w808 & hclk1;
 	
-	assign w806 = ~(reg_m5 & l442[0]);
+	assign w806 = ~(render_m5 & l442[0]);
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(2)) cnt457(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
 		.c_in(l456), .reset(w360), .load(w804), .load_val( { w807, w806 } ), .val(l457));
 	
-	assign w807 = ~(reg_m5 & l442[1]);
+	assign w807 = ~(render_m5 & l442[1]);
 	
 	assign w808 = l457 == 2'h0;
 	
-	assign w809 = l106 + 9'h1 + { 4'hf, ~reg_m5, reg_m5, 2'h2, reg_m5 };
+	assign w809 = l106 + 9'h1 + { 4'hf, ~render_m5, render_m5, 2'h2, render_m5 };
 	
 	ym_sr_bit sr458(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w810), .sr_out(l458));
 	
@@ -5534,9 +5713,9 @@ module ym7101
 	
 	assign w840 = l501 ? l498 : l495;
 	
-	assign w841 = ~(~reg_m5 | l514);
+	assign w841 = ~(~render_m5 | l514);
 	
-	assign w842 = ~(reg_m5 | l514);
+	assign w842 = ~(render_m5 | l514);
 	
 	wire [7:0] w843_1 =
 		(~w837 ? l492 : 8'h0) |
@@ -5925,11 +6104,11 @@ module ym7101
 	
 	ym_sr_bit_array #(.DATA_WIDTH(4)) sr555(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_index), .data_out(l555));
 	
-	assign w970 = reg_m5 ? l553 : spr_pal;
+	assign w970 = render_m5 ? l553 : spr_pal;
 	
-	assign w971 = reg_m5 ? l554 : spr_priority;
+	assign w971 = render_m5 ? l554 : spr_priority;
 	
-	assign w972 = reg_m5 ? l555 : spr_index;
+	assign w972 = render_m5 ? l555 : spr_index;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(2)) sr556(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w970), .data_out(l556));
 	
@@ -5937,9 +6116,9 @@ module ym7101
 	
 	ym_sr_bit_array #(.DATA_WIDTH(4)) sr558(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w972), .data_out(l558));
 	
-	assign w973 = l557 & reg_m5;
+	assign w973 = l557 & render_m5;
 	
-	assign w974 = reg_m5 ? l556 : 2'h1;
+	assign w974 = render_m5 ? l556 : 2'h1;
 	
 	assign w975 = l556 == 2'h3;
 	
@@ -6319,7 +6498,7 @@ module ym7101
 	assign RD_o = w1019;
 	assign AD_o = w1018;
 	
-	assign YS = w1009;
+	assign YS = PASSIVE ? (passive_pixel_enable & w1009) : w1009;
 	
 	assign SPA_B_pull = ~l613;
 	
@@ -6688,7 +6867,7 @@ module ym7101
 		(w1103[2][16] ? 8'd255 : 8'd0);
 */
 	// non-linear DAC (caused by voltage divider on MD board)
-	assign DAC_R =
+	assign dac_r_raw =
 		(w1103[0][0] ? 8'd0 : 8'd0) |
 		(w1103[0][1] ? 8'd27 : 8'd0) |
 		(w1103[0][2] ? 8'd49 : 8'd0) |
@@ -6707,7 +6886,7 @@ module ym7101
 		(w1103[0][15] ? 8'd228 : 8'd0) |
 		(w1103[0][16] ? 8'd255 : 8'd0);
 	
-	assign DAC_G =
+	assign dac_g_raw =
 		(w1103[1][0] ? 8'd0 : 8'd0) |
 		(w1103[1][1] ? 8'd27 : 8'd0) |
 		(w1103[1][2] ? 8'd49 : 8'd0) |
@@ -6726,7 +6905,7 @@ module ym7101
 		(w1103[1][15] ? 8'd228 : 8'd0) |
 		(w1103[1][16] ? 8'd255 : 8'd0);
 	
-	assign DAC_B =
+	assign dac_b_raw =
 		(w1103[2][0] ? 8'd0 : 8'd0) |
 		(w1103[2][1] ? 8'd27 : 8'd0) |
 		(w1103[2][2] ? 8'd49 : 8'd0) |
@@ -6744,6 +6923,9 @@ module ym7101
 		(w1103[2][14] ? 8'd206 : 8'd0) |
 		(w1103[2][15] ? 8'd228 : 8'd0) |
 		(w1103[2][16] ? 8'd255 : 8'd0);
+	assign DAC_R = passive_pixel_enable ? dac_r_raw : 8'd0;
+	assign DAC_G = passive_pixel_enable ? dac_g_raw : 8'd0;
+	assign DAC_B = passive_pixel_enable ? dac_b_raw : 8'd0;
 	
 	// color ram
 	
@@ -7205,6 +7387,8 @@ module ym7101
 	
 	wire [1:0] vdp_de_2 = reg_m5 ? vdp_de_delay_m5 : vdp_de_1;
 	wire [1:0] vdp_de_3;
+	assign passive_pixel_enable = !PASSIVE ||
+		(passive_render_ready & passive_geometry_supported & reg_m5 & reg_disp & (&vdp_de_3));
 	
 	ym_sr_bit_array #(.SR_LENGTH(7), .DATA_WIDTH(2)) vdp_de_delay_sr(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(vdp_de_2), .data_out(vdp_de_3));
 	
@@ -7239,6 +7423,39 @@ module ym7101
 		(l6 | l8 | w25 | w1153);
 	
 	assign vdp_dma = l6 | l8;
+
+	ym7101_raster u_raster(
+		.clk                ( MCLK                     ),
+		.rst                ( reset_ext                ),
+		.pxl_cen            ( pxl_cen                  ),
+		.pxl2_cen           ( pxl2_cen                 ),
+		.hs                 ( HS                       ),
+		.vs                 ( VS                       ),
+		.lhbl               ( LHBL                     ),
+		.lvbl               ( LVBL                     ),
+		.x                  ( passive_raster_x         ),
+		.y                  ( passive_raster_y         ),
+		.frame_y            ( passive_frame_y           ),
+		.line_start         ( passive_line_start       ),
+		.frame_start        ( passive_frame_start      ),
+		.h_active_start     ( passive_h_active_start   ),
+		.h_active_end       ( passive_h_active_end     ),
+		.v_active_start     ( passive_v_active_start   ),
+		.v_active_end       ( passive_v_active_end     ),
+		.geometry_valid     ( passive_raster_valid     ),
+		.locked             ( passive_raster_locked    ),
+		.timing_change      ( passive_raster_change    ),
+		.phase_error        ( passive_raster_phase_error ),
+		.line_pixels        ( passive_line_pixels      ),
+		.active_pixels      ( passive_active_pixels    ),
+		.frame_lines        ( passive_frame_lines      ),
+		.active_lines       ( passive_active_lines     ),
+		.hs_to_active       ( passive_hs_to_active     ),
+		.vs_to_active_line  ( passive_vs_to_active_line ),
+		.vs_to_active_pixel ( passive_vs_to_active_pixel ),
+		.hs_to_active_clks  ( passive_hs_to_active_clks ),
+		.vs_to_active_clks  ( passive_vs_to_active_clks )
+	);
 
 endmodule
 

@@ -6,9 +6,11 @@ module jtframe_mist_base #(parameter
     SIGNED_SND      = 1'b0,
     COLORW          = 4,
     VIDEO_WIDTH     = 384,
+    VIDEO_HEIGHT    = 224,
     VGA_DW          = 6,
     QSPI            = 1'b0,
-    HDMI            = 1'b0
+    HDMI            = 1'b0,
+    REMOTE_SUPPORT  = 1'b0
 ) (
     input           rst,
     input           clk_sys,
@@ -69,6 +71,27 @@ module jtframe_mist_base #(parameter
     output [31:0]   joystick2,
     output [31:0]   joystick3,
     output [31:0]   joystick4,
+    input video_read_ready,
+    input [7:0] video_read_prefix,
+    input video_read_bank,
+    output video_read_consume,
+    input video_cancel_toggle,
+    input [15:0] video_width,
+    input [15:0] video_height,
+    input [31:0] video_frame,
+    output [9:0] video_pixel_addr,
+    input [15:0] video_pixel_data,
+    output video_rx_strobe,
+    output [7:0] video_rx_cmd, video_rx_byte,
+    output [4:0] video_rx_index,
+    input video_hold,
+    output [31:0] video_cab_frame,
+
+    output          cab_active,
+    output [20:0]   cab_inputs,
+    output          cab_dipsw_valid,
+    output [31:0]   cab_dipsw,
+    output          cab_dump_pause,
     output [15:0]   joyana_l1,
     output [15:0]   joyana_r1,
     output [15:0]   joyana_l2,
@@ -157,6 +180,8 @@ always @(posedge clk_sys) begin
         default: debug_view <= { osd_shown, 1'b0, osd_rotate, 1'b0, no_csync, ypbpr, scan2x_enb };
     endcase
 end
+
+wire cab_hold_reset;
 
 `ifndef SIMULATION
     `ifndef NOSOUND
@@ -275,10 +300,42 @@ wire        i2c_end;
     assign but_coin    = 4'd0;
     assign but_start   = 4'd0;
     wire [63:0] user_io_status;
-	 assign status = {user_io_status[63:1], user_io_status[0] | buttons[1]}; // status[0] | buttons[1] is reset
+    assign status = {user_io_status[63:1],user_io_status[0] | buttons[1] | cab_hold_reset | cab_inputs[12]};
 
-    user_io #(.ROM_DIRECT_UPLOAD(`JTFRAME_MIST_DIRECT), .FEATURES(32'h0 /*| (QSPI << 2)*/ | (HDMI << 14))) u_userio(
+    localparam REMOTE_FEATURES = REMOTE_SUPPORT ? 32'h001e0000 : 32'h0;
+    user_io #(
+        .ROM_DIRECT_UPLOAD ( `JTFRAME_MIST_DIRECT                                         ),
+        .VIDEO_WIDTH       ( VIDEO_WIDTH                                                  ),
+        .VIDEO_HEIGHT      ( VIDEO_HEIGHT                                                 ),
+        .COLORW            ( COLORW                                                       ),
+        .FEATURES          ( REMOTE_FEATURES | (HDMI << 14) )
+    ) u_userio(
         .clk_sys        ( clk_sys   ),
+        .video_read_ready    ( video_read_ready       ),
+        .video_read_prefix   ( video_read_prefix      ),
+        .video_read_bank     ( video_read_bank        ),
+        .video_read_consume  ( video_read_consume     ),
+        .video_cancel_toggle ( video_cancel_toggle    ),
+        .video_width         ( video_width             ),
+        .video_height        ( video_height            ),
+        .video_frame         ( video_frame             ),
+        .video_pixel_addr      ( video_pixel_addr      ),
+        .video_pixel_data      ( video_pixel_data      ),
+        .video_rx_strobe       ( video_rx_strobe       ),
+        .video_rx_cmd          ( video_rx_cmd          ),
+        .video_rx_byte          ( video_rx_byte         ),
+        .video_rx_index         ( video_rx_index        ),
+        .video_hold             ( video_hold            ),
+        .video_cab_frame        ( video_cab_frame       ),
+
+        .cab_rst        ( rst           ),
+        .cab_lvbl       ( game_lvbl     ),
+        .cab_active     ( cab_active    ),
+        .cab_hold_reset ( cab_hold_reset),
+        .cab_inputs     ( cab_inputs    ),
+        .cab_dipsw_valid( cab_dipsw_valid),
+        .cab_dipsw      ( cab_dipsw     ),
+        .cab_dump_pause ( cab_dump_pause),
 
         // config string
         .conf_str       (           ),
@@ -333,6 +390,19 @@ wire        i2c_end;
         .mouse_idx      ( mouse_idx )
     );
 `else
+    assign cab_hold_reset = 1'b0;
+    assign cab_active = 1'b0;
+    assign cab_inputs = 21'd0;
+    assign cab_dipsw_valid = 1'b0;
+    assign cab_dipsw = 32'd0;
+    assign cab_dump_pause = 1'b0;
+    assign video_read_consume = 1'b0;
+    assign video_pixel_addr = 10'd0;
+    assign video_rx_strobe = 1'b0;
+    assign video_rx_cmd = 8'd0;
+    assign video_rx_byte = 8'd0;
+    assign video_rx_index = 5'd0;
+    assign video_cab_frame = 32'd0;
     assign ypbpr     = 0;
     assign no_csync  = 1;
 `endif
@@ -345,6 +415,19 @@ wire        i2c_end;
     assign joyana_l1 = 0;
     assign joyana_r1 = 0;
     assign status    = 64'd0;
+    assign cab_hold_reset = 1'b0;
+    assign cab_active = 1'b0;
+    assign cab_inputs = 21'd0;
+    assign cab_dipsw_valid = 1'b0;
+    assign cab_dipsw = 32'd0;
+    assign cab_dump_pause = 1'b0;
+    assign video_read_consume = 1'b0;
+    assign video_pixel_addr = 10'd0;
+    assign video_rx_strobe = 1'b0;
+    assign video_rx_cmd = 8'd0;
+    assign video_rx_byte = 8'd0;
+    assign video_rx_index = 5'd0;
+    assign video_cab_frame = 32'd0;
     assign but_coin  = 0;
     assign but_start = 0;
     `ifndef SCANDOUBLER_DISABLE

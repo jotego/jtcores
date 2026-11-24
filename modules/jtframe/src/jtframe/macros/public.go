@@ -12,6 +12,7 @@ import(
 
 const JTFRAME_RELEASE="JTFRAME_RELEASE"
 const JTFRAME_CREDITS="JTFRAME_CREDITS"
+const JTFRAME_REGRESSION="JTFRAME_REGRESSION"
 
 var macros map[string]string
 
@@ -108,6 +109,12 @@ func (item *MacroEnabled) Enabled() bool {
 
 // check incompatible macro settings
 func CheckMacros() error {
+	if e := check_pxlclk(); e != nil {
+		return e
+	}
+	if err := check_credits_pages(); err != nil {
+		return err
+	}
 	if IsSet("JTFRAME_PLL_TUNE") && Get("CORE_OSD") != "" {
 		return fmt.Errorf("jtframe: JTFRAME_PLL_TUNE and CORE_OSD are incompatible because both use status bits 13:15")
 	}
@@ -162,6 +169,20 @@ func CheckMacros() error {
 	}
 	if e:=check_integer("JTFRAME_WIDTH","JTFRAME_HEIGHT","JTFRAME_LF_HW","JTFRAME_LF_VW"); e!=nil {
 		return e
+	}
+	return nil
+}
+
+func check_credits_pages() error {
+	if !IsSet("JTFRAME_CREDITS_PAGES") {
+		return nil
+	}
+	if !IsInt("JTFRAME_CREDITS_PAGES") {
+		return fmt.Errorf("jtframe: JTFRAME_CREDITS_PAGES must be an integer")
+	}
+	pages := GetInt("JTFRAME_CREDITS_PAGES")
+	if pages < 1 || pages > 16 {
+		return fmt.Errorf("jtframe: JTFRAME_CREDITS_PAGES must be between 1 and 16 (got %d)", pages)
 	}
 	return nil
 }

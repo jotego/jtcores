@@ -217,6 +217,16 @@ For small shifts, the synthesizer will be able to align the SDRAM data and clock
 
 There are three different SDRAM controllers in JTFRAME. They all work and are stable, however only the latest one is connected to jtframe_board. The others are left for reference.
 
+## ROM Caches and Bank Burst Sizes
+
+For bank-based ROM clients, `JTFRAME_BAn_LEN` sets the bank's read burst
+size in bits, while `data_width` sets the word width returned to each
+client. `cache_size` selects either the legacy burst buffer, a small cache
+of requested words, or a larger cache of complete bursts.
+
+See [SDRAM ROM caches and burst sizes](rom-caches.md) for supported
+combinations, cache tags, fill behavior and guidance on choosing settings.
+
 ## SDRAM Refresh Rate
 
 The SDRAM controller is set to go into refresh mode once every 64us, regardless of the core frequency. The numerical constants used to calculate the clock divider are set by `jtframe cfgstr` during compilation. These constants are contained in macros named `JTFRAME_RFSH_*`

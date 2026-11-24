@@ -1,0 +1,105 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report rastan <set>
+bustest:
+  opwolf:
+    board: "Operation Wolf (Taito, C-Chip B20-18), box 54"
+    cpu: m68k
+    cpu_hz: 8000000
+    rom:
+      cpu_base: 0x0
+      even: "IC40"
+      odd: "IC30"
+      chip: "27C512 (64 KiB, 28-pin DIP)"
+      pins: 28
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0x100000, size: 0x4000}
+    watchdog: {addr: 0x3c0000, access: "write.w", why: "0x3C0000 write (MAME opwolf.cpp nopw 'watchdog ??', same address as Rastan's watchdog). Not traced on the Op Wolf sheets. The FPGA core does not decode it. Kicked once per case."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "0 wait (Rastan-family PAL DTACK for A23-A22=0)"}
+      - {name: "ram", addr: 0x100100, access: "write.w", expect: "0 wait, work RAM 0x100000-0x107FFF"}
+      - {name: "tile_rd", addr: 0xc00100, access: "read.w", expect: "PC080SN DACK wait; core: SDRAM latency only"}
+      - {name: "tile_wr", addr: 0xc00100, access: "write.w", expect: "PC080SN DACK wait"}
+      - {name: "obj_rd", addr: 0xd00100, access: "read.w", expect: "PC090OJ DACK wait; core: BRAM, no wait"}
+      - {name: "obj_wr", addr: 0xd00100, access: "write.w", expect: "PC090OJ DACK wait"}
+      - {name: "pal", addr: 0x200100, access: "read.w", expect: "0 wait, palette 0x200000"}
+    checklist:
+      - "The program sockets take 27C512 (64 KiB, 28-pin DIP) (28-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: none known; MAME lists IC40/IC30/IC39/IC29 as 27C512 and an unpopulated DIP28 socket"
+      - "PROGRAM ROMS ARE 28-PIN 27C512: MAME opwolf (rev 2, set 1) b20-05-02.40 (even, D15-D8, 0x00000) / b20-03-02.30 (odd, D7-D0, 0x00001); IC39/IC29 hold 0x20000-0x3FFFF and can stay."
+      - "Socket names come from MAME's PCB layout notes, not checked on the scanned Op Wolf schematic."
+      - "A 32-pin PicoROM needs a 28-pin PicoROM or a 32-to-28 adapter (see rastsaga: 27C512 pin n = PicoROM pin n+2, PicoROM pin 32 VCC to socket pin 28, pins 1/31 to VCC, pin 2 to GND)."
+      - "Box board version: all rev 2 sets (opwolf/opwolfa/opwolfj/opwolfu) share b20-05-02.40/b20-03-02.30 and differ in IC39/IC29 (b20-04.39, b20-20/b20-19/b20-18.29...); opwolfjsc has b20_27.ic40/b20_26.ic30."
+      - "Irrelevant to the test since the firmware replaces IC40/IC30."
+      - "MAME itself calls these sockets ic40/ic30 (opwolfjsc/opwolfp file names)."
+      - "C-CHIP: never touch 0x0F0000-0x0FFFFF (C-chip RAM/ASIC, mirrored)."
+      - "The C-chip runs from its own 12 MHz clock and is left alone; the 68000 keeps SR=0x2700."
+      - "Do not touch: 0x380000-0x380003 writes (sprite control, coin), 0x3A0000 (gun inputs, harmless but unneeded), 0x3E0000-0x3E0003 (PC060HA sound), 0xC10000-0xC1FFFF, 0xC20000-0xC50003 (PC080SN scroll/control)."
+      - "Tile 0xC00100 = PC080SN BG tile RAM (one garbage tile); object 0xD00100 = PC090OJ sprite RAM (one stray sprite possible). .rom: 8-byte header (bytes 1/2 = gun offsets), maincpu byte-swapped at offset 8: SSP=0x00104000 PC=0x00000484."
+  rastsaga:
+    board: "Rastan Saga (Taito, main PCB W51C0179A schematic 'RASTAN'), box 57"
+    cpu: m68k
+    cpu_hz: 8000000
+    rom:
+      cpu_base: 0x0
+      even: "IC19"
+      odd: "IC7"
+      chip: "27C512 (64 KiB, 28-pin DIP)"
+      pins: 28
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0x10c000, size: 0x4000}
+    watchdog: {addr: 0x3c0000, access: "write.w", why: "0x3C0000 write with /LDS (MAME rastan.cpp watchdog reset16_w; PAL decode 0011110). On the sibling Rainbow Islands board (KiCad risle) this write clears a 74LS393 counter clocked by /VBL whose bit 7 resets the board (~128 frames, ~2 s); the Rastan sheet was not traced. The FPGA core does not decode it (wdog_cs commented out). gen_test kicks once per case: plenty."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "0 wait: IC11 PAL /DTACK for A23-A22=0 (MDTACK)"}
+      - {name: "ram", addr: 0x10c100, access: "write.w", expect: "0 wait: IC22/IC10 MB8464 work RAM 0x10C000-0x10FFFF, MDTACK"}
+      - {name: "tile_rd", addr: 0xc00100, access: "read.w", expect: "PC080SN /SDTA (DACK) gates DTACK through the LS11; core: sdakn=0, SDRAM latency only"}
+      - {name: "tile_wr", addr: 0xc00100, access: "write.w", expect: "PC080SN /SDTA wait"}
+      - {name: "obj_rd", addr: 0xd00100, access: "read.w", expect: "PC090OJ /ODTA (DACK) gates DTACK; core: BRAM, no wait"}
+      - {name: "obj_wr", addr: 0xd00100, access: "write.w", expect: "PC090OJ /ODTA wait"}
+      - {name: "pal", addr: 0x200100, access: "read.w", expect: "0 wait: CLCS palette 0x200000, MDTACK"}
+    checklist:
+      - "The program sockets take 27C512 (64 KiB, 28-pin DIP) (28-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: none on the ROM0 pair; /CS = ROM0 from the IC11 PAL (A23-A17 = 0, 0x00000-0x1FFFF), /OE = READ"
+      - "PROGRAM ROMS ARE 28-PIN 27C512: Rastan sheet 9-1 (TAITO Rastan.pdf p13) shows ROM0 = IC19 (MD15-MD8, even, MAME b04-32.19) + IC7 (MD7-MD0, odd, MAME b04-31.7); ROM1 = IC20/IC8 (0x20000-0x3FFFF), ROM2 = IC21/IC9 (0x40000-0x5FFFF)."
+      - "The reset vector (SSP=0x0010DE00, PC=0x0003A000) lives in IC19/IC7 but the original PC points into ROM1: our firmware replaces IC19/IC7 only and never jumps there, so IC20/IC8/IC21/IC9 can stay."
+      - "A 32-pin PicoROM does not fit a 28-pin socket directly: use a 28-pin PicoROM (never used in this setup yet) or a 32-to-28 adapter (PicoROM pins 3-30 over socket pins 1-28, so 27C512 pin n = PicoROM pin n+2; PicoROM pin 32 VCC wired to socket pin 28, pins 1/31 to VCC, pin 2 A16 to GND)."
+      - "Box board version: Rastan Saga labels b04-32.19/b04-31.7 (rastsaga) or b04-14.19/b04-13.7 (rastsagaa/rastsagab); irrelevant to the test."
+      - "DTACK = MDTACK (PAL, all of 0x000000-0x3FFFFF) AND /SDTA (PC080SN) AND /ODTA (PC090OJ)."
+      - "Tile address 0xC00100 is PC080SN BG tile RAM (writes leave one garbage tile); object 0xD00100 is PC090OJ sprite RAM (may show one stray sprite)."
+      - "Do not touch: 0x380000 (sprite palette bank, PC050 coin counters/lockout), 0x3A0000 (M INT / SUB RESET to the external connector), 0x3E0000-0x3E0003 (PC060HA sound), 0x350008, 0xC20000-0xC50003 (PC080SN scroll/control)."
+      - "Keep SR=0x2700 (IRQ5 from VBL). .rom: 8-byte JTFRAME header, maincpu byte-swapped at offset 8: bytes 10 00 00 de 03 00 00 a0 match b04-31.7 (10 00 03 00) as odd bytes."
+  rbisland:
+    board: "Rainbow Islands (Taito, C-Chip B22-15), box 62"
+    cpu: m68k
+    cpu_hz: 8000000
+    rom:
+      cpu_base: 0x0
+      even: "IC19"
+      odd: "IC20"
+      chip: "27C512 (64 KiB, 28-pin DIP)"
+      pins: 28
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0x10c000, size: 0x4000}
+    watchdog: {addr: 0x3c0000, access: "write.w", why: "0x3C0000 write with /LDS: IC57 74LS138 O2 (/WATCHDOG, A19=1, A18=1, A17=0, write, /IO, /LDS) AND /RESET (IC40) clears the IC8 74LS393 counter (through solder jumper JP1, bridged) clocked by /VBL; its bit 7 drives /RST (IC40.11) after ~128 frames (~2 s). MAME nopw 'watchdog?'. The FPGA core does not decode it. Kicked once per case."}
+    cases:
+      - {name: "rom", addr: 0xf000, access: "read.w", expect: "0 wait: IC56 PAL /MDTACK (A23-A19=0 reads)"}
+      - {name: "ram", addr: 0x10c100, access: "write.w", expect: "0 wait: IC25/IC26 MB8464 0x10C000-0x10FFFF, MDTACK"}
+      - {name: "tile_rd", addr: 0xc00100, access: "read.w", expect: "IC34 PC080SN pin 9 /DACK (SDTACK) into IC42 LS11; core: SDRAM latency only"}
+      - {name: "tile_wr", addr: 0xc00100, access: "write.w", expect: "PC080SN /DACK wait"}
+      - {name: "obj_rd", addr: 0xd00100, access: "read.w", expect: "IC39 PC0900J pin 131 /DACK (ODTACK); core: BRAM, no wait"}
+      - {name: "obj_wr", addr: 0xd00100, access: "write.w", expect: "PC0900J /DACK wait"}
+      - {name: "pal", addr: 0x200100, access: "read.w", expect: "0 wait: MDTACK term for 0x200000 needs both UDS and LDS (word access only)"}
+    checklist:
+      - "The program sockets take 27C512 (64 KiB, 28-pin DIP) (28-pin): a 32-pin PicoROM needs an adapter."
+      - "Jumpers: none on the ROM sockets: /CE = ROM1CS (IC56 PAL20L8, A23-A17 = 0, reads), /OE = inverted R/W, pin 1 = MA16, pin 27 = MA15"
+      - "PROGRAM ROMS ARE 28-PIN 27C512: KiCad cores/rastan/sch/risle (cpu_main) shows IC19 (MD15-MD8, even, MAME b22-10-1.19) and IC20 (MD7-MD0, odd, MAME b22-11-1.20) as 27512; IC21/IC22 (0x20000-0x3FFFF) and IC23/IC24 23C1000 (0x40000-0x7FFFF) can stay."
+      - "A 32-pin PicoROM needs a 28-pin PicoROM or a 32-to-28 adapter (see rastsaga: 27C512 pin n = PicoROM pin n+2, PicoROM pin 32 VCC to socket pin 28, pins 1/31 to VCC, pin 2 to GND)."
+      - "Box board version: rbisland (b22-10-1/b22-11-1), rbislando (b22-10/b22-11) or Extra (b39-01.19/b39-02.20): irrelevant to the test."
+      - "DTACK = IC42 LS11 (MDTACK & SDTACK & ODTACK) ANDed in IC40 with the C-chip CDTACK."
+      - "The palette MDTACK term requires UDS and LDS together, so never use byte accesses there."
+      - "C-CHIP: never touch 0x800000-0x8FFFFF (TC0030CMD RAM/ASIC)."
+      - "Do not touch: 0x3A0000 (sprite control), 0x390000/0x3B0000 (DIP reads, harmless but unneeded), 0x3E0000-0x3E0003 (PC060HA sound), 0x3C0004+ , 0xC20000-0xC50003 (PC080SN scroll/control)."
+      - "Tile 0xC00100 = PC080SN BG RAM (one garbage tile), object 0xD00100 = PC0900J sprite RAM (one stray sprite possible)."
+      - "Keep SR=0x2700 (IRQ4 from VBL). .rom: 8-byte header, maincpu byte-swapped at offset 8: SSP=0x0010FFFC PC=0x00000F80."

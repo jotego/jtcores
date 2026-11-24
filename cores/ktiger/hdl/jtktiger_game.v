@@ -20,8 +20,10 @@ wire        dsp_on, dsp_rstn, snd_rstn, dsp_br, dsp_ack, dsp_we, tcobr, fast;
 wire        flip, bg_bank, fg_bank, video_on, snd_busrq_n, snd_busak_n;
 
 assign dip_flip    = flip;
+`ifndef JTFRAME_PXLCLK
 assign pxl_cen     = cen7;
 assign pxl2_cen    = cen14;
+`endif
 assign dsprom_addr = dsp_rom_addr[10:0];
 assign debug_view  = { 3'd0, dsp_br, dsp_ack, dsp_on, flip, video_on };
 

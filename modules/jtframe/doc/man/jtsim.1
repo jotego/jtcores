@@ -145,6 +145,23 @@ fires only on the final frame of the absolute wait.
 Use \fBloop\fR and \fBrepeat <count>\fR to repeat a block, or
 \fB=<frame>\fR for an absolute final frame.
 .PP
+Lines are numbered from 0 after counts and loops are expanded, one line per
+frame. \fB=N\fR makes N the index of the last line, so a script that ends in
+\fB=4000\fR has 4001 lines. The intended numbering, shared with the hardware
+regression, is that line 0 is the reset frame and line N is active during
+video frame N, whose picture \fBjtsim\fR saves as
+\fBframes/frame_%05d.png\fR. \fBjtsim\fR prints
+\fBCAB line 1 active from frame <n>\fR to check it: an n other than 1 means
+that the pictures are offset by n-1 frames from that rule. Some cores do not
+match it yet, and with \fB-load\fR the frame count includes the frames spent
+downloading the ROM.
+.PP
+\fBcapture N\fR schedules hardware regression captures at frames N, N+100,
+N+200... up to the last line index. It may appear once, before any frame line
+or \fBloop\fR; only comments and blank lines may come first. N must be
+between 1 and the last line index. It adds no frames, and \fBjtsim\fR does
+not act on it.
+.PP
 \fBdump\fR starts an IOCTL state dump at that cabinet frame. When the read
 finishes, it writes \fBscenes/<frame>/dump.bin\fR, which can be restored with
 \fBjtsim -s <frame>\fR. It requires \fBJTFRAME_IOCTL_RD\fR.

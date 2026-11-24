@@ -34,6 +34,7 @@ module jtprmr_main(
     input         [15:0] rom_data,
     input                rom_ok,
     input                vdtac,
+    input                pq,        // 052109 PQ: tile RAM CPU slot clock
     input                tile_irqn,
 
     // video configuration
@@ -60,7 +61,9 @@ wire [23:1] A;
 wire        cpu_cen, cpu_cenb, ASn,
             UDSn, LDSn, RnW, allFC, VPAn, DTACKn,
             UDWn, LDWn, dtac,
-            eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
+            eep_rdy, eep_do, bus_cs, bus_busy, BUSn, vq_cs, vq_rdy;
+wire [ 1:0] dly_wait;
+reg         pq_l, vq_lat;
 wire [ 2:0] FC;
 reg  [ 2:0] IPLn, riders_dim;
 reg         cab_cs, HALTn, pair_cs,
@@ -75,8 +78,11 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign bus_cs   = rom_cs;
-assign bus_busy = rom_cs & ~ok_dly;
+assign dly_wait = (psvrm_cs | wdog_cs) ? 2'd2 : 2'd0;
+assign vq_cs    = vram_cs & ~BUSn;
+assign vq_rdy   = vq_lat & ~pq;
+assign bus_cs   = rom_cs | vq_cs;
+assign bus_busy = (rom_cs & ~ok_dly) | (vq_cs & ~vq_rdy);
 assign BUSn     = ASn | &ram_dsn;
 assign UDWn     = UDSn   | RnW;
 assign LDWn     = LDSn   | RnW;
@@ -87,9 +93,15 @@ assign lmem_we  = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
 assign st_dout  = 0;
 assign VPAn     = ~&{A[23],~ASn};
 assign dtac     = DTACKn | ~vdtac;
+
+always @(posedge clk) begin
+    pq_l <= pq;
+    if( &ram_dsn ) vq_lat <= 0;
+    else if( pq && !pq_l && vq_cs ) vq_lat <= 1;
+end
 assign pair_we  = pair_cs & ~RnW;
 
-reg none_cs/*, wdog*/;
+reg none_cs, wdog_cs;
 
 always @* begin
     rom_cs     = 0;
@@ -105,7 +117,7 @@ always @* begin
     pslrm_cs   = 0;
     psreg_cs   = 0;
     psvrm_cs   = 0;
-    // wdog    = 0;
+    wdog_cs    = 0;
     pair_cs    = 0;
     eep_wr     = 0;
     cfg_wr     = 0;
@@ -126,12 +138,13 @@ always @* begin
         10'b01_??1?_?010: {eep_wr,cfg_wr} = ~{UDWn,LDWn};
                                              // 12'2000           - LS138 @ 7E
         10'b01_??1?_?011: sndon   = 1;       // 12'3000           - LS138 @ 7E
-        10'b10_????_????: vram_cs = 1;       // 20'0000 ~ 2F'FFFF - LS139 @ 3F
+        10'b10_0???_????: vram_cs = 1;       // 20'0000 ~ 27'FFFF - /3GP4
+        10'b10_1???_????: wdog_cs = 1;       // 28'0000 ~ 2F'FFFF - /3GA_P5 watchdog (not modelled)
         10'b11_????_????: psvrm_cs= 1;       // 30'0000 ~ 3F'FFFF - LS139 @ 3F
         default:;
     endcase
 `ifdef SIMULATION
-    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, /*wdog,*/
+    none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, wdog_cs,
         cab_cs, vram_cs, obj_cs, objset_cs, pcu_cs};
 `endif
 end
@@ -196,7 +209,6 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
     .dump_flag  (           )
 );
 
-wire slow_mem = rom_cs | ram_cs;
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -204,15 +216,16 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( vq_cs     ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ( ram_dsn   ),
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( slow_mem  ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( dly_wait  ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

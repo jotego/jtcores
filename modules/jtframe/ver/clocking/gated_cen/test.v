@@ -43,7 +43,8 @@ end
 
 initial begin
     busy_en = 0;
-    @(posedge lvbl) assert_msg(uut.u_info.fave==19'h18431,"average not correct with busy=0");
+    // the first 1 ms window misses the pulse dropped when the cen phase restarts
+    @(posedge lvbl) assert_msg(uut.u_info.fave==19'h18430,"average not correct with busy=0");
     busy_en = 1;
     @(posedge four_ms);
     repeat (20) begin

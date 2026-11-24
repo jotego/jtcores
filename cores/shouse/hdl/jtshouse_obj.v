@@ -15,6 +15,7 @@ module jtshouse_obj(
 
     input             hs,
     input             lvbl,
+    input             dipflip,   // *Flip screen: fake DIP driving the same bit
     output            flip,
     input      [ 8:0] vrender,
     input      [ 8:0] hdump,
@@ -48,7 +49,7 @@ parameter [8:0] VB_START=9'h0F8, VB_END=9'h110;
 wire [ 8:0] pre_xos;
 wire [ 7:0] pre_yos;
 reg  [ 8:0] xoffset,yoffset;
-wire        mmr_cs;
+wire        mmr_cs, mmr_flip;
 // LUT Scan
 wire [ 1:0] vsize, vos;
 wire [17:2] pre_addr;
@@ -68,6 +69,10 @@ wire [31:0] rom_swap;
 
 assign {vos, vsize } = oram_dout[4:1];
 assign mmr_cs  = &{ cs, cpu_addr[11:4] };
+// The service menu's flip setting ends up in this register (MAME:
+// flip_screen_set(m_spriteram[0x0ff6]&1); mmr.yaml: flip at 6[0]).
+// The DIP drives the same bit so tate mode can be flipped without it.
+assign flip    = mmr_flip ^ dipflip;
 assign rom_swap = {
     rom_data[24+:4], rom_data[28+:4],
     rom_data[16+:4], rom_data[20+:4],
@@ -267,7 +272,7 @@ jtshouse_obj_mmr #(.SEEK(32)) u_mmr(
     .dout       (               ),
     .xoffset    ( pre_xos       ),
     .yoffset    ( pre_yos       ),
-    .flip       ( flip          ),
+    .flip       ( mmr_flip      ),
     .dma_on     ( dma_on        ),
     .ioctl_addr ( ioctl_addr    ),
     .ioctl_din  ( ioctl_din     ),

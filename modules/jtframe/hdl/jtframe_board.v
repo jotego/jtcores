@@ -15,12 +15,14 @@ module jtframe_board #(parameter
 )(
     output              rst,
     output              rst_n,
+    input               capture_pause,
     output              game_rst,
     output              game_rst_n,
     output              sdram_init,
     // reset forcing signals:
     input               rst_req,
     input               pll_locked,
+    input               ph24,
 
     input               clk_sys,
     input               clk_rom,
@@ -88,6 +90,10 @@ module jtframe_board #(parameter
     output              uart_tx,
     // joystick
     input        [15:0] board_joystick1, board_joystick2, board_joystick3, board_joystick4,
+    input               joy_aux_en,
+    input               cab_active,
+    input        [20:0] cab_inputs,
+    input               cab_dump_pause,
     input        [ 3:0] board_start,     board_coin,
     input        [15:0] joyana_l1,       joyana_r1,       joyana_l2,       joyana_r2,
     output       [ 9:0] game_joystick1,  game_joystick2,  game_joystick3,  game_joystick4,
@@ -166,7 +172,7 @@ wire         osd_pause;
 wire         key_shift, key_ctrl, key_alt,
              vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
-wire         game_pause, soft_rst, game_test;
+wire         game_pause, soft_rst, game_test, effective_pause;
 wire         cheat_led, pre_pause;
 
 wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
@@ -228,6 +234,7 @@ assign base_rgb  = { cross_r, cross_g, cross_b };
 `ifdef JTFRAME_PXLCLK
     jtframe_pxlcen u_pxlcen(
         .clk        ( clk_rom   ),
+        .ph24       ( ph24      ),
         .pxl_cen    ( pxl_cen   ),
         .pxl2_cen   ( pxl2_cen  )
     );
@@ -247,6 +254,7 @@ jtframe_reset u_reset(
 
     .sdram_init ( sdram_init    ),
     .ioctl_rom  ( rom_rst       ),
+    .dwnld_busy ( dwnld_busy    ),
     .dip_flip   ( dip_flip      ),
     .soft_rst   ( soft_rst      ),
     .rst_req    ( rst_req       ),
@@ -285,9 +293,6 @@ reg  show_credits;
         `ifdef MISTER
             if( osd_credits_disabled ) show_credits <= 0;
         `endif;
-        `ifdef JTFRAME_CREDITS_HIDEVERT
-            if( vertical ) show_credits <= 0; // hide for vertical games
-        `endif
         `ifdef JTFRAME_CREDITS_AON
             show_credits <= 1;
         `endif
@@ -308,11 +313,7 @@ reg  show_credits;
         .HS         ( hs             ),
         .VS         ( vs             ),
         .rgb_in     ( {game_r, game_g, game_b} ),
-        `ifdef JTFRAME_CREDITS_NOROTATE
-            .rotate ( 2'd0          ),
-        `else
-            .rotate ( locked ? 2'd0 : { rotate[1], vertical }  ),
-        `endif
+        .rotate     ( locked ? 2'd0 : { rotate[1], vertical } ),
         .toggle     ( toggle        ),
         .fast_scroll( fast_scroll   ),
 
@@ -529,6 +530,7 @@ jtframe_inputs #(
     .lhbl           ( LHBLs           ),
     .lvbl           ( LVBLs           ),
     .ioctl_rom      ( dwnld_busy      ),
+    .joy_aux_en     ( joy_aux_en      ),
     .joy1_pos       ( joy1_pos        ),
     .rot            ( rot_control     ),
     .rotate         ( rotate          ),
@@ -539,6 +541,8 @@ jtframe_inputs #(
     .soft_rst       ( soft_rst        ),
 
     .board_joy1     ( board_joystick1 ),
+    .cab_active     ( cab_active     ),
+    .cab_inputs     ( cab_inputs     ),
     .board_joy2     ( board_joystick2 ),
     .board_joy3     ( board_joystick3 ),
     .board_joy4     ( board_joystick4 ),
@@ -627,12 +631,14 @@ jtframe_inputs #(
     .game_pause     ( game_pause      )
 );
 
+assign effective_pause = game_pause | capture_pause | cab_dump_pause;
+
 jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),
     .status     ( status        ),
     .vertical   ( vertical      ),
     .dipflip_xor( dipflip_xor   ),
-    .game_pause ( game_pause    ),
+    .game_pause ( effective_pause ),
     .hdmi_arx   ( hdmi_arx      ),
     .hdmi_ary   ( hdmi_ary      ),
     .rotate     ( rotate        ),
@@ -792,6 +798,7 @@ jtframe_board_sdram #(
 ) u_sdram(
     .rst        ( rst           ),
     .clk        ( clk_rom       ),
+    .lvbl       ( LVBL          ),
     .init       ( sdram_init    ),
     .prog_en    ( prog_en       ),
 

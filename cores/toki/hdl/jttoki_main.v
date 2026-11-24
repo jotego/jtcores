@@ -228,13 +228,14 @@ jtframe_68kdtack_cen  u_dtack(
         .bus_busy   ( bus_busy  ),
         .bus_legit  ( 1'b0      ),
         .bus_ack    ( 1'b0      ),
+    .RnW            ( cpu_wrn   ),
+        .BGACKn     ( 1'b1      ),
         .ASn        ( cpu_as_n  ),
         .DSn        ( cpu_dsn   ),
         .num        ( CEN_NUM   ),
         .den        ( CEN_DEN   ),
         .DTACKn     ( dtack_n   ),
-        .wait2      ( 1'b0      ),
-        .wait3      ( 1'b0      ),
+        .waitn      ( 2'd0      ),
         // unused
         .fave       (),
         .fworst     ()

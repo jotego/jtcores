@@ -111,7 +111,6 @@ func (t *Terminal) processKey(reader *bufio.Reader, ch rune, buffer *[]rune, cur
 		}
 		return t.handleInput(ch, buffer, cursor)
 	}
-	return readContinue
 }
 
 func (t *Terminal) handleLineBreak(buffer []rune) readState {

@@ -107,6 +107,8 @@ always @(posedge clk, posedge rst ) begin
         raw_r <= 0;
         lfsr  <= {8{17'h1}};
         nbit  <= 0;
+        cnt   <= 0;
+        nacc  <= 0;
     end else if(cen120) begin
         ch   <= ch+3'd1;
         ch_l <= ch;
@@ -153,7 +155,7 @@ jtframe_dcrm #(.SW(13),.SIGNED_INPUT(0)) u_dcrm_right(
 
 jtframe_cendiv #(.MDIV(8)) u_cendiv(
     .clk        ( clk       ),
-    .cen_in     ( cen       ),
+    .cen_in     ( cen & ~rst),
     .cen_div    ( cen120    ),
     .cen_da     (           )
 );

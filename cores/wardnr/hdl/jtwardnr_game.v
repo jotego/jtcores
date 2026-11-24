@@ -19,8 +19,10 @@ wire        dsp_on, dsp_halt, dsp_we;
 wire        flip, bg_bank, fg_bank, video_on;
 
 assign dip_flip    = flip;
+`ifndef JTFRAME_PXLCLK
 assign pxl_cen     = cen7;
 assign pxl2_cen    = cen14;
+`endif
 // the mask ROM holds 2048 words, and the foreground ROM has no second bank
 assign dsprom_addr = dsp_rom_addr[10:0];
 assign fg_addr     = fg_full_addr[14:0];

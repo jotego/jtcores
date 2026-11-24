@@ -1,0 +1,5 @@
+focus 0
+wp 1000,1,w,frame<=988,{printf "REGS scrolly frame=%d beamx=%d beamy=%d pc=%04X data=%02X\n",frame,beamx,beamy,pc,wpdata;go}
+wp 1800,1,w,frame<=988,{printf "REGS scrollx frame=%d beamx=%d beamy=%d pc=%04X data=%02X\n",frame,beamx,beamy,pc,wpdata;go}
+wp 0005,1,w,frame<=988,{printf "REGS flip frame=%d beamx=%d beamy=%d pc=%04X data=%02X value=%d\n",frame,beamx,beamy,pc,wpdata,wpdata&1;go}
+go

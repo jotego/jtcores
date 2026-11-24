@@ -674,6 +674,15 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 			if e := check_bank_cache(bus); e != nil {
 				return e
 			}
+			if bus.Data_width == 64 {
+				if !bus.Cache_large {
+					return fmt.Errorf("jtframe mem: SDRAM bus %s uses data_width 64 but requires a string cache_size for the large cache", bus.Name)
+				}
+				len_macro := fmt.Sprintf("JTFRAME_BA%d_LEN", k)
+				if !macros.IsInt(len_macro) || macros.GetInt(len_macro) != 64 {
+					return fmt.Errorf("jtframe mem: SDRAM bus %s uses data_width 64 but requires %s=64", bus.Name, len_macro)
+				}
+			}
 			if bus.Rw {
 				total_ram++
 			}

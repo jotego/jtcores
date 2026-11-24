@@ -10,8 +10,8 @@ BIN=$JTFRAME/src/jtutil/jtutil
 if [ ! -e $BIN ]; then
     RECOMPILE=TRUE
 else
-    # Recompile if any source file is newer than the binary
-    NEWER=$(find $JTFRAME/src -name '*.go' -newer $BIN 2>/dev/null)
+    # Recompile if any source file (or embedded template) is newer than the binary
+    NEWER=$(find $JTFRAME/src \( -name '*.go' -o -name '*.tmpl' \) -newer $BIN 2>/dev/null)
     if [ -n "$NEWER" ]; then
         RECOMPILE=TRUE
     fi

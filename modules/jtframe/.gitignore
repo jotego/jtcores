@@ -16,3 +16,5 @@ msg2hex
 reverse_bits
 src/jtframe/jtframe
 src/jtutil/jtutil
+
+/bin/cabinet_pack

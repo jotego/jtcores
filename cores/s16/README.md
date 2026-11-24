@@ -54,6 +54,12 @@ These items need double checking on the PCB
 
 * How much shadow is created by sprite palette 3F? The core assumes 25% attenuation
 
+# CPU Bus Timing
+
+System 16A: ROM and work RAM acknowledge combinationally (315-5149 PLA). Object RAM, palette and I/O wait for the J3 LS164 shift register, clocked by the CPU clock and tapped at QC by the closed solder jumper: 2 wait states.
+
+These wait states were derived from the schematics and have not been checked on a PCB yet.
+
 # Schematics
 
 The KiCAD schematics developed by JOTEGO's team are in the sch folder of each core. Some of them only reproduce one aspect of the board that we needed to double check. A link to PDF versions is available below.

@@ -9,6 +9,7 @@ module jtframe_mist_clocks(
     output  clk96,
     output  clk48,
     output  clk24,
+    output  ph24,
     output  pll_locked,
 
     // System clocks
@@ -33,7 +34,15 @@ module jtframe_mist_clocks(
 `ifdef JTFRAME_SDRAM96
     `define JTFRAME_GAMEPLL jtframe_pllgame96
 `else
-    `define JTFRAME_GAMEPLL jtframe_pllgame
+    `ifdef POCKET
+        `ifdef JTFRAME_PLL7000
+            `define JTFRAME_GAMEPLL jtframe_pllgame7000
+        `else
+            `define JTFRAME_GAMEPLL jtframe_pllgame
+        `endif
+    `else
+        `define JTFRAME_GAMEPLL jtframe_pllgame
+    `endif
 `endif
 
 wire pll0_lock, pll1_lock, pll2_lock, pll_base, clk27;
@@ -95,6 +104,10 @@ jtframe_rst_sync u_reset48(
     .clk        ( clk48     ),
     .rst_sync   ( rst48     )
 );
+
+reg ph24_l=0;
+assign ph24 = ph24_l;
+always @(posedge clk24) ph24_l <= ~ph24_l;
 
 jtframe_rst_sync u_reset24(
     .rst        ( game_rst  ),

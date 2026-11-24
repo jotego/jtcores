@@ -1,0 +1,33 @@
+# PicoROM-based PCB tests for this core. See $JTFRAME/doc/picorom.md
+# jtutil picorom bustest show|gen|sim|run|report tmnt <set>
+bustest:
+  punkshot:
+    board: "Punk Shot (GX907, PWB 352011A)"
+    cpu: m68k
+    cpu_hz: 12000000
+    rom:
+      cpu_base: 0x0
+      even: "I7 (U42)"
+      odd: "I10 (U43)"
+      chip: "27C010 (Konami schematic labels it 271024A, but the socket is drawn 32-pin, 8-bit, 27C010 pinout)"
+      pins: 32
+      rom_offset: 8
+      word_swap: true
+    ram: {base: 0x80000, size: 0x4000}
+    watchdog: {addr: 0xa0080, access: "write.w", why: "MAME tmnt2.cpp 0x0a0080 watchdog reset16_w (core ignores A'008x); kick every loop iteration"}
+    init:
+      - {addr: 0xa0020, access: "write.w", why: "punkshot_0a0020_w: RMRD (bit 3)=0 so 0x10xxxx/0x11xxxx hit RAM, sound IRQ (bit 2) low"}
+    cases:
+      - {name: "rom", addr: 0x1f000, access: "read.w"}
+      - {name: "ram", addr: 0x80100, access: "write.w"}
+      - {name: "tile_rd", addr: 0x100100, access: "read.w", expect: "052109 PQ slot wait (core: 8 clk48 after PQ edge)"}
+      - {name: "tile_wr", addr: 0x100100, access: "write.w", expect: "052109 PQ slot wait"}
+      - {name: "obj", addr: 0x110400, access: "read.w", expect: "051960 PQ slot wait (core: 4 clk48 after PQ edge)"}
+      - {name: "pal", addr: 0x90000, access: "read.w"}
+    checklist:
+      - "Jumpers: JPROM (U41): socket pin 30 to +5 V or CPU A18. Irrelevant in 64 KiB mode; leave as found"
+      - "Program pair 907-j02.i7 (D15-D8) / 907-j03.i10 (D7-D0)."
+      - "Core game_id=PUNKSHOT decoder: rom 0x00000-0x3FFFF, ram 0x080000-0x08FFFF (MAME 0x080000-0x083FFF), pal 0x090000-0x090FFF, I/O 0x0A00xx, vram 0x100000-0x10FFFF, obj 0x110000-0x11FFFF."
+      - "Do not use 0x110000-0x110007 for the object case: those are 051937 registers; 0x110400-0x1107FF is 051960 object RAM."
+      - "052109: UDS selects chip A13 (MAME: word writes only land in the MSB) and A12 is not connected; 0x100100 maps to chip offset 0x080/0x2080 tile RAM, away from registers."
+      - "A byte variant (read.b/write.b at 0x100100 or 0x100101) is equally valid if word access proves odd. .rom: 8-byte header (byte 0 = game id 02), vector SSP=0x00084000 PC=0x00000B80 byte-swapped at offset 8."

@@ -15,20 +15,20 @@ sdram:
     - buses:
       - name: snd
         addr_width: 15
-        data_width: 8        
+        data_width: 8
       - name: char
         addr_width: 15
         data_width: 16
         offset: CHAR_OFFSET
-        cs: LVBL        
+        cs: LVBL
     - buses:
       - name: scr
         addr_width: 19
         data_width: 32
-        cs: LVBL        
+        cs: LVBL
     - buses:
       - name: obj
         addr_width: 18
         data_width: 16
         gfx_sort: hvvvvxx
-        cs: 1'b1        
+        cs: 1'b1

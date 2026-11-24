@@ -7,8 +7,6 @@ JTFRAME_HEIGHT=240
 JTFRAME_PXLCLK=6
 JTFRAME_RATE=57.27
 
-JTFRAME_CREDITS
-
 JTFRAME_BUTTONS=2
 JTFRAME_JOY_LRDU
 JTFRAME_HEADER=16
@@ -26,6 +24,3 @@ debug JTFRAME_IOCTL_RD=10244
 # Anton Gale already made a core for these platforms, so
 # we are not distributing the JT core for them
 JTFRAME_SKIP
-
-[mist|sidi]
--JTFRAME_CREDITS

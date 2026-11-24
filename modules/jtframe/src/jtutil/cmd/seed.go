@@ -31,9 +31,9 @@ type seed_config struct {
 	random      *rand.Rand
 	best_slack  float64
 	best_valid  bool
+	best_pass   bool
 	release     seed_release
 	nosta      bool
-	easy_sta   bool
 	sta_slack  float64
 	sta_valid  bool
 	walltime   time.Duration
@@ -73,8 +73,6 @@ type seed_timing struct {
 	hold     string
 	recovery string
 }
-
-const seed_easy_sta_limit = -0.5
 
 var seed_parallel, seed_max_trials int
 var seed_stop, seed_zero bool
@@ -182,7 +180,6 @@ func (cfg *seed_config) prepare() error {
 	cfg.load_core_macros()
 	cfg.release.rbf = strings.ToLower(macros.Get("CORENAME"))
 	cfg.nosta = macros.IsSet("JTFRAME_NOSTA")
-	cfg.easy_sta = macros.IsSet("JTFRAME_EASY_STA")
 	cfg.append_nosta_undef()
 	return nil
 }
@@ -200,44 +197,35 @@ func (cfg *seed_config) run_trials() error {
 		return e
 	}
 	defer cfg.report_walltime()
-	pass := false
 	for cfg.max_trials > 0 {
 		batch := cfg.parallel
 		if cfg.max_trials < batch {
 			batch = cfg.max_trials
 		}
 		jobs := cfg.start_batch(output_base, batch)
-		batch_pass, e := cfg.wait_batch(jobs, &pass)
+		batch_pass, e := cfg.wait_batch(jobs)
 		if e != nil {
 			return e
 		}
 		if batch_pass && seed_stop {
-			return cfg.finish_trials(pass)
+			return cfg.finish_trials()
 		}
 		if stop_requested() {
-			return cfg.finish_trials(pass)
+			return cfg.finish_trials()
 		}
 	}
-	return cfg.finish_trials(pass)
+	return cfg.finish_trials()
 }
 
-func (cfg *seed_config) finish_trials(pass bool) error {
-	if pass || cfg.nosta {
+func (cfg *seed_config) finish_trials() error {
+	if cfg.best_pass || (cfg.nosta && cfg.best_valid) {
 		fmt.Println("PASS")
-		return nil
-	}
-	if cfg.easy_sta && cfg.sta_passes_easy_limit() {
-		fmt.Printf("PASS: best STA slack %.3f ns is better than %.3f ns\n", cfg.sta_slack, seed_easy_sta_limit)
 		return nil
 	}
 	if cfg.sta_valid {
 		return fmt.Errorf("STA timing was not met by any seed build, best slack %.3f ns", cfg.sta_slack)
 	}
 	return fmt.Errorf("STA timing was not met by any seed build")
-}
-
-func (cfg *seed_config) sta_passes_easy_limit() bool {
-	return cfg.sta_valid && cfg.sta_slack > seed_easy_sta_limit
 }
 
 func (cfg *seed_config) start_batch(output_base string, batch int) []seed_job {
@@ -257,7 +245,7 @@ func (cfg *seed_config) start_batch(output_base string, batch int) []seed_job {
 	return jobs
 }
 
-func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
+func (cfg *seed_config) wait_batch(jobs []seed_job) (bool, error) {
 	batch_pass := false
 	var first_error error
 	for _, job := range wait_seed_jobs(jobs) {
@@ -293,7 +281,6 @@ func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 		}
 		if job.pass {
 			fmt.Printf("Seed %5d passed in %s, STA %s/%s/%s%s\n", job.seed, job.walltime, timing.setup, timing.hold, timing.recovery, copy_msg)
-			*pass = true
 			batch_pass = true
 		} else {
 			fmt.Printf("Seed %5d failed in %s, STA %s/%s/%s%s\n", job.seed, job.walltime, timing.setup, timing.hold, timing.recovery, copy_msg)
@@ -302,7 +289,7 @@ func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 	if first_error != nil {
 		return false, first_error
 	}
-	return batch_pass || *pass, nil
+	return batch_pass, nil
 }
 
 func wait_seed_jobs(jobs []seed_job) []seed_job {
@@ -341,25 +328,37 @@ func (cfg *seed_config) record_sta_slack(slack string) {
 }
 
 func (cfg *seed_config) copy_if_best(job seed_job, slack string) (string, error) {
-	value, ok := parse_slack_value(slack)
-	if !ok || (cfg.best_valid && value <= cfg.best_slack) {
+	if !job.pass && !cfg.nosta {
 		return "", nil
+	}
+	value, ok := parse_slack_value(slack)
+	if !ok {
+		return "", fmt.Errorf("cannot select release output for seed %d: invalid setup slack %q", job.seed, slack)
+	}
+	if cfg.best_valid {
+		if cfg.best_pass && !job.pass {
+			return "", nil
+		}
+		if cfg.best_pass == job.pass && value <= cfg.best_slack {
+			return "", nil
+		}
 	}
 	src := cfg.release.source_rbf(job.builddir)
 	if _, e := os.Stat(src); e != nil {
-		return fmt.Sprintf(", release copy skipped: %v", e), nil
+		return "", fmt.Errorf("missing RBF for seed %d: %w", job.seed, e)
 	}
 	dst := cfg.release.release_rbf()
 	e := copy_file(src, dst)
 	if e != nil {
-		return fmt.Sprintf(", release copy failed: %v", e), nil
+		return "", fmt.Errorf("copy RBF for seed %d: %w", job.seed, e)
 	}
 	e = cfg.write_stats(job)
 	if e != nil {
-		return "", e
+		return "", fmt.Errorf("write stats for seed %d: %w", job.seed, e)
 	}
 	cfg.best_slack = value
 	cfg.best_valid = true
+	cfg.best_pass = job.pass
 	return fmt.Sprintf(", RBF and stats copied to release"), nil
 }
 
@@ -476,11 +475,6 @@ func write_seed_stats(fname string, stats seed_stats) error {
 func (cfg *seed_config) core_has_nosta() bool {
 	cfg.load_core_macros()
 	return macros.IsSet("JTFRAME_NOSTA")
-}
-
-func (cfg *seed_config) core_has_easy_sta() bool {
-	cfg.load_core_macros()
-	return macros.IsSet("JTFRAME_EASY_STA")
 }
 
 func (cfg *seed_config) load_core_macros() {

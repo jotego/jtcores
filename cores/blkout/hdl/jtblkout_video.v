@@ -59,10 +59,12 @@ module jtblkout_video(
     output       [ 7:0] st_dout
 );
 
-wire [8:0] hdump, vrender;
+wire [8:0] hdump, vdump, vrender;
 wire [8:0] fb_pxl;
 wire [11:0] frontcol;
 wire [ 7:0] mmr_ioctl_din;
+wire        render_hs;
+reg         hsync_out, vsync_out;
 
 // 8 MHz pxl, H-total 512 (15.625 kHz), V-total 269 -> 58.1 Hz (board is 58 Hz).
 jtframe_vtimer #(
@@ -78,7 +80,7 @@ jtframe_vtimer #(
 ) u_vtimer(
     .clk      ( clk      ),
     .pxl_cen  ( pxl_cen  ),
-    .vdump    (          ),
+    .vdump    ( vdump    ),
     .vrender  ( vrender  ),
     .vrender1 (          ),
     .H        ( hdump    ),
@@ -86,9 +88,21 @@ jtframe_vtimer #(
     .Vinit    (          ),
     .LHBL     ( LHBL     ),
     .LVBL     ( LVBL     ),
-    .HS       ( HS       ),
-    .VS       ( VS       )
+    .HS       ( render_hs ),
+    .VS       (          )
 );
+
+assign HS = hsync_out;
+assign VS = vsync_out;
+
+always @(posedge clk) if( pxl_cen ) begin
+    if( hdump==9'd401 ) hsync_out <= 1'b1;
+    if( hdump==9'd428 ) hsync_out <= 1'b0;
+    if( hdump==9'd319 ) begin
+        if( vdump==9'd252 ) vsync_out <= 1'b1;
+        if( vdump==9'd255 ) vsync_out <= 1'b0;
+    end
+end
 
 jtblkout_fb u_fb(
     .rst        ( rst       ),
@@ -96,7 +110,7 @@ jtblkout_fb u_fb(
     .pxl_cen    ( pxl_cen   ),
     .hdump      ( hdump     ),
     .vrender    ( vrender   ),
-    .HS         ( HS        ),
+    .HS         ( render_hs ),
     .fbrd_addr  ( fbrd_addr ),
     .fbrd_cs    ( fbrd_cs   ),
     .fbrd_data  ( fbrd_data ),
@@ -123,9 +137,9 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         HSov<=0; ov_busy<=0; ov_col<=0; ov_ph<=0; ovlb_we<=0; ov_row<=0;
     end else begin
-        HSov    <= HS;
+        HSov    <= render_hs;
         ovlb_we <= 0;
-        if( HS && !HSov ) begin           // new line: fetch overlay for vrender+10
+        if( render_hs && !HSov ) begin     // new line: fetch overlay for vrender+10
             ov_row  <= vrender[7:0] + 8'd10;
             ov_col  <= 0;
             ov_ph   <= 0;
@@ -147,7 +161,7 @@ end
 // jtframe_linebuf owns the buffer swap (on ~HS falling = HS rising).
 jtframe_linebuf #(.DW(8),.AW(6)) u_ovlb(
     .clk     ( clk        ),
-    .LHBL    ( ~HS        ),
+    .LHBL    ( ~render_hs ),
     .wr_addr ( ovlb_wa    ),
     .wr_data ( ovlb_din   ),
     .we      ( ovlb_we    ),

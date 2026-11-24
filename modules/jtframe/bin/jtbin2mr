@@ -6,9 +6,14 @@ function main {
     LOCAL=1
     V=
     BUILD=
+    SKIP_SD=0
+    FOLDER=_JTBIN
+    DELETE_HASH_FOLDERS=0
+    SDCARD=${JTBIN2MR_SD:-/media/$USER/MiSTer_Data}
 
     check_jtroot
     parse_args "$@"
+    check_folder
     extract_build
     select_source
     check_mister_password
@@ -37,6 +42,18 @@ jtbin2mr [build hash]
 -g, --git       Uses JTBIN as the source folder, rather than \$JTROOT/release
 -h, --help      Help
 -v, --verbose
+--skip-sd       Never copy to a MiSTer SD card mounted locally, always use the network
+--folder name   Destination folder in /media/fat (default _JTBIN). It must be _ followed
+                by letters, digits, '.', '_' or '-'. _Arcade, _Console, _Computer,
+                _Other and _Utility are refused
+--delete-hash-folders
+                Before the network copy, remove every /media/fat/_<7 hex digits> and
+                /media/fat/_<7 hex digits>-dirty folder in MiSTer
+
+The cab folder of the source, when present, is copied as <folder>/cab.
+JTBIN2MR_SD overrides the SD card path (default /media/\$USER/MiSTer_Data).
+Several copies may run at once with -g and different -m hosts. Do not pass a
+build hash to parallel copies, as each one extracts it to \$JTROOT/release.
 HELP
 }
 
@@ -64,6 +81,17 @@ function parse_args {
                 export MRHOST=$1;;
             -v|--verbose)
                 V=-v;;
+            --skip-sd)
+                SKIP_SD=1;;
+            --folder)
+                if [ $# -lt 2 ]; then
+                    echo "--folder needs a folder name"
+                    exit 1
+                fi
+                shift
+                FOLDER=$1;;
+            --delete-hash-folders)
+                DELETE_HASH_FOLDERS=1;;
             -h|--help)
                 show_help
                 exit 1;;
@@ -79,6 +107,19 @@ function parse_args {
         esac
         shift
     done
+}
+
+# The folder name goes into rm -rf commands, so only plain names are accepted
+function check_folder {
+    if [[ ! "$FOLDER" =~ ^_[A-Za-z0-9._-]+$ ]]; then
+        echo "Invalid folder name '$FOLDER': use _ followed by letters, digits, '.', '_' or '-'"
+        exit 1
+    fi
+    case "${FOLDER,,}" in
+        _arcade|_console|_computer|_other|_utility)
+            echo "Refusing to use the MiSTer system folder $FOLDER"
+            exit 1;;
+    esac
 }
 
 function extract_build {
@@ -116,7 +157,7 @@ function set_mister_defaults {
 function gather_files {
     if [ "$V" = -v ]; then echo "Gathering the files from $JTBIN"; fi
     TEMP=$(mktemp --directory)
-    ROOT=$TEMP/_JTBIN
+    ROOT=$TEMP/$FOLDER
     CORES=$ROOT/cores
 
     mkdir -p "$CORES"
@@ -127,27 +168,30 @@ function gather_files {
 
     cp -r "$JTBIN"/mra/* "$ROOT"
     if [ -d "$JTBIN/games" ]; then cp -r "$JTBIN/games" "$ROOT"; fi
+    if [ -d "$JTBIN/cab" ]; then cp -r "$JTBIN/cab" "$ROOT"; fi
 }
 
 function copy_to_mister {
     if [ -n "$V" ]; then echo -e "\nCopying the files to MiSTer"; fi
-    if [ -d "/media/$USER/MiSTer_Data" ]; then
+    if [ "$SKIP_SD" = 0 ] && [ -d "$SDCARD" ]; then
         copy_to_sd_card
     elif ping -c 1 -q "$MRHOST" > /dev/null; then
         copy_over_network
     else
         echo "$MRHOST is not online"
+        rm -rf "$TEMP"
+        exit 1
     fi
 }
 
 function copy_to_sd_card {
     echo "MiSTer SD card detected"
-    rm -rf "/media/$USER/MiSTer_Data/_JTBIN"
-    cp -r "$TEMP/_JTBIN" "/media/$USER/MiSTer_Data" || echo "Copy to MiSTer SD card failed"
+    rm -rf "${SDCARD:?}/$FOLDER"
+    cp -r "$TEMP/$FOLDER" "$SDCARD" || echo "Copy to MiSTer SD card failed"
     copy_console_core_to_sd_card neogeopocket.rbf NeoGeoPocket.rbf
     copy_console_core_to_sd_card neogeopocket-color.rbf NeoGeoPocket-Color.rbf
     if [ -e "$JTUTIL/jtbeta.zip" ]; then
-        cp "$JTUTIL/jtbeta.zip" "/media/$USER/MiSTer_Data/games/mame"
+        cp "$JTUTIL/jtbeta.zip" "$SDCARD/games/mame"
     fi
 }
 
@@ -156,14 +200,15 @@ function copy_console_core_to_sd_card {
     local console_name=$2
 
     if [ -e "$JTBIN/mister/$source_name" ]; then
-        mkdir -p "/media/$USER/MiSTer_Data/_Console"
-        cp "$TEMP/_JTBIN/cores/$source_name" "/media/$USER/MiSTer_Data/_Console/$console_name"
+        mkdir -p "$SDCARD/_Console"
+        cp "$TEMP/$FOLDER/cores/$source_name" "$SDCARD/_Console/$console_name"
     fi
 }
 
 function copy_over_network {
     MRCMD="sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST"
-    $MRCMD "rm -rf /media/fat/_JTBIN"
+    if [ "$DELETE_HASH_FOLDERS" = 1 ]; then delete_hash_folders; fi
+    $MRCMD "rm -rf /media/fat/$FOLDER"
     $MRCMD "rm -rf /media/fat/config/*.{cfg,CFG}"
     $MRCMD "rm -rf /media/fat/config/nvram/*.nvm"
     $MRCMD "rm -rf /media/fat/config/dips/*"
@@ -183,8 +228,16 @@ function copy_console_core {
     local console_name=$2
 
     if [ -e "$JTBIN/mister/$source_name" ]; then
-        $MRCMD "cp /media/fat/_JTBIN/cores/$source_name /media/fat/_Console/$console_name"
+        $MRCMD "cp /media/fat/$FOLDER/cores/$source_name /media/fat/_Console/$console_name"
     fi
+}
+
+# Folders named after a build hash, as _1234abc or _1234abc-dirty. Plain sh for busybox
+function delete_hash_folders {
+    local h='[0-9a-f]'
+    local pattern="_$h$h$h$h$h$h$h"
+    # shellcheck disable=SC2016 # expanded by the remote shell
+    $MRCMD 'for d in /media/fat/_*; do case "${d#/media/fat/}" in '"$pattern|$pattern-dirty"') if [ -d "$d" ]; then rm -rf "$d"; fi;; esac; done'
 }
 
 function copy_beta_zip {

@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Compact video register image appended to the RAM dump (rest.bin).
+- name: video
+  size: 4
+  dw: 8
+  read_only: true
+  regs:
+    - { name: scrolly, dw: 8, at: "0" }
+    - { name: scrollx, dw: 8, at: "1" }
+    - { name: flip, dw: 1, at: "2[0]" }

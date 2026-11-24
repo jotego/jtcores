@@ -5,3 +5,4 @@ s16:
     - jts16_scr.v
     - jts16_prio.v
     - jts16_tilemap.v
+    - jts16_vtimer.v

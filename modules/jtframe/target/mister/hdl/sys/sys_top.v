@@ -232,7 +232,7 @@ end
 
 // gp_in[31] = 0 - quick flag that FPGA is initialized (HPS reads 1 when FPGA is not in user mode)
 //                 used to avoid lockups while JTAG loading
-wire [31:0] gp_in = {1'b0, btn_user | btn[1], btn_osd | btn[0], io_dig, 8'd0, io_ver, io_ack, io_wide, io_dout | io_dout_sys};
+wire [31:0] gp_in = {1'b0, btn_user | btn[1], btn_osd | btn[0], io_dig, 7'd0, ~HDMI_TX_INT, io_ver, io_ack, io_wide, io_dout | io_dout_sys};
 wire [31:0] gp_out;
 
 wire  [1:0] io_ver = 1; // 0 - obsolete. 1 - optimized HPS I/O. 2,3 - reserved for future.
@@ -289,11 +289,20 @@ cyclonev_hps_interface_mpu_general_purpose h2f_gp
 reg [15:0] cfg;
 reg        cfg_set      = 0;
 
+`ifdef JTFRAME_CRT480I
+	wire    crt480i_on;
+`endif
 `ifdef MISTER_DEBUG_NOHDMI
 	wire    vga_fb       = 0;
 	wire    direct_video = 1;
 `else
+`ifdef JTFRAME_CRT480I
+	// 480i selected by the MRA (or mod bytes not in yet): the VGA port never carries the scaler
+	// (15 kHz-only monitor), so no MiSTer.ini setting can route a scaled mode to VGA. Otherwise as usual.
+	wire    vga_fb       = ~crt480i_on & (cfg[12] | vga_force_scaler);
+`else
 	wire    vga_fb       = cfg[12] | vga_force_scaler;
+`endif
 	wire    direct_video = cfg[10];
 `endif
 
@@ -307,7 +316,11 @@ wire       io_osd_vga   = io_ss1 & ~io_ss2;
 	`ifdef MISTER_DEBUG_NOHDMI
 		wire vga_scaler   = 0;
 	`else
+	`ifdef JTFRAME_CRT480I
+		wire vga_scaler   = ~crt480i_on & (cfg[2] | vga_force_scaler);  // see vga_fb above
+	`else
 		wire vga_scaler   = cfg[2] | vga_force_scaler;
+	`endif
 	`endif
 `endif
 
@@ -396,6 +409,8 @@ always@(posedge clk_sys) begin
 `ifndef MISTER_DEBUG_NOHDMI
 			if(io_din[7:0] == 'h40) io_dout_sys <= fb_crc;
 `endif
+			if(io_din[7:0] == 'h42) io_dout_sys <= {1'b1, frame_cnt};
+			if(io_din[7:0] == 'h44) io_dout_sys <= 1;
 		end
 		else begin
 			cnt <= cnt + 1'd1;
@@ -534,6 +549,15 @@ always@(posedge clk_sys) begin
 
 	vs_d2 <= vs_d1;
 	if(~vs_d2 & vs_d1) vs_wait <= 0;
+end
+
+reg [7:0] frame_cnt;
+always @(posedge clk_sys) begin
+	reg vs_r, vs_old;
+
+	vs_r <= vs_fix;
+	if(vs_r == vs_fix) vs_old <= vs_r;
+	if(~vs_old & vs_r) frame_cnt <= frame_cnt + 1'd1;
 end
 
 cyclonev_hps_interface_peripheral_uart uart
@@ -686,6 +710,7 @@ wire  [23:0] hdmi_data;
 wire         hdmi_vs, hdmi_hs, hdmi_de, hdmi_vbl, hdmi_brd;
 wire         freeze;
 wire         bob_deint;
+wire         hdmi_f1;     // the scaler's field flag: f1, or 0 for the native picture while 480i is on
 
 `ifndef MISTER_DEBUG_NOHDMI
 	wire clk_hdmi  = hdmi_clk_out;
@@ -729,7 +754,7 @@ wire         bob_deint;
 		.i_b      (hb_out),
 		.i_hs     (hhs_fix),
 		.i_vs     (hvs_fix),
-		.i_fl     (f1),
+		.i_fl     (hdmi_f1),
 		.i_de     (hde_emu),
 		.iauto    (1),
 		.himin    (0),
@@ -1166,6 +1191,7 @@ cyclonev_hps_interface_peripheral_i2c hdmi_i2c
 		.io_din(io_din),
 
 		.clk_video(clk_hdmi),
+		.ce_in(1'b0),
 		.din(hdmi_data_mask),
 		.hs_in(hdmi_hs_mask),
 		.vs_in(hdmi_vs_mask),
@@ -1375,9 +1401,12 @@ scanlines #(0) VGA_scanlines
 	.ce_out(vga_ce_sl)
 );
 
-wire [23:0] vga_data_osd;
-wire        vga_vs_osd, vga_hs_osd, vga_de_osd;
-osd vga_osd
+// JTFRAME: analogue h-size. Inserted after the HDMI branch has already tapped
+// the stream, so stretching only moves the DAC pixel clock. See
+// $JTFRAME/hdl/video/jtframe_hretime.v
+wire [23:0] vga_data_mix;
+wire        vga_vs_mix, vga_hs_mix, vga_de_mix;
+osd #(.NATIVE_PIXEL(1)) vga_osd
 (
 	.clk_sys(clk_sys),
 
@@ -1387,11 +1416,70 @@ osd vga_osd
 	.osd_status(osd_status),
 
 	.clk_video(clk_vid),
+	.ce_in(vga_ce_sl),
 	.din(vga_data_sl),
 	.hs_in(vga_hs_sl),
 	.vs_in(vga_vs_sl),
 	.de_in(vga_de_sl),
 
+	.dout(vga_data_mix),
+	.hs_out(vga_hs_mix),
+	.vs_out(vga_vs_mix),
+	.de_out(vga_de_mix)
+);
+
+// Match the four clk_vid registers in the OSD RGB/sync/DE pipeline.
+reg [3:0] vga_ce_pipe;
+wire vga_ce_mix = vga_ce_pipe[3];
+always @(posedge clk_vid) vga_ce_pipe <= {vga_ce_pipe[2:0], vga_ce_sl};
+
+wire [23:0] vga_data_osd;
+wire        vga_hs_osd, vga_vs_osd, vga_de_osd;
+wire [ 4:0] VGA_HSIZE;
+// h-size only makes sense on a 15 kHz monitor, and the scandoubler doubles the
+// pixel rate that JTFRAME_HSIZE_DIV describes
+`ifdef MISTER_DUAL_SDRAM
+wire        hsize_off = 1'b1;   // no analogue VGA on a dual SDRAM board
+`else
+`ifdef JTFRAME_CRT480I
+wire        hsize_off = forced_scandoubler & ~crt480i_on;
+`else
+wire        hsize_off = forced_scandoubler;
+`endif
+`endif
+
+wire hsize_enable;
+assign hsize_enable = VGA_HSIZE[4] & ~hsize_off;
+
+jtframe_hretime #(
+	.DIV  (`JTFRAME_HSIZE_DIV  ),
+`ifdef JTFRAME_CRT480I
+`ifdef JTFRAME_SDRAM96
+	.DIV_ALT_X2(18), // 96 MHz / 10.67 MHz = 9 clocks per converted pixel
+`else
+	.DIV_ALT_X2(9),  // 48 MHz / 10.67 MHz = 4.5 clocks per converted pixel
+`endif
+`endif
+	.STEP (`JTFRAME_HSIZE_STEP ),
+	.DEPTH(`JTFRAME_HSIZE_DEPTH)
+) u_hretime
+(
+	.clk(clk_vid),
+	.ce_in(vga_ce_mix),
+	.enable(hsize_enable),
+`ifdef JTFRAME_CRT480I
+	.div_alt(crt480i_on),
+`else
+	.div_alt(1'b0),
+`endif
+	.scale(VGA_HSIZE[3:0]),
+
+	.din(vga_data_mix),
+	.hs_in(vga_hs_mix),
+	.vs_in(vga_vs_mix),
+	.de_in(vga_de_mix),
+
+	.ce_out(),
 	.dout(vga_data_osd),
 	.hs_out(vga_hs_osd),
 	.vs_out(vga_vs_osd),
@@ -1537,10 +1625,6 @@ assign SDCD_SPDIF = (mcp_en & ~spdif) ? 1'b0 : 1'bZ;
 
 `ifndef MISTER_DUAL_SDRAM
 	wire analog_l, analog_r;
-
-	assign AUDIO_SPDIF = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_LRCLK : spdif;
-	assign AUDIO_R     = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_I2S   : analog_r;
-	assign AUDIO_L     = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_SCLK  : analog_l;
 `endif
 
 assign HDMI_MCLK = clk_audio;
@@ -1590,6 +1674,19 @@ audio_out audio_out
 `endif
 	.spdif(spdif)
 );
+
+`ifndef MISTER_DUAL_SDRAM
+	reg aud_spdif_q, aud_r_q, aud_l_q;
+	always @(posedge clk_audio) begin
+		aud_spdif_q <= (SW[0] | mcp_en) ? HDMI_LRCLK : spdif;
+		aud_r_q     <= (SW[0] | mcp_en) ? HDMI_I2S   : analog_r;
+		aud_l_q     <= (SW[0] | mcp_en) ? HDMI_SCLK  : analog_l;
+	end
+
+	assign AUDIO_SPDIF = av_dis ? 1'bZ : aud_spdif_q;
+	assign AUDIO_R     = av_dis ? 1'bZ : aud_r_q;
+	assign AUDIO_L     = av_dis ? 1'bZ : aud_l_q;
+`endif
 
 
 `ifndef MISTER_DISABLE_ALSA
@@ -1690,6 +1787,25 @@ sync_fix sync_h(clk_vid, hs_emu, hs_fix);
 wire  [6:0] user_out, user_in;
 
 assign clk_ihdmi= clk_vid;
+`ifdef JTFRAME_CRT480I
+// 480i selected by the MRA: the HDMI scaler takes the core's native picture (NATIVE_*), while
+// VGA carries the 15 kHz 480i picture. With direct_video, or without 480i, HDMI takes the VGA
+// stream as usual, so the scaler input (which the HPS also measures) follows it.
+wire  [7:0] nat_r, nat_g, nat_b;
+wire        nat_ce, nat_hs, nat_vs, nat_de, nat_hs_fix, nat_vs_fix;
+wire        hdmi_vga = direct_video | ~crt480i_on;
+sync_fix sync_nv(clk_vid, nat_vs, nat_vs_fix);
+sync_fix sync_nh(clk_vid, nat_hs, nat_hs_fix);
+assign hdmi_f1  = hdmi_vga & f1;   // the native picture is progressive
+assign ce_hpix  = hdmi_vga ? vga_ce_sl          : nat_ce;
+assign hr_out   = hdmi_vga ? vga_data_sl[23:16] : nat_r;
+assign hg_out   = hdmi_vga ? vga_data_sl[15:8]  : nat_g;
+assign hb_out   = hdmi_vga ? vga_data_sl[7:0]   : nat_b;
+assign hhs_fix  = hdmi_vga ? vga_hs_sl          : nat_hs_fix;
+assign hvs_fix  = hdmi_vga ? vga_vs_sl          : nat_vs_fix;
+assign hde_emu  = hdmi_vga ? vga_de_sl          : nat_de;
+`else
+assign hdmi_f1  = f1;
 assign ce_hpix  = vga_ce_sl;
 assign hr_out   = vga_data_sl[23:16];
 assign hg_out   = vga_data_sl[15:8];
@@ -1697,6 +1813,7 @@ assign hb_out   = vga_data_sl[7:0];
 assign hhs_fix  = vga_hs_sl;
 assign hvs_fix  = vga_vs_sl;
 assign hde_emu  = vga_de_sl;
+`endif
 
 wire uart_dtr;
 wire uart_dsr;
@@ -1742,7 +1859,7 @@ emu emu
 (
 	.CLK_50M(FPGA_CLK2_50),
 	.RESET(reset),
-	.HPS_BUS({fb_en, sl, f1, HDMI_TX_VS, 
+	.HPS_BUS({fb_en, sl, hdmi_f1, HDMI_TX_VS,
 				 clk_100m, clk_ihdmi,
 				 ce_hpix, hde_emu, hhs_fix, hvs_fix, 
 				 io_wait, clk_sys, io_fpga, io_uio, io_strobe, io_wide, io_din, io_dout}),
@@ -1755,10 +1872,22 @@ emu emu
 	.VGA_DE(de_emu),
 	.VGA_F1(f1),
 	.VGA_SCALER(vga_force_scaler),
+`ifdef JTFRAME_CRT480I
+	.CRT480I_ON(crt480i_on),
+	.NATIVE_CE(nat_ce),
+	.NATIVE_R(nat_r),
+	.NATIVE_G(nat_g),
+	.NATIVE_B(nat_b),
+	.NATIVE_HS(nat_hs),
+	.NATIVE_VS(nat_vs),
+	.NATIVE_DE(nat_de),
+`endif
 
 `ifndef MISTER_DUAL_SDRAM
 	.VGA_DISABLE(VGA_DISABLE),
 `endif
+
+	.VGA_HSIZE(VGA_HSIZE),
 
 	.HDMI_WIDTH(direct_video ? 12'd0 : hdmi_width),
 	.HDMI_HEIGHT(direct_video ? 12'd0 : hdmi_height),

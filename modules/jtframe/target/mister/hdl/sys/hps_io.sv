@@ -623,18 +623,25 @@ localparam FIO_FILE_TX_DAT  = 8'h54;
 localparam FIO_FILE_INDEX   = 8'h55;
 localparam FIO_FILE_INFO    = 8'h56;
 
-reg        has_cmd;
-reg [26:0] addr;
-reg        wr;
 always@(posedge clk_sys) begin : fio_block
 	reg [15:0] cmd;
 	reg  [2:0] cnt;
+	reg        has_cmd;
+	reg        wr;
+	reg  [1:0] req_io;
+	reg        skip_add;
 
 	ioctl_rd <= 0;
 	ioctl_wr <= wr;
 	wr <= 0;
 
-	if(~fp_enable) has_cmd <= 0;
+	if(~fp_enable) begin
+		if(has_cmd && (cmd == FIO_FILE_TX)) begin
+			{ioctl_upload, ioctl_download} <= req_io;
+			{ioctl_rd, skip_add} <= req_io;
+		end
+		has_cmd <= 0;
+	end
 	else begin
 		if(io_strobe) begin
 
@@ -642,6 +649,7 @@ always@(posedge clk_sys) begin : fio_block
 				cmd <= io_din;
 				has_cmd <= 1;
 				cnt <= 0;
+				req_io <= 0;
 			end else begin
 
 				case(cmd)
@@ -663,44 +671,33 @@ always@(posedge clk_sys) begin : fio_block
 						begin
 							cnt <= cnt + 1'd1;
 							case(cnt)
-								0:	if(io_din[7:0] == 8'hAA) begin
+								0: if(io_din[7:0]) begin
 										ioctl_addr <= 0;
-										ioctl_upload <= 1;
-										ioctl_rd <= 1;
-									end
-									else if(io_din[7:0]) begin
-										addr <= 0;
-										ioctl_download <= 1;
+										req_io <= (io_din[7:0] == 8'hAA) ? 2'b10 : 2'b01;
 									end
 									else begin
-										if(ioctl_download) ioctl_addr <= addr;
+										if(ioctl_download && !skip_add) ioctl_addr <= ioctl_addr + (WIDE ? 2'd2 : 2'd1);
 										ioctl_download <= 0;
 										ioctl_upload <= 0;
 									end
-
-								1: begin
-										ioctl_addr[15:0] <= io_din;
-										addr[15:0] <= io_din;
-									end
-
-								2: begin
-										ioctl_addr[26:16] <= io_din[10:0];
-										addr[26:16] <= io_din[10:0];
-									end
+								1: ioctl_addr[15:0]  <= io_din;
+								2: ioctl_addr[26:16] <= io_din[10:0];
 							endcase
 						end
 
 					FIO_FILE_TX_DAT:
-						if(ioctl_download) begin
-							ioctl_addr <= addr;
-							ioctl_dout <= io_din[DW:0];
-							wr   <= 1;
-							addr <= addr + (WIDE ? 2'd2 : 2'd1);
-						end
-						else begin
-							ioctl_addr <= ioctl_addr + (WIDE ? 2'd2 : 2'd1);
-							fp_dout <= ioctl_din;
-							ioctl_rd <= 1;
+						begin
+							if(!skip_add) ioctl_addr <= ioctl_addr + (WIDE ? 2'd2 : 2'd1);
+							skip_add <= 0;
+
+							if(ioctl_download) begin
+								ioctl_dout <= io_din[DW:0];
+								wr <= 1;
+							end
+							else begin
+								fp_dout <= ioctl_din;
+								ioctl_rd <= 1;
+							end
 						end
 				endcase
 			end
@@ -882,6 +879,8 @@ reg  [1:0] vid_int  = 0;
 reg  [7:0] vid_pixrep;
 reg [15:0] vid_de_h;
 reg  [7:0] vid_de_v;
+// Exact clk_vid edges in one complete frame. Count once after startup or a timing change, then hold.
+reg [23:0] vid_fclks = 0;
 reg [31:0] vid_htime = 0;
 reg [31:0] vid_vtime = 0;
 reg [31:0] vid_pix = 0;
@@ -907,6 +906,8 @@ always @(posedge clk_sys) begin
 	  16: dout <= vid_pixrep;
 	  17: dout <= vid_de_h;
 	  18: dout <= vid_de_v;
+	  19: dout <= vid_fclks[15:0];
+	  20: dout <= {8'd0, vid_fclks[23:16]};
 	  default dout <= 0;
 	endcase
 end
@@ -924,6 +925,7 @@ reg [3:0] resto = 0;
 always @(posedge clk_vid) begin
 	reg calch;
 
+	if(resto == 1) vid_fclks <= vid_fclks + 1'd1;
 	if(calch & de) ccnt <= ccnt + 1;
 	pcnt <= pcnt + 1'd1;
 
@@ -956,7 +958,10 @@ always @(posedge clk_vid) begin
 
 					//report new resolution after timeout
 					if(resto) resto <= resto + 1'd1;
-					if(vid_hcnt != hcnt || vid_vcnt != vcnt || old_vmode != new_vmode) resto <= 1;
+					if(vid_hcnt != hcnt || vid_vcnt != vcnt || old_vmode != new_vmode) begin
+						resto <= 1;
+						vid_fclks <= 0;
+					end
 					if(&resto) vid_nres <= vid_nres + 1'd1;
 					vid_hcnt <= hcnt;
 					vid_vcnt <= vcnt;
