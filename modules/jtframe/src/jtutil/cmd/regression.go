@@ -17,7 +17,8 @@ import (
 )
 
 var regression_opts regression.Options
-var regression_accept, regression_unaccept []string
+var regression_accept, regression_unaccept, regression_reject []string
+var regression_review string
 
 var regressionCmd = &cobra.Command{
 	Use:   "regression",
@@ -52,7 +53,13 @@ resumes it; --commit also reruns its ERROR games.
 
 --accept <names> makes the new/ or fail/ frames of each setname, or of all the
 pending games of each core, the new ref/. --unaccept <names> turns ref/ back into
-new/ for review. Both log a manual line in the game's log and run no capture.`,
+new/ for review. --reject <names> moves new/ or fail/ to rejected/, replacing an
+older rejected/; the next capture of the game removes it. All three log a manual
+line in the game's log and run no capture.
+
+--review[=address] serves web pages, at localhost:8090 by default, to look at the
+pending frames of each core and accept or reject them, one game or a whole core
+at a time. Use --review=:8090 to reach it from other computers.`,
 	Args: cobra.NoArgs,
 	RunE: run_regression_cmd,
 }
@@ -67,6 +74,9 @@ func init() {
 	flag.StringVar(&regression_opts.PublishTo, "publish-to", "github", "Report destination for full runs: github, gitea (GITEA_SERVER_URL, GITEA_REPOSITORY, GITEA_TOKEN) or none")
 	flag.StringSliceVar(&regression_accept, "accept", nil, "Make the new or fail frames of these setnames or cores the reference")
 	flag.StringSliceVar(&regression_unaccept, "unaccept", nil, "Turn the reference of these setnames or cores back into new frames")
+	flag.StringSliceVar(&regression_reject, "reject", nil, "Move the new or fail frames of these setnames or cores to rejected")
+	flag.StringVar(&regression_review, "review", "", "Serve the review web pages at this address")
+	flag.Lookup("review").NoOptDefVal = "localhost:8090"
 	rootCmd.AddCommand(regressionCmd)
 }
 
@@ -84,6 +94,12 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	}
 	if len(regression_unaccept) > 0 {
 		return regression.Unaccept(filepath.Join(jotego, "regression"), regression_unaccept, cmd.OutOrStdout())
+	}
+	if len(regression_reject) > 0 {
+		return regression.Reject(filepath.Join(jotego, "regression"), regression_reject, cmd.OutOrStdout())
+	}
+	if regression_review != "" {
+		return regression.Review(filepath.Join(jotego, "regression"), regression_review, cmd.OutOrStdout())
 	}
 	opts := regression_opts
 	opts.Root, opts.Builds = filepath.Join(jotego, "regression"), filepath.Join(jotego, "core-builds")

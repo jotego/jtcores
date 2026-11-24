@@ -60,12 +60,13 @@ esac
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			_ = os.Remove(callLog)
-			build := BuildIdentity{Repository: githubRepository, Workflow: compileAllWorkflow, RunID: "run-676", Attempt: "1", SHA: "abc", Ref: tc.ref, Event: tc.event, PR: 1689}
+			commit := strings.Repeat("a", 40)
+			build := BuildIdentity{Repository: githubRepository, SHA: commit, Ref: tc.ref, Event: tc.event, PR: 1689}
 			publisher := GitHubPublisher{TempDir: filepath.Join(root, "publication", tc.name)}
 			if err := publisher.Preflight(build); err != nil {
 				t.Fatal(err)
 			}
-			if _, _, err := publisher.Publish(Summary{RunID: "run-676", Build: build}); err != nil {
+			if _, _, err := publisher.Publish(Summary{RunID: commit, Build: build}); err != nil {
 				t.Fatal(err)
 			}
 			data, err := os.ReadFile(callLog)

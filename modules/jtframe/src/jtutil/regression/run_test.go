@@ -312,9 +312,6 @@ func TestRunResumes(t *testing.T) {
 	if len(lab.loads) != 2 {
 		t.Errorf("loads %v", lab.loads)
 	}
-	if _, e := ReadProgress(opts.Root, commit); e != nil {
-		t.Errorf("mame-frames cannot read the progress: %v", e)
-	}
 }
 
 func TestRunPollWhileBusy(t *testing.T) {

@@ -134,8 +134,6 @@ scenes/
 !*.cab
 !sim.sh
 
-# Local hardware regression machine configuration
-/.jtutil-regression.yaml
 CODEX.md
 DEEPSEEK.md
 .claude

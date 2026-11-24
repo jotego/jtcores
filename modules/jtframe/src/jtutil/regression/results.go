@@ -15,8 +15,7 @@ import (
 	"time"
 )
 
-// progress is log/<key>.json, one file per commit. The field names follow the
-// older progress files, which mame-frames still reads
+// progress is log/<key>.json, one file per commit
 type progress struct {
 	Commit         string                    `json:"commit"`
 	Dirty          bool                      `json:"dirty,omitempty"`
@@ -141,10 +140,10 @@ func (r *runner) publish_error(j *job) {
 
 // publish_slot replaces the slot folder with a copy of src, through a
 // temporary folder and a rename, and removes the other result folders.
-// An error keeps new and fail: it says nothing about the game. ref is never touched
+// An error keeps new, fail and rejected: it says nothing about the game. ref is never touched
 func (r *runner) publish_slot(game, slot, src string) error {
 	e := os.MkdirAll(game, 0750); if e != nil { return e }
-	for _, name := range []string{"new", "fail", "error"} {
+	for _, name := range []string{"new", "fail", "error", "rejected"} {
 		dst := filepath.Join(game, name)
 		if name != slot && slot == "error" {
 			continue

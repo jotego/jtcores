@@ -717,3 +717,33 @@ func list_mame_nvram_files(root, setname string) ([]mame_nvram_file, error) {
 	sort.Slice(out, func(i, j int) bool { return out[i].path < out[j].path })
 	return out, nil
 }
+
+type mraPart struct {
+	Name string `xml:"name,attr"`
+	CRC  string `xml:"crc,attr"`
+	Text string `xml:",chardata"`
+}
+
+type mraInterleave struct {
+	Parts      []mraPart       `xml:"part"`
+	Interleave []mraInterleave `xml:"interleave"`
+}
+
+type mraROM struct {
+	Index      string          `xml:"index,attr"`
+	Parts      []mraPart       `xml:"part"`
+	Interleave []mraInterleave `xml:"interleave"`
+}
+
+func (r mraROM) AllParts() []mraPart {
+	parts := append([]mraPart(nil), r.Parts...)
+	var visit func([]mraInterleave)
+	visit = func(groups []mraInterleave) {
+		for _, group := range groups {
+			parts = append(parts, group.Parts...)
+			visit(group.Interleave)
+		}
+	}
+	visit(r.Interleave)
+	return parts
+}

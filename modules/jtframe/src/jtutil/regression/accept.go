@@ -5,7 +5,9 @@ package regression
 
 import (
 	"fmt"
+	"hash/crc32"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,6 +26,12 @@ func Accept(root string, names []string, out io.Writer) error {
 // frames is left as it is
 func Unaccept(root string, names []string, out io.Writer) error {
 	return each_game(root, names, out, "back to new", "no ref frames to take back", unaccept_game)
+}
+
+// Reject moves the pending new/ or fail/ frames of each named game to rejected/,
+// replacing an older rejected/, and adds a REJECT line to the game's log
+func Reject(root string, names []string, out io.Writer) error {
+	return each_game(root, names, out, "rejected", "no new or fail frames to reject", reject_game)
 }
 
 func each_game(root string, names []string, out io.Writer, done, none string, action func(string) (bool, error)) error {
@@ -53,16 +61,15 @@ func each_game(root string, names []string, out io.Writer, done, none string, ac
 }
 
 func accept_game(game string) (bool, error) {
-	pending := ""
-	for _, slot := range []string{"new", "fail"} {
-		if _, e := os.Stat(filepath.Join(game, slot)); e == nil {
-			pending = filepath.Join(game, slot)
-			break
-		}
-	}
-	if pending == "" {
+	return promote_game(game, "manual")
+}
+
+// promote_game makes the new/ or fail/ frames the ref/ and logs an ACCEPT line by who
+func promote_game(game, who string) (bool, error) {
+	if pending_slot(game) == "" {
 		return false, nil
 	}
+	pending := filepath.Join(game, pending_slot(game))
 	logs, _ := filepath.Glob(filepath.Join(pending, "MiSTer*.log")) // fail/ keeps Main's log
 	for _, log := range logs {
 		if e := os.Remove(log); e != nil { return false, e }
@@ -76,7 +83,32 @@ func accept_game(game string) (bool, error) {
 	}
 	if e := os.RemoveAll(old); e != nil { return false, e }
 	crc, e := reference_crc(ref); if e != nil { return false, e }
-	return true, game_log(game, "manual", "ACCEPT", crc)
+	return true, game_log(game, who, "ACCEPT", crc)
+}
+
+func reject_game(game string) (bool, error) {
+	pending := pending_slot(game)
+	if pending == "" {
+		return false, nil
+	}
+	rejected := filepath.Join(game, "rejected")
+	if e := os.RemoveAll(rejected); e != nil { return false, e }
+	if e := os.Rename(filepath.Join(game, pending), rejected); e != nil { return false, e }
+	for _, slot := range []string{"new", "fail"} {
+		if e := os.RemoveAll(filepath.Join(game, slot)); e != nil { return false, e }
+	}
+	crc, e := reference_crc(filepath.Join(game, "ref")); if e != nil { return false, e }
+	return true, game_log(game, "manual", "REJECT", crc)
+}
+
+// pending_slot is the result folder awaiting review, new or fail, or "" for none
+func pending_slot(game string) string {
+	for _, slot := range []string{"new", "fail"} {
+		if info, e := os.Stat(filepath.Join(game, slot)); e == nil && info.IsDir() {
+			return slot
+		}
+	}
+	return ""
 }
 
 func unaccept_game(game string) (bool, error) {
@@ -99,4 +131,39 @@ func game_log(game, who, verdict, crc string) error {
 	_, e = fmt.Fprintf(log, "%s %-13s %-11s %s\n", LogTime(time.Now()), who, verdict, crc)
 	if close_error := log.Close(); e == nil { e = close_error }
 	return e
+}
+
+// LogTime formats log timestamps in the local time zone
+func LogTime(value time.Time) string {
+	return value.Local().Format("2006-01-02 15:04:05")
+}
+
+// reference_crc is the CRC32 of the sorted relative names, sizes and bytes of
+// the files in dir, or -------- when dir does not exist
+func reference_crc(dir string) (string, error) {
+	info, e := os.Lstat(dir)
+	if os.IsNotExist(e) { return "--------", nil }
+	if e != nil { return "", e }
+	if !info.IsDir() { return "", fmt.Errorf("%s is not a directory", dir) }
+	digest := crc32.NewIEEE()
+	e = filepath.WalkDir(dir, func(path string, entry fs.DirEntry, walk_error error) error {
+		if walk_error != nil { return walk_error }
+		if path == dir { return nil }
+		relative, e := filepath.Rel(dir, path); if e != nil { return e }
+		relative = filepath.ToSlash(relative)
+		if entry.IsDir() {
+			fmt.Fprintf(digest, "d%s\x00", relative)
+			return nil
+		}
+		info, e := entry.Info(); if e != nil { return e }
+		if !info.Mode().IsRegular() { return fmt.Errorf("%s is not a regular file", path) }
+		fmt.Fprintf(digest, "f%s\x00%d\x00", relative, info.Size())
+		file, e := os.Open(path); if e != nil { return e }
+		size, e := io.Copy(digest, file)
+		if close_error := file.Close(); e == nil { e = close_error }
+		if e == nil && size != info.Size() { e = fmt.Errorf("%s changed while hashing", path) }
+		return e
+	})
+	if e != nil { return "", e }
+	return fmt.Sprintf("%08x", digest.Sum32()), nil
 }

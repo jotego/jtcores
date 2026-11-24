@@ -141,29 +141,3 @@ func (p GiteaPublisher) request(method, path string, payload, result any) error 
 	return json.NewDecoder(io.LimitReader(response.Body, 8<<20)).Decode(result)
 }
 
-func campaign_complete(root, commit string, cfg Config) bool {
-	if cfg.Target == "mister" {
-		qualification, err := ReadMiSTerQualification(cfg)
-		if err != nil {
-			return false
-		}
-		progress, err := ReadProgress(root, commit)
-		if err != nil {
-			return false
-		}
-		for key, lane := range progress.CaptureRuns {
-			if lane.FinalizationKind != miSTerSerialResultsKind || lane.Target != "mister" || lane.CaptureGeneration != qualification.Generation || lane.CaptureConvention != qualification.Convention || lane.QualificationID != qualification.QualificationID || lane.RunScopeID != MiSTerAutomaticRunScopeID || !lane.Complete || lane.Status != "complete" || len(lane.Selected) == 0 {
-				continue
-			}
-			if validateCaptureRunLane(key, lane) == nil {
-				return true
-			}
-		}
-		return false
-	}
-	if cfg.NoPublish || cfg.ReportTarget != "gitea" {
-		return commit_complete(root, commit, cfg.NoPublish)
-	}
-	progress, err := ReadProgress(root, commit)
-	return err == nil && progress.AutomaticComplete && progress.GiteaReportComplete && progress.GiteaReportURL != ""
-}
