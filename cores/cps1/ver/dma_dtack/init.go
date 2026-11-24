@@ -10,6 +10,11 @@ import (
 // enum assignment. This mirrors the narrow workaround used by CPS2's DTACK
 // unit test while keeping the production fx68k source and behavior intact.
 func main() {
+	// simunit compiles local Verilog files, including copies left by older runs.
+	if err := os.Remove("jtcps1_main_iverilog.v"); err != nil && !os.IsNotExist(err) {
+		panic(err)
+	}
+
 	hdl := filepath.Join(os.Getenv("JTROOT"), "modules/fx68k/hdl")
 	for _, name := range []string{"microrom.mem", "nanorom.mem"} {
 		data, err := os.ReadFile(filepath.Join(hdl, name))
@@ -31,26 +36,6 @@ func main() {
 	}
 	source := strings.Replace(string(data), old, "begin if(wClk) tState <= T0; else tState <= T1; end", 1)
 	if err := os.WriteFile("fx68k_iverilog.sv", []byte(source), 0600); err != nil {
-		panic(err)
-	}
-
-	// Icarus resolves declarations in source order while Verilator allows
-	// last_LVBL to be declared after its first use in jtcps1_main.v. Move only
-	// that declaration in a temporary copy; no functional RTL is changed.
-	mainPath := filepath.Join(os.Getenv("JTROOT"), "cores/cps1/hdl/jtcps1_main.v")
-	main, err := os.ReadFile(mainPath)
-	if err != nil {
-		panic(err)
-	}
-	mainText := string(main)
-	late := "reg        last_LVBL;"
-	early := "reg         dsn_dly;"
-	if strings.Count(mainText, late) != 1 || strings.Count(mainText, early) != 1 {
-		panic("jtcps1_main declaration workaround no longer matches")
-	}
-	mainText = strings.Replace(mainText, late, "", 1)
-	mainText = strings.Replace(mainText, early, "reg         dsn_dly, last_LVBL;", 1)
-	if err := os.WriteFile("jtcps1_main_iverilog.v", []byte(mainText), 0600); err != nil {
 		panic(err)
 	}
 }

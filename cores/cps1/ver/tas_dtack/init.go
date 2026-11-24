@@ -7,6 +7,11 @@ import (
 )
 
 func main() {
+	// simunit compiles local Verilog files, including copies left by older runs.
+	if err := os.Remove("jtcps1_main_iverilog.v"); err != nil && !os.IsNotExist(err) {
+		panic(err)
+	}
+
 	hdl := filepath.Join(os.Getenv("JTROOT"), "modules/fx68k/hdl")
 	for _, name := range []string{"microrom.mem", "nanorom.mem"} {
 		data, err := os.ReadFile(filepath.Join(hdl, name))
@@ -28,21 +33,6 @@ func main() {
 	}
 	fxCopy := strings.Replace(string(fx), fxEnum, "begin if(wClk) tState <= T0; else tState <= T1; end", 1)
 	if err := os.WriteFile("fx68k_iverilog.sv", []byte(fxCopy), 0600); err != nil {
-		panic(err)
-	}
-	mainPath := filepath.Join(os.Getenv("JTROOT"), "cores/cps1/hdl/jtcps1_main.v")
-	main, err := os.ReadFile(mainPath)
-	if err != nil {
-		panic(err)
-	}
-	mainText := string(main)
-	late, early := "reg        last_LVBL;", "reg         dsn_dly;"
-	if strings.Count(mainText, late) != 1 || strings.Count(mainText, early) != 1 {
-		panic("jtcps1_main declaration workaround no longer matches")
-	}
-	mainText = strings.Replace(mainText, late, "", 1)
-	mainText = strings.Replace(mainText, early, "reg         dsn_dly, last_LVBL;", 1)
-	if err := os.WriteFile("jtcps1_main_iverilog.v", []byte(mainText), 0600); err != nil {
 		panic(err)
 	}
 

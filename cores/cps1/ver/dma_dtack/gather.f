@@ -1,5 +1,6 @@
 $JTFRAME/hdl/cpu/jtframe_68kdtack_cen.v
 # cpu_timing
+$JTROOT/cores/cps1/hdl/jtcps1_main.v
 $JTFRAME/hdl/cpu/jtframe_68kdma.v
 $JTFRAME/hdl/sdram/jtframe_okdly.v
 $JTFRAME/hdl/clocking/jtframe_freqinfo.v

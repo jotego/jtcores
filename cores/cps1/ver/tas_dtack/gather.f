@@ -3,6 +3,7 @@ $JTROOT/cores/cps1/hdl/jtcps1_sdram.v
 +define+ROMCACHE
 +define+CPS_VRAM
 +define+JTFRAME_BA0_LEN=64
+$JTROOT/cores/cps1/hdl/jtcps1_main.v
 $JTROOT/cores/cps1/hdl/jtcps1_prom_we.v
 $JTROOT/cores/cps1/hdl/jtcps1_vram.v
 $JTFRAME/hdl/cpu/jtframe_68kdtack_cen.v
