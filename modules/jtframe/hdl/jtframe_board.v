@@ -22,6 +22,7 @@ module jtframe_board #(parameter
     // reset forcing signals:
     input               rst_req,
     input               pll_locked,
+    input               ph24,
 
     input               clk_sys,
     input               clk_rom,
@@ -233,6 +234,7 @@ assign base_rgb  = { cross_r, cross_g, cross_b };
 `ifdef JTFRAME_PXLCLK
     jtframe_pxlcen u_pxlcen(
         .clk        ( clk_rom   ),
+        .ph24       ( ph24      ),
         .pxl_cen    ( pxl_cen   ),
         .pxl2_cen   ( pxl2_cen  )
     );
@@ -252,6 +254,7 @@ jtframe_reset u_reset(
 
     .sdram_init ( sdram_init    ),
     .ioctl_rom  ( rom_rst       ),
+    .dwnld_busy ( dwnld_busy    ),
     .dip_flip   ( dip_flip      ),
     .soft_rst   ( soft_rst      ),
     .rst_req    ( rst_req       ),
@@ -795,6 +798,7 @@ jtframe_board_sdram #(
 ) u_sdram(
     .rst        ( rst           ),
     .clk        ( clk_rom       ),
+    .lvbl       ( LVBL          ),
     .init       ( sdram_init    ),
     .prog_en    ( prog_en       ),
 

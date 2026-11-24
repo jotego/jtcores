@@ -524,8 +524,8 @@ jtframe_sdram64_bank #(
 
 always @(*) begin
     rfsh_bg = &idle && (noreq | help) && rfsh_br;
-    prog_bg = pre_br & !rfshing;
-    if( rfshing ) begin
+    prog_bg = pre_br & !rfshing & !rfsh_bg;
+    if( rfshing || rfsh_bg ) begin
         bg=0;
     end else begin
         if( BAPRIO ) begin

@@ -4,14 +4,18 @@
 
 `ifdef JTFRAME_PXLCLK
 module jtframe_pxlcen(
-    input   clk,
-    output  pxl_cen,
-    output  pxl2_cen
+    input       clk,
+    input       ph24,
+    output reg  pxl_cen=0,
+    output reg  pxl2_cen=0
 );
 
     localparam PXLCLK = `JTFRAME_PXLCLK,
                CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
-               M      = PXLCLK==16 ? 3 : (PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0);
+               M      = PXLCLK==16 ? 3 : (PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0),
+               P      = CLK/24,
+               LP     = P==4 ? 2 : 1,
+               L      = (2*M)%P==0 ? 2*M : 4*M;
 
     initial begin
         if( PXLCLK==16 && CLK!=96 ) begin
@@ -24,13 +28,17 @@ module jtframe_pxlcen(
         end
     end
 
-    jtframe_frac_cen #(.WC(4),.W(2)) u_cen(
-        .clk    ( clk       ),    // 48 or 96 MHz
-        .n      ( 4'd1      ),
-        .m      (M[3:0]),
-        .cen    ( { pxl_cen, pxl2_cen } ),
-        .cenb   (           )
-    );
+    reg  [4:0] mc=0;
+    reg  [1:0] ph_s=0;
+    wire       ph_edge = ph_s[1]^ph_s[0];
+    wire [4:0] mc_nx   = mc==L[4:0]-5'd1 ? 5'd0 : mc+5'd1;
+
+    always @(posedge clk) begin
+        ph_s     <= { ph_s[0], ph24 };
+        mc       <= ph_edge ? { mc_nx[4:LP], {LP{1'b0}} } : mc_nx;
+        pxl2_cen <= (mc % M)     == M-1;
+        pxl_cen  <= (mc % (2*M)) == 2*M-1;
+    end
 
 endmodule
 `endif

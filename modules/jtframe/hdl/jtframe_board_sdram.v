@@ -28,6 +28,7 @@ module jtframe_board_sdram #(
 )(
     input                   rst,
     input                   clk,
+    input                   lvbl,
     output                  init,
     input                   prog_en,
 
@@ -144,16 +145,24 @@ localparam
     HF = 0;
 `endif
 
-wire rfsh, nc_rfsh;
+reg  [`JTFRAME_RFSH_WC:0] rfsh_cnt=0;
+reg  lvbl_l=0, rfsh=0;
+wire [`JTFRAME_RFSH_WC:0] rfsh_nx = rfsh_cnt + {1'b0,`JTFRAME_RFSH_N};
 
 // Automatic JTFRAME macros set a 64us refresh period
-jtframe_frac_cen #(.WC(`JTFRAME_RFSH_WC)) u_rfsh(
-    .clk    ( clk               ),
-    .n      ( `JTFRAME_RFSH_N   ),
-    .m      ( `JTFRAME_RFSH_M   ),
-    .cen    ( {nc_rfsh, rfsh }  ),
-    .cenb   (                   )
-);
+always @(posedge clk) begin
+    lvbl_l <= lvbl;
+    rfsh   <= 0;
+    if( lvbl && !lvbl_l ) begin
+        rfsh_cnt <= 0;
+        rfsh     <= 1;
+    end else if( rfsh_nx >= {1'b0,`JTFRAME_RFSH_M} ) begin
+        rfsh_cnt <= rfsh_nx - {1'b0,`JTFRAME_RFSH_M};
+        rfsh     <= 1;
+    end else begin
+        rfsh_cnt <= rfsh_nx;
+    end
+end
 
 `ifdef JTFRAME_SDRAM_CACHE
     assign ba_ack    = 4'd0;

@@ -23,7 +23,7 @@ module jtframe_board #(
     SDRAMW=23, VIDEO_WIDTH=384, VIDEO_HEIGHT=224, MISTER=1, XOR_ROT=0
 )(
     output rst, rst_n, game_rst, game_rst_n, sdram_init,
-    input capture_pause, rst_req, pll_locked, clk_sys, clk_rom, clk_pico,
+    input capture_pause, rst_req, pll_locked, ph24, clk_sys, clk_rom, clk_pico,
     input [17:0] core_mod,
     output vertical,
     output [1:0] black_frame,

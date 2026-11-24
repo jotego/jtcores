@@ -59,6 +59,20 @@ For each output listed, the result frequency is divided by 2. Thus cpu4_cen will
 
 You can specify several clock domains, clk24, clk48, etc. If you move _cen_ signals from one domain to another, make sure the right clock is used in the _game_ module too for each respective _cen_.
 
+## Repeatable start
+
+A game must run the same way every time it leaves reset, so hardware regressions can compare frames. Most video timers run freely, also during reset, and CAB START releases the reset request at the start of a frame. The game reset is then released a fixed number of clock cycles later. Any other phase that keeps running during reset must either be locked to that timing or restart when the reset is released:
+
+- `jtframe_pxlcen` (**JTFRAME_PXLCLK**) keeps the pixel clock locked to the clk24 phase (`ph24` toggle of the target), so frames, and so the reset release, always start on the same clk24 phase. This works when the pixel period is a multiple of the clk24 period: 6 and 8 MHz pixels. With **JTFRAME_PXLCLK**=16 (narc) or with pixel clocks defined in mem.yaml (cps3), the clk24 and clk48 phases at the release may still change from one run to the next
+- the SDRAM refresh period restarts at every frame, with a refresh request, so refresh requests keep a fixed timing with respect to the video
+- _cen_ signals defined in mem.yaml keep running during reset, but their phase restarts when the reset is released
+- the E/Q phase of `jtframe_sys6809` restarts when the reset is released
+- the sound chip timing of jt12, jtopl and jt6295 restarts with the reset too
+- the game stays in reset from the FPGA start until a first download ends (`jtframe_reset`). Before it, the SDRAM holds stale data, and on MiSTer the core runs for a variable time before the HPS starts the download. A game running then leaves RAM and register contents that the game reset does not clear
+  - a setup without any download keeps the game in reset: a MiST/SiDi RBF loaded without an ARC, or `jtsim -mister`, whose harness does not drive the HPS bus. Cartridge loads also count as a download
+
+Clock enables generated inside the game module by free-running counters, such as `jtframe_frac_cen` instances, which have no reset input, are not covered. Restart such counters when the game reset is released if the game needs to repeat exactly. Check that a new CPU wrapper or clock divider does not keep a phase across the reset either.
+
 # Internal JTFRAME Clocks
 
 The clocks passed to the target subsystem (jtframe_mist, jtframe_mister or jtframe_neptuno) are three:

@@ -3,15 +3,6 @@
 
 main() {
     local child= status=0 cancelled=0 diagnostic_dir
-    local -a legacy_args=()
-    case "${REGRESSION_LEGACY_SIDI128:-false}" in
-        true|TRUE|1) legacy_args=(--legacy-sidi128) ;;
-        false|FALSE|0|'') ;;
-        *)
-            echo 'REGRESSION_LEGACY_SIDI128 must be true or false.'
-            return 1
-            ;;
-    esac
     if [[ -z "${REGRESSION_CONFIG:-}" || -z "${JOTEGO:-}" ]]; then
         echo 'Regression configuration and private storage secrets are required.'
         return 1
@@ -41,7 +32,7 @@ main() {
     fi
     # Run the binary directly so TERM reaches its cancellation handler.
     # Do not set GH_TOKEN/GITHUB_TOKEN: gh uses the host account credentials.
-    "$REGRESSION_WORKSPACE/jtutil" regression "${legacy_args[@]}" --poll --publish-to gitea --config "$config_file" >> "$diagnostic_file" 2>&1 &
+    "$REGRESSION_WORKSPACE/jtutil" regression --poll --publish-to gitea >> "$diagnostic_file" 2>&1 &
     child=$!
     wait "$child" || status=$?
     # A signal can interrupt wait before jtutil finishes board cleanup.

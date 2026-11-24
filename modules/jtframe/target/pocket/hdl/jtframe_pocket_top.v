@@ -253,7 +253,7 @@ wire [1:0] dial_x, dial_y;
 wire data_rdy, sdram_ack;
 
 // PLL's
-wire pll_locked, clk_pico;
+wire pll_locked, clk_pico, ph24;
 
 wire [ 7:0] debug_bus, debug_view;
 wire [ 1:0] dip_fxlevel;
@@ -298,6 +298,7 @@ jtframe_mist_clocks u_clocks(
     .clk96      ( clk96          ),
     .clk48      ( clk48          ),
     .clk24      ( clk24          ),
+    .ph24       ( ph24           ),
     .pll_locked ( pll_locked     ),
 
     // System clocks
@@ -370,6 +371,7 @@ u_frame(
     .clk_pico       ( clk_pico       ),
     .clk48          ( clk48          ),
     .pll_locked     ( pll_locked     ),
+    .ph24           ( ph24           ),
     .status         ( status         ),
     .dipsw          ( dipsw          ),
     // System communication

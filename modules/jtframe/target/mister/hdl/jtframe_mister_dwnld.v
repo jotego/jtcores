@@ -237,13 +237,13 @@ end
 localparam PW = 29-4-BW;
 
 reg [PW-1:0] ddram_page;
+reg          ddram_wait;
 
 assign ddram_burstcnt = 8'h1 << BW; // 128*8=1024
 assign ddram_addr = { 4'd3, ddram_page, {BW{1'b0}} };
 assign buffer_we  = ddram_wait;
 
 wire cnt_over = &ddram_cnt;
-reg ddram_wait;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

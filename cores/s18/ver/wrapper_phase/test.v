@@ -13,7 +13,7 @@ module test;
     end
 
     wire pxl_cen,pxl2_cen,pxl48,pxl2_48;
-    jtframe_pxlcen u_framework_cen(.clk(clk48),.pxl_cen(pxl_cen),.pxl2_cen(pxl2_cen));
+    jtframe_pxlcen u_framework_cen(.clk(clk48),.ph24(1'b0),.pxl_cen(pxl_cen),.pxl2_cen(pxl2_cen));
     wire [1:0] cen12, frac_cen12;
     wire [15:0] cen_fave, cen_fworst;
     jtframe_gated_cen #(.W(2),.NUM(1),.DEN(4),.MFREQ(48000)) u_memcen6(

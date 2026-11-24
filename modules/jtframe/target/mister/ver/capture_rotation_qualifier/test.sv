@@ -98,6 +98,21 @@ module test;
     end
     endtask
 
+    // the o78 Rotate screen option is status[40:39]: only No (flip) flips the framebuffer
+    task check_status_flip(input [1:0] option,input user_port,input expected);
+    begin
+        @(negedge clk);
+        release uut.framebuf_flip;
+        hps_status_drive=0;
+        hps_status_drive[40:39]=option;
+        hps_status_drive[38]=user_port;
+        force uut.hps_status_full=hps_status_drive;
+        tick(4);
+        if(uut.framebuf_flip!==expected)
+            $fatal(1,"framebuf_flip rotate option %0d user port bit %b got %b expected %b",option,user_port,uut.framebuf_flip,expected);
+    end
+    endtask
+
     initial begin
         force uut.hps_status_full=hps_status_drive;
         force uut.rotate=2'b00;
@@ -117,6 +132,11 @@ module test;
         check_rejected_gate(0);
         check_rejected_gate(1);
         check_rejected_gate(2);
+        check_status_flip(2'd0,1'b0,1'b0);
+        check_status_flip(2'd1,1'b0,1'b0);
+        check_status_flip(2'd2,1'b0,1'b1);
+        check_status_flip(2'd0,1'b1,1'b0);
+        check_status_flip(2'd2,1'b1,1'b1);
         $display("PASS: actual jtframe_mister qualifier and real screen_rotate native-direction truth table");
         $finish;
     end
