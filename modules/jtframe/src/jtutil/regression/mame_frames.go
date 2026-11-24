@@ -32,8 +32,10 @@ type MameFrameOptions struct {
 	MAME     string   // MAME executable
 	ROMPath  string   // MAME ROM folder
 	Out      io.Writer
-	capture  func(ctx context.Context, g *mame_game, work string) (mame_capture, error)
-	colorw   func(core string) (int, error)
+	// ColorW gives the JTFRAME_COLORW of a core. The default, CoreColorW,
+	// runs the macro parser in this process, which may exit on a bad core
+	ColorW  func(core string) (int, error)
+	capture func(ctx context.Context, g *mame_game, work string) (mame_capture, error)
 }
 
 // MameFrameResult is the outcome of one game: PASS, FAIL or BUSY.
@@ -63,7 +65,7 @@ type mame_capture struct {
 
 // RunMameFrames compares the new/ frames of each game that has no ref/ with
 // the frames that MAME renders for its reg.cab. Each FPGA frame must equal,
-// at the core's JTFRAME_COLORW precision, a MAME frame later than the one
+// at the precision of the MiSTer captures, a MAME frame later than the one
 // that matched the previous FPGA frame. A match promotes new/ to ref/ as
 // --accept does, logged as mame. A mismatch leaves the game untouched
 func RunMameFrames(ctx context.Context, opts MameFrameOptions) ([]MameFrameResult, error) {
@@ -73,8 +75,8 @@ func RunMameFrames(ctx context.Context, opts MameFrameOptions) ([]MameFrameResul
 	if opts.Out == nil {
 		opts.Out = io.Discard
 	}
-	if opts.colorw == nil {
-		opts.colorw = func(core string) (int, error) { return core_colorw(opts.Source, core) }
+	if opts.ColorW == nil {
+		opts.ColorW = func(core string) (int, error) { return CoreColorW(opts.Source, core) }
 	}
 	if opts.capture == nil {
 		mame, e := exec.LookPath(opts.MAME); if e != nil { return nil, fmt.Errorf("MAME executable: %w", e) }
@@ -83,16 +85,19 @@ func RunMameFrames(ctx context.Context, opts MameFrameOptions) ([]MameFrameResul
 		}
 	}
 	games, results, e := find_mame_games(opts); if e != nil { return nil, e }
-	bits := map[string]int{}
+	colorw := map[string]func() (int, error){}
 	var pending []*mame_game
 	for _, g := range games {
-		if _, ok := bits[g.core]; !ok {
-			if bits[g.core], e = opts.colorw(g.core); e != nil {
-				return nil, fmt.Errorf("%s JTFRAME_COLORW: %w", g.core, e)
-			}
+		if colorw[g.core] == nil {
+			bits, e := opts.ColorW(g.core)
+			colorw[g.core] = func() (int, error) { return bits, e }
 		}
-		g.bits = bits[g.core]
-		if g.cab, e = ReadCab(filepath.Join(opts.Source, "cores", g.core, "ver", g.set, "reg.cab")); e != nil {
+		bits, e := colorw[g.core]()
+		if e == nil {
+			g.bits = capture_bits(bits)
+			e = read_game_cab(opts, g)
+		}
+		if e != nil {
 			results = append(results, MameFrameResult{g.core, g.set, "FAIL", compact_mame_error(e.Error())})
 			continue
 		}
@@ -101,7 +106,7 @@ func RunMameFrames(ctx context.Context, opts MameFrameOptions) ([]MameFrameResul
 	for _, r := range results {
 		fmt.Fprintf(opts.Out, "%-16s %-5s %s\n", r.Core+"/"+r.Setname, r.Verdict, r.Detail)
 	}
-	var mu sync.Mutex
+	var mu, promotion sync.Mutex
 	queue := make(chan *mame_game)
 	var wg sync.WaitGroup
 	for k := 0; k < opts.Jobs && k < len(pending); k++ {
@@ -109,7 +114,7 @@ func RunMameFrames(ctx context.Context, opts MameFrameOptions) ([]MameFrameResul
 		go func() {
 			defer wg.Done()
 			for g := range queue {
-				result := check_mame_game(ctx, opts, g)
+				result := check_mame_game(ctx, opts, g, &promotion)
 				mu.Lock()
 				fmt.Fprintf(opts.Out, "%-16s %-5s %s\n", g.core+"/"+g.set, result.Verdict, result.Detail)
 				results = append(results, result)
@@ -184,7 +189,10 @@ func read_new_frames(dir string) ([]mame_frame, error) {
 	return frames, nil
 }
 
-func check_mame_game(ctx context.Context, opts MameFrameOptions, g *mame_game) MameFrameResult {
+// check_mame_game compares one game and promotes it on a match. Promotions
+// take turns: each takes log/lock, which other promotions of this process
+// would see as busy
+func check_mame_game(ctx context.Context, opts MameFrameOptions, g *mame_game, promotion *sync.Mutex) MameFrameResult {
 	result := MameFrameResult{Core: g.core, Setname: g.set, Verdict: "FAIL"}
 	detail, e := compare_mame_game(ctx, opts, g)
 	if e != nil {
@@ -195,7 +203,10 @@ func check_mame_game(ctx context.Context, opts MameFrameOptions, g *mame_game) M
 	if opts.Dryrun {
 		return result
 	}
-	switch e = promote_mame_game(opts.Root, g); {
+	promotion.Lock()
+	e = promote_mame_game(opts.Root, g)
+	promotion.Unlock()
+	switch {
 	case e == errBusy:
 		result.Verdict, result.Detail = "BUSY", detail+"; not promoted: a regression run holds the lock"
 	case e != nil:
@@ -270,8 +281,46 @@ func promote_mame_game(root string, g *mame_game) error {
 	return e
 }
 
-// core_colorw is the JTFRAME_COLORW of the MiSTer build of core
-func core_colorw(source, core string) (int, error) {
+// read_game_cab reads the reg.cab of the commit that captured new/, the last
+// NEW row of the game's log, or that of the working tree when git does not have it
+func read_game_cab(opts MameFrameOptions, g *mame_game) error {
+	path := "cores/" + g.core + "/ver/" + g.set + "/reg.cab"
+	commit := ""
+	log, _ := os.ReadFile(filepath.Join(filepath.Dir(g.dir), "log"))
+	for _, line := range strings.Split(string(log), "\n") {
+		if f := strings.Fields(line); len(f) == 5 && f[3] == "NEW" {
+			commit = f[2]
+		}
+	}
+	if commit != "" && !strings.HasSuffix(commit, "-dirty") {
+		data, e := exec.Command("git", "-C", opts.Source, "show", commit+":"+path).Output()
+		if e == nil {
+			g.cab, e = ParseCab(strings.NewReader(string(data)))
+			if e != nil { return fmt.Errorf("%s of %s: %w", path, commit, e) }
+			return nil
+		}
+	}
+	if commit == "" {
+		commit = "no commit in the log"
+	}
+	fmt.Fprintf(opts.Out, "%-16s uses the reg.cab of the working tree (%s)\n", g.core+"/"+g.set, commit)
+	var e error
+	g.cab, e = ReadCab(filepath.Join(opts.Source, path))
+	return e
+}
+
+// capture_bits is the precision of the MiSTer captures of a core. Besides
+// 24-bit video, arcade_video keeps only 4 bits per channel. jtframe_mister
+// sends COLORW=5 as 24-bit video
+func capture_bits(colorw int) int {
+	if colorw == 5 || colorw == 8 || colorw < 4 {
+		return colorw
+	}
+	return 4
+}
+
+// CoreColorW is the JTFRAME_COLORW of the MiSTer build of core
+func CoreColorW(source, core string) (int, error) {
 	if _, e := os.Stat(filepath.Join(source, "cores", core, "cfg", "macros.def")); e != nil {
 		return 0, e
 	}

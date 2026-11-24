@@ -141,18 +141,23 @@ func test_jtroot(t *testing.T) string {
 	return root
 }
 
-func TestCoreColorwUsesMiSTerMacros(t *testing.T) {
+func TestCaptureBitsUseMiSTerMacros(t *testing.T) {
 	root := test_jtroot(t)
 	for _, key := range []string{"JTROOT", "JTFRAME", "CORES", "MODULES"} {
 		t.Setenv(key, os.Getenv(key))
 	}
-	for core, want := range map[string]int{"blkout": 4, "s16": 5, "shanon": 6, "ajax": 8} {
-		if got, e := core_colorw(root, core); e != nil || got != want {
-			t.Errorf("%s JTFRAME_COLORW = %d, %v; want %d", core, got, e, want)
+	for core, want := range map[string]int{"blkout": 4, "s16": 5, "shanon": 4, "ajax": 8} {
+		if colorw, e := CoreColorW(root, core); e != nil || capture_bits(colorw) != want {
+			t.Errorf("%s JTFRAME_COLORW = %d, %v; want %d capture bits", core, colorw, e, want)
 		}
 	}
-	if _, e := core_colorw(root, "nosuchcore"); e == nil {
+	if _, e := CoreColorW(root, "nosuchcore"); e == nil {
 		t.Error("a missing core was accepted")
+	}
+	for colorw, want := range map[int]int{1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 4, 7: 4, 8: 8} {
+		if got := capture_bits(colorw); got != want {
+			t.Errorf("COLORW %d gives %d capture bits, want %d", colorw, got, want)
+		}
 	}
 }
 

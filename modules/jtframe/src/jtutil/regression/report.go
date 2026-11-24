@@ -11,12 +11,11 @@ import (
 type Outcome string
 
 const (
-	Pass        Outcome = "pass"
-	New         Outcome = "new"
-	Fail        Outcome = "fail"
-	Error       Outcome = "error"
-	Unsupported Outcome = "unsupported"
-	Pending     Outcome = "pending"
+	Pass    Outcome = "pass"
+	New     Outcome = "new"
+	Fail    Outcome = "fail"
+	Error   Outcome = "error"
+	Pending Outcome = "pending"
 )
 
 type GameResult struct {
@@ -29,7 +28,6 @@ type GameResult struct {
 
 type BuildIdentity struct {
 	Repository string `json:"repository"`
-	RunID      string `json:"run_id"`
 	SHA        string `json:"sha"`
 	Ref        string `json:"ref"`
 	Event      string `json:"event"`
@@ -37,13 +35,10 @@ type BuildIdentity struct {
 }
 
 type Summary struct {
-	RunID            string         `json:"run_id"`
-	Build            BuildIdentity  `json:"build"`
-	Started          time.Time      `json:"started"`
-	Finished         time.Time      `json:"finished,omitempty"`
-	Duration         time.Duration  `json:"duration_ns,omitempty"`
-	Status           string         `json:"status"`
-	OperationalError string         `json:"operational_error,omitempty"`
-	Games            []GameResult   `json:"games"`
-	Coverage         map[string]int `json:"coverage"`
+	RunID    string         `json:"run_id"`
+	Build    BuildIdentity  `json:"build"`
+	Duration time.Duration  `json:"duration_ns,omitempty"`
+	Status   string         `json:"status"`
+	Games    []GameResult   `json:"games"`
+	Coverage map[string]int `json:"coverage"`
 }

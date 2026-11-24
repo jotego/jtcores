@@ -91,22 +91,26 @@ by CAB line.
 ## Running
 
 ```sh
-jtutil regression --commit <hash>   # $JOTEGO/core-builds/<hash>.zip
+jtutil regression --commit <hash>   # $JOTEGO/core-builds/<short hash>.zip
 jtutil regression --poll            # newest successful compile-all build
 jtutil regression --core <core>     # one core from the working tree
 ```
 
-`--commit` unpacks `release/mister`, `release/cab` and the top-level MRA files
-of the compile-all zip. `--poll` asks `gh` for the latest successful
-compile-all runs, skips a commit already tested and downloads the zip when it
-is missing; it does nothing when another regression holds the lock. `--core`
+`--commit` takes any commit name that git resolves and unpacks `release/mister`,
+`release/cab` and the top-level MRA files of the compile-all zip named after
+its 7-character short hash. `--poll` asks `gh` for the latest successful
+compile-all runs and takes the newest one. It stops when that commit was
+already tested, downloads the zip when it is missing and goes on to the next
+older run only when the local checkout does not know the commit or the zip
+cannot be had. It does nothing when another
+regression holds the lock. `--core`
 builds a release folder from the working tree: the RBF from
 `$JTROOT/release/mister` (build it with `jtcore <core> -mr`), the MRA files from
 `jtframe mra` and the `reg.cab` files of the core. It needs `JTUTIL` set to the
 folder that holds `beta.bin`, so that beta MRA files load. A dirty tree is
 allowed and is marked as such.
 
-The release folder goes to `/media/fat/_<hash>` of each board with `jtbin2mr`.
+The release folder goes to `/media/fat/_<short hash>` of each board with `jtbin2mr`.
 That needs `MISTERPASSWD` and wipes the core settings of the board; a board
 whose copy takes over 10 minutes is left out. The boards are given by
 `--boards` (`mister.home`, `mister2.home` and `mister3.home` by default) and
@@ -211,7 +215,10 @@ those of one core or some setnames. For each game it:
 
 1. copies `new/` to a work folder under `/tmp`
 2. refuses frames that are all black or all identical
-3. reads `cores/<core>/ver/<setname>/reg.cab` from `$JTROOT`
+3. reads `cores/<core>/ver/<setname>/reg.cab` as it was in the commit that
+   captured `new/`, the one in the last NEW row of the game's `log`, with
+   `git show` in `$JTROOT`. When git does not have that commit, or the run was
+   dirty, it uses the working tree file and says so
 4. runs MAME in a window with every setting directory inside the work folder
    and `XDG_CONFIG_HOME` pointed there, so the user's MAME setup is not used
 5. seeds MAME's NVRAM with the defaults of the game: `cfg/<setname>.nvm` (or
@@ -224,8 +231,13 @@ those of one core or some setnames. For each game it:
    skips MAME's startup screens, may not exceed 299 seconds; the wall-clock
    limit is that time plus 10%, at most five minutes
 7. matches each captured frame, in order, with the first MAME frame after the
-   previous match that is equal once the colour channels are cut to the core's
-   `JTFRAME_COLORW` bits (read from its MiSTer macros)
+   previous match that is equal once the colour channels are cut to the bits
+   that the MiSTer video keeps. `arcade_video` passes only the top 4 bits of
+   each channel unless the video is 24-bit, and `jtframe_mister` sends
+   `JTFRAME_COLORW` 5 and 8 as 24-bit video. So COLORW 5 and 8 compare at 5 and
+   8 bits and any other width at COLORW bits, at most 4. COLORW comes from the
+   core's MiSTer macros, parsed in a separate `jtutil` process, so a broken
+   core only fails its own games
 
 The CAB input bits map to MAME's COIN, SERVICE1, START, P1/P2 joystick and
 button 1-3 tokens. `test`, `reset`, `dipsw=`, `cheat=` and `dump` cannot be
@@ -238,3 +250,18 @@ gets an ACCEPT row by `mame`. The promotion takes `log/lock` and checks that
 While a regression run holds the lock, a match is reported as BUSY and the game
 is left as it is. A mismatch is FAIL and changes nothing. `--dryrun` compares
 and promotes nothing. The output has one line per game and a final count.
+
+## Gitea workflow
+
+`.gitea/workflows/hardware-regression.yaml` runs `jtutil regression --poll
+--publish-to gitea` on the `regression-host` runner. It is started by hand for
+now. It checks `log/lock` first and skips the run when a regression is going
+on, clones master without submodules into a temporary folder, sources
+`setprj.sh` and runs `modules/jtframe/bin/regression-action.sh`, which builds
+`jtutil` and runs it in the background so that a cancellation reaches it.
+
+The `JOTEGO` repository secret names the private storage. The runner account
+needs `MISTERPASSWD` for `jtbin2mr`, SSH access to the boards and its own `gh`
+login for the compile-all builds; the Gitea token comes from the job. The job
+output stays short: the `jtutil` output goes to
+`~/.local/state/jtcores-regression/action-<run>-<attempt>.log` on the runner.

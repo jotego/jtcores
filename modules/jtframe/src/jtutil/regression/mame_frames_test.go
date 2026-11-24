@@ -9,7 +9,9 @@ import (
 	"image/color"
 	"os"
 	"path/filepath"
+	"os/exec"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -44,7 +46,7 @@ func mame_test_lab(t *testing.T) MameFrameOptions {
 		return mame_capture{paths, 60}, nil
 	}
 	return MameFrameOptions{Root: root, Source: source, Core: "cps1", Jobs: 2, Out: &bytes.Buffer{}, capture: capture,
-		colorw: func(core string) (int, error) { return 4, nil }}
+		ColorW: func(core string) (int, error) { return 4, nil }}
 }
 
 func mame_test_verdicts(results []MameFrameResult) string {
@@ -91,7 +93,7 @@ func TestMameFramesDryrunChangesNothing(t *testing.T) {
 	}
 }
 
-func TestMameFramesWaitsForTheLock(t *testing.T) {
+func TestMameFramesReportsBusyWhileARunHoldsTheLock(t *testing.T) {
 	opts := mame_test_lab(t)
 	lock, e := lock_regression(opts.Root); if e != nil { t.Fatal(e) }
 	defer lock.Close()
@@ -150,5 +152,79 @@ func TestMameCaptureLuaReplaysCab(t *testing.T) {
 	for _, script := range []string{"test\n", "reset\n", "dipsw=1\n", "cheat=x\n", "dump\n"} {
 		cab, e := ParseCab(strings.NewReader(script)); if e != nil { t.Fatal(e) }
 		if _, e = make_mame_capture_lua(cab, 10, "", "", ""); e == nil { t.Errorf("%q was mapped", script) }
+	}
+}
+
+func TestMameFramesPromotesParallelMatches(t *testing.T) {
+	opts := mame_test_lab(t)
+	var sets []string
+	for k := 0; k < 8; k++ {
+		set := fmt.Sprintf("good%d", k)
+		sets = append(sets, set)
+		for _, dir := range []string{filepath.Join(opts.Root, "cps1"), filepath.Join(opts.Source, "cores", "cps1", "ver")} {
+			if e := exec.Command("cp", "-r", filepath.Join(dir, "good"), filepath.Join(dir, set)).Run(); e != nil { t.Fatal(e) }
+		}
+	}
+	opts.Setnames, opts.Jobs = sets, 4
+	var mu sync.Mutex
+	count, together := 0, make(chan struct{})
+	inner := opts.capture
+	opts.capture = func(ctx context.Context, g *mame_game, work string) (mame_capture, error) {
+		capture, e := inner(ctx, g, work)
+		mu.Lock()
+		if count++; count == opts.Jobs {
+			close(together) // the first games finish together
+		}
+		mu.Unlock()
+		<-together
+		return capture, e
+	}
+	results, e := RunMameFrames(context.Background(), opts); if e != nil { t.Fatal(e) }
+	if len(results) != len(sets) {
+		t.Fatalf("%d results", len(results))
+	}
+	for _, r := range results {
+		if r.Verdict != "PASS" { t.Errorf("%s is %s: %s", r.Setname, r.Verdict, r.Detail) }
+		if _, e := os.Stat(filepath.Join(opts.Root, "cps1", r.Setname, "ref")); e != nil { t.Error(e) }
+	}
+}
+
+func TestMameFramesFailsOnlyTheGamesOfABadCore(t *testing.T) {
+	opts := mame_test_lab(t)
+	opts.Core, opts.Dryrun = "", true
+	opts.ColorW = func(core string) (int, error) {
+		if core == "1942" { return 0, fmt.Errorf("broken macros") }
+		return 4, nil
+	}
+	results, e := RunMameFrames(context.Background(), opts); if e != nil { t.Fatal(e) }
+	if got := mame_test_verdicts(results); got != "other=FAIL bad=FAIL good=PASS" {
+		t.Fatalf("verdicts %s", got)
+	}
+	if !strings.Contains(results[0].Detail, "broken macros") { t.Errorf("detail %q", results[0].Detail) }
+}
+
+func TestMameFramesReplaysTheCapturedCab(t *testing.T) {
+	opts := mame_test_lab(t)
+	git := func(args ...string) string {
+		out, e := exec.Command("git", append([]string{"-C", opts.Source, "-c", "user.name=t", "-c", "user.email=t@t"}, args...)...).Output()
+		if e != nil { t.Fatal(args, e) }
+		return strings.TrimSpace(string(out))
+	}
+	git("init", "-q")
+	git("add", ".")
+	git("commit", "-qm", "cabs")
+	commit := git("rev-parse", "--short=7", "HEAD")
+	cab := filepath.Join(opts.Source, "cores", "cps1", "ver", "good", "reg.cab")
+	if e := os.WriteFile(cab, []byte("capture 100\n=900\n"), 0640); e != nil { t.Fatal(e) }
+	row := "2026-11-23 14:01:07 " + commit + "       NEW         --------\n"
+	if e := os.WriteFile(filepath.Join(opts.Root, "cps1", "good", "log"), []byte(row), 0640); e != nil { t.Fatal(e) }
+	opts.Setnames, opts.Dryrun = []string{"good", "bad"}, true
+	results, e := RunMameFrames(context.Background(), opts); if e != nil { t.Fatal(e) }
+	if got := mame_test_verdicts(results); got != "bad=FAIL good=PASS" {
+		t.Fatalf("verdicts %s\n%s", got, opts.Out)
+	}
+	out := opts.Out.(*bytes.Buffer).String()
+	if strings.Contains(out, "cps1/good        uses") || !strings.Contains(out, "cps1/bad         uses the reg.cab of the working tree (no commit in the log)") {
+		t.Errorf("output:\n%s", out)
 	}
 }

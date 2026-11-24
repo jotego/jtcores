@@ -299,7 +299,7 @@ func (r *runner) publish() error {
 	}
 	p := r.progress
 	summary := Summary{RunID: p.Commit, Build: BuildIdentity{Repository: "jotego/jtcores", SHA: p.Commit, Ref: "master", Event: "push"},
-		Started: p.Started, Finished: p.Updated, Duration: p.Updated.Sub(p.Started), Status: p.Status, Coverage: map[string]int{}}
+		Duration: p.Updated.Sub(p.Started), Status: p.Status, Coverage: map[string]int{}}
 	for _, key := range sorted_keys(p.Games) {
 		g := p.Games[key]
 		core, set, _ := strings.Cut(key, "/")

@@ -6,8 +6,11 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -26,8 +29,11 @@ MAME runs in a window, isolated under /tmp, with the NVRAM defaults of the game
 and the CAB inputs applied one line per frame. It runs 500 frames past the last
 captured frame, at most 299 emulated seconds. Each frame_<N>.png must equal a
 MAME frame later than the one that matched the previous frame, with the colour
-channels cut to the JTFRAME_COLORW bits of the core. Frames that are all black
-or all identical never match.
+channels cut to the bits that the MiSTer video keeps: the JTFRAME_COLORW of the
+core for 5 and 8 bits, at most 4 bits otherwise. Frames that are all black or
+all identical never match. MAME replays the reg.cab of the commit that captured
+new/, taken from the game's log, or that of the working tree when git does not
+have that commit.
 
 A match makes new/ the ref/, as --accept does, and logs ACCEPT by mame in the
 game's log. It needs the regression lock: while a regression run holds it, the
@@ -47,6 +53,34 @@ func init() {
 	home, _ := os.UserHomeDir()
 	flag.StringVar(&mame_frames_opts.ROMPath, "rompath", filepath.Join(home, ".mame", "roms"), "MAME ROM folder")
 	rootCmd.AddCommand(mameFramesCmd)
+	rootCmd.AddCommand(mameColorwCmd)
+}
+
+// mameColorwCmd runs the macro parser of one core in a process of its own,
+// so that a broken core cannot stop mame-frames
+var mameColorwCmd = &cobra.Command{
+	Use:    "mame-frames-colorw <core>",
+	Hidden: true,
+	Args:   cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
+		bits, e := regression.CoreColorW(project_root(), args[0]); if e != nil { return e }
+		fmt.Fprintln(cmd.OutOrStdout(), bits)
+		return nil
+	},
+}
+
+func mame_colorw(core string) (int, error) {
+	exe, e := os.Executable(); if e != nil { return 0, e }
+	out, e := exec.Command(exe, "mame-frames-colorw", core).Output()
+	if exit, ok := e.(*exec.ExitError); ok {
+		lines := strings.Split(strings.TrimSpace(string(exit.Stderr)), "\n")
+		return 0, fmt.Errorf("JTFRAME_COLORW: %v: %s", e, lines[len(lines)-1])
+	}
+	if e != nil { return 0, e }
+	fields := strings.Fields(string(out)) // the macro parser may print too
+	if len(fields) == 0 { return 0, fmt.Errorf("JTFRAME_COLORW: no output") }
+	return strconv.Atoi(fields[len(fields)-1])
 }
 
 func run_mame_frames_cmd(cmd *cobra.Command, args []string) error {
@@ -62,6 +96,7 @@ func run_mame_frames_cmd(cmd *cobra.Command, args []string) error {
 	cmd.SilenceUsage = true
 	opts := mame_frames_opts
 	opts.Root, opts.Source, opts.Out = filepath.Join(jotego, "regression"), project_root(), cmd.OutOrStdout()
+	opts.ColorW = mame_colorw
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	results, e := regression.RunMameFrames(ctx, opts)

@@ -199,7 +199,7 @@ func formatGitHubSummary(summary Summary, marker string) string {
 	fmt.Fprintln(&b, "## Coverage")
 	fmt.Fprintln(&b)
 	fmt.Fprintln(&b, "| Outcome | Games |\n|---|---:|")
-	for _, outcome := range []Outcome{Pass, New, Fail, Error, Unsupported, Pending} {
+	for _, outcome := range []Outcome{Pass, New, Fail, Error, Pending} {
 		if count := summary.Coverage[string(outcome)]; count > 0 {
 			fmt.Fprintf(&b, "| %s | %d |\n", outcome, count)
 		}
@@ -209,9 +209,6 @@ func formatGitHubSummary(summary Summary, marker string) string {
 		if game.Outcome == New || game.Outcome == Fail || game.Outcome == Error {
 			attention++
 		}
-	}
-	if summary.OperationalError != "" {
-		attention++
 	}
 	fmt.Fprintln(&b)
 	if attention == 0 {
@@ -223,9 +220,6 @@ func formatGitHubSummary(summary Summary, marker string) string {
 			if game.Outcome == New || game.Outcome == Fail || game.Outcome == Error {
 				fmt.Fprintf(&b, "- `%s/%s` — **%s** at %s: %s.\n", game.Core, game.Setname, game.Outcome, game.Stage, game.Message)
 			}
-		}
-		if summary.OperationalError != "" {
-			fmt.Fprintf(&b, "- Batch operation: %s.\n", summary.OperationalError)
 		}
 	}
 	fmt.Fprintf(&b, "\nCaptures and execution records are retained under `$JOTEGO/regression` (run `%s`).\n", summary.RunID)

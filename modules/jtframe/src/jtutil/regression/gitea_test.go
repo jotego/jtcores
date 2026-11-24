@@ -62,7 +62,6 @@ func TestGiteaReportCreateResumeAndCompletion(t *testing.T) {
 		t.Fatal(err)
 	}
 	summary.Status = "interrupted"
-	summary.OperationalError = "capture cancelled"
 	resumed, err := p.Publish(summary, "")
 	if err != nil {
 		t.Fatal(err)
@@ -71,7 +70,6 @@ func TestGiteaReportCreateResumeAndCompletion(t *testing.T) {
 		t.Fatal("lost receipt did not find/update existing issue across pages")
 	}
 	summary.Status = "complete"
-	summary.OperationalError = ""
 	summary.Coverage["pass"] = 1
 	if _, err = p.Publish(summary, link); err != nil {
 		t.Fatal(err)
