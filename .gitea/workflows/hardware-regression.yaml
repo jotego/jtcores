@@ -1,7 +1,8 @@
 name: MiSTer hardware regression
 
 on:
-  # schedule disabled until the workflow runs the new MiSTer regression
+  schedule:
+    - cron: 'CRON_TZ=Europe/Madrid 0 5 * * *'
   workflow_dispatch:
 
 jobs:

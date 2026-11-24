@@ -1,5 +1,0 @@
-rastan:
-  inputs: reg.cab
-  video: 2200
-opwolf:
-  skip: true
