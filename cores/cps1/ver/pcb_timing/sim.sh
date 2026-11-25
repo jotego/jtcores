@@ -6,4 +6,5 @@ if [[ ! -s "$ROM/sf2ua.rom" ]]; then
     jtframe mra cps1
 fi
 python3 prepare.py
-jtsim -load results.cab -video 1200 -norotate "$@"
+jtsim -load results.cab -video 1400 -norotate "$@"
+python3 check.py

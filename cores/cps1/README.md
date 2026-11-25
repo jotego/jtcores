@@ -231,6 +231,61 @@ Vampire Savior 2      | 4.0 MB  |  256 kB     | 32 MB   | 8 MB    |        |    
 X-Men Children of A.  | 4.0 MB  |  256 kB     | 32 MB   | 4 MB    | 7080   |  No   | 179
 X-Men vs SF           | 3.5 MB  |  256 kB     | 32 MB   | 4 MB    | 7080   |  No   | 337
 
+# Video DMA
+
+`hdl/jtcps1_dma.v` copies data from video RAM into the CPS-A internal memories. CPS1, CPS1.5 and CPS2 share it. It runs on the 16 MHz pixel clock enable and takes the 68000 bus with BR/BG. Each access takes four steps; a step is skipped to recover time after an SDRAM wait.
+
+## Line request
+
+At the start of each line (HB rising edge) the DMA requests the bus, even when there is nothing to copy. It holds the bus for `HEADER` (9) ticks, about 0.6 µs, before the first task starts. The line tasks then run in this order:
+
+| Task | Content | Words |
+|------|---------|------:|
+| ROW  | row scroll offset for the next line | 1 |
+| OBJ  | object table | 4 |
+| SCR1 | 8×8 tile row | 100 (0–99) |
+| SCR2 | 16×16 tile row | 98 (128–225) |
+| SCR3 | 32×32 tile row | 30 (226–255) |
+| PAL  | palette page | 512 per page |
+
+The bus grants measured on the PCB were 0.60 µs with no tasks, 1.64 µs with OBJ and 2.06 µs with OBJ and row scroll. The core gives 0.60, 1.74 and 2.00 µs.
+
+## Scroll tile rows
+
+The tile cache has two banks for each scroll layer. A layer's write bank swaps with its read bank at the HB edge after the row has been fetched. The write bank is selected by the task being copied, because the write happens one clock after the word counter has moved on.
+
+Rows are fetched only for the visible lines (vrender 16–239). At line 15 every enabled layer fetches the row of the first visible line, whatever its alignment. After that, a layer fetches a row only on the line before a new row starts: every 8 lines for SCR1, 16 for SCR2 and 32 for SCR3. With flip enabled, the row of the next line is used (`vscr+7`), so the forced fetch at line 15 is correct as well. Fetching SCR3 every 16 lines doubled its bus time, and fetching rows during blanking made SCR1 about 0.35% slower than the PCB.
+
+Row scroll is read for lines 0–239 and 258 onwards; the vertical blank lasts 38 lines.
+
+## Object table
+
+The object table has two banks. A complete copy is shown, and the next base address latched, only at line 0. If a copy does not finish within a frame, the display keeps the previous bank for another frame. An object whose attribute word is `FFxx` ends the table: the rest of the copy is filled with zeros.
+
+## Palette
+
+A palette transfer starts at the next line request after the CPU writes the palette control register. The bus is held for all six page slots even when the CPS-B mask disables some pages; the mask only selects which pages are written. Leading disabled pages reuse the first source page, while later gaps advance the source. The last read of a page also fetches word zero of the next one. The OBJ copy goes on during the palette transfer, one entry per line, so the whole object table still fits in a frame. On the PCB, the six pages with OBJ take about 782 µs; the simulation gives 784 µs.
+
+The palette base address is added to the page offset, not concatenated with it: in Ghouls the base is 9105 and its LSB matters. Treating the scroll base the same way breaks the Slam Masters background, so scroll addresses are concatenated. Colour FFF is forced to black for the artificial CPS2 blank.
+
+## Timing against the PCB
+
+The DMA timing was tuned against the V14 diagnostic run on an SF2 90629B-3 PCB (issues #226 and #229). `ver/pcb_timing/sim.sh` runs the same diagnostic and checks its result pages. The core matches the PCB within 0.23% in every case (rms 0.11%). The two largest residuals are:
+
+- Loops with four memory accesses are 0.23% faster than the PCB. This comes from the quantization of each bus grant into 68000 bus cycles: releasing the bus later does not give intermediate values.
+- SCR1 with an unaligned scroll is 0.20% slower, because the core fetches one more row. The PCB cost does not depend on the scroll phase.
+
+## Tests
+
+The DMA contract is checked by these simunit tests in `ver/`:
+
+| Test | Checks |
+|------|--------|
+| `dma_line` | one bus request per line with the header length, OBJ length, SCR3 every 32 lines, SCR2 write bank |
+| `obj_dma_safe` | full object copy, end marker and zero tail, bank swap only at frame boundaries, base rewrite during a copy |
+| `pal_dma_fixed` | fixed palette copy time and data against the V14 PCB results |
+| `pal_dma_interleave` | 512 words per enabled palette page while OBJ and SCR1 share the bus |
+
 # Simulation
 
 ## Game
