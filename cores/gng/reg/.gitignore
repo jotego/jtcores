@@ -1,0 +1,3 @@
+build/
+!build/regtest.zip
+.DS_Store
