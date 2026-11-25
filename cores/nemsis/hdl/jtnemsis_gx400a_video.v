@@ -50,6 +50,7 @@ module jtnemsis_gx400a_video
 	output              h1_n,
 	output              h2,
 	output              v256,
+	output              scanline_zero,
 
 	input      [15:1]   cpu_addr,
 	input      [15:0]   cpu_din,
@@ -356,6 +357,7 @@ assign HS = ~hs_n;
 assign VS = ~vs_n;
 
 assign vblank = ~vblank_n;
+assign scanline_zero = v128_v1 == 8'd0;
 
 // ** Dual 4-Input NAND Gate    **
 // ** [LS20] @ 16C              **

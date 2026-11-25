@@ -1,6 +1,7 @@
 nemsis:
   - get:
       - jtnemsis_game.v
+      - jtnemsis_header.v
       - jtnemsis_video_bram_if.v
       - jtnemsis_palram_if.v
       - jtnemsis_main.yaml
