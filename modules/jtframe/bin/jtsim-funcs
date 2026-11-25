@@ -285,6 +285,16 @@ jtcfgstr() {
     jtframe cfgstr $SYSNAME --target=$TARGET --output=$1 --def=$ALLMACROS --undef=$UNDEF
 }
 
+# The Verilator SDRAM model has no clock phase shift, so the controller must
+# run unshifted: JTFRAME_SHIFT ^ JTFRAME_180SHIFT must be 0. MiSTer sets
+# JTFRAME_SHIFT=1; cores with JTFRAME_180SHIFT=1 already cancel it out.
+normalize_verilator_mister_sdram_shift() {
+    local simulator="$1" target="$2" def_file="$3"
+    [[ "$simulator" = verilator && "$target" = mister ]] || return 0
+    grep -Fxq '+define+JTFRAME_180SHIFT=1' "$def_file" && return 0
+    ${SED:-sed -i} 's/^+define+JTFRAME_SHIFT=1$/+define+JTFRAME_SHIFT=0/' "$def_file"
+}
+
 build_core_firmware() {
     local core_path="$1"
     local fw_dir="$core_path/firmware"

@@ -11,6 +11,7 @@ main() {
     test_verilator_optimization_fast
     test_verilator_optimization_override
     test_verilator_make_parallelism
+    test_verilator_mister_sdram_shift
     test_compare_scene_snapshot_match
     test_compare_scene_snapshot_mismatch
     test_compare_scene_snapshot_size_mismatch
@@ -41,6 +42,39 @@ test_verilator_make_parallelism() {
     unset JTFRAME_SIM_REGRESSION
     unset JTFRAME_REGRESSION
     pass "$bad"
+}
+
+test_verilator_mister_sdram_shift() {
+    local bad tmp c core target shift phase expected
+    tmp=$(mktemp -d)
+    # core:target:expected JTFRAME_SHIFT after normalization
+    for c in gng:mister:0 ktiger:mister:1 wardnr:mister:1 ktiger:pocket:0; do
+        IFS=: read core target expected <<< "$c"
+        if ! jtframe cfgstr $core --target=$target --output=verilator > $tmp/core.def; then
+            fail "could not generate $core $target defines"
+            bad=1
+            continue
+        fi
+        normalize_verilator_mister_sdram_shift verilator $target $tmp/core.def
+        shift=$(sed -n 's/^+define+JTFRAME_SHIFT=//p' $tmp/core.def)
+        phase=$(sed -n 's/^+define+JTFRAME_180SHIFT=//p' $tmp/core.def)
+        if [ "${shift:-0}" != $expected ]; then
+            fail "$core $target: JTFRAME_SHIFT=$shift, expected $expected"
+            bad=1
+        fi
+        if [ $target = mister ] && [ $(( ${shift:-0} ^ ${phase:-0} )) != 0 ]; then
+            fail "$core $target: SDRAM phase not neutral (SHIFT=$shift 180SHIFT=$phase)"
+            bad=1
+        fi
+    done
+    printf '+define+JTFRAME_SHIFT=1\n' > $tmp/core.def
+    normalize_verilator_mister_sdram_shift iverilog mister $tmp/core.def
+    if ! grep -Fxq '+define+JTFRAME_SHIFT=1' $tmp/core.def; then
+        fail "non-Verilator simulation was normalized"
+        bad=1
+    fi
+    rm -rf $tmp
+    pass $bad
 }
 
 fail() {

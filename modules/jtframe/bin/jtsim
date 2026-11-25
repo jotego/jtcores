@@ -392,9 +392,7 @@ if ! jtcfgstr $SIMULATOR > core.def; then
     cat core.def
     exit 1
 fi
-if [[ "$SIMULATOR" = verilator && "$TARGET" = mister ]]; then
-    $SED 's/+define+JTFRAME_SHIFT=1/+define+JTFRAME_SHIFT=0/' core.def
-fi
+normalize_verilator_mister_sdram_shift "$SIMULATOR" "$TARGET" core.def
 
 disable_patreon_credits
 
