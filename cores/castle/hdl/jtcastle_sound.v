@@ -58,6 +58,7 @@ assign pcma_addr[18:17] = banks[1:0];
 assign pcmb_addr[18:17] = banks[3:2];
 
 jtframe_frac_cen #(.W(4),.WC(12)) u_cen(
+    .rst        ( 1'b0      ),
     .clk        ( clk       ),  // 24 MHz
     .n          ( 12'd0735  ),  // 0.01% error
     .m          ( 12'd2464  ),

@@ -93,6 +93,7 @@ assign sample=cen;
 
 wire nc;
 jtframe_frac_cen #(.WC(FRACW)) u_cen(
+    .rst    ( rst       ),
     .clk    ( clk       ),
     .n      ( FRACN     ),
     .m      ( FRACM     ),

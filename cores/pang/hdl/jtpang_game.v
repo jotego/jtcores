@@ -41,6 +41,7 @@ assign kabuki_we  = ioctl_wr && header && ioctl_addr[3:0]<11;
 
 // The sound uses the 24 MHz clock
 jtframe_frac_cen #( .W( 4), .WC( 4)) u_cen24(
+    .rst  ( 1'b0   ),
     .clk  ( clk24  ),
     .n    ( 4'd1   ),
     .m    ( 4'd3   ),

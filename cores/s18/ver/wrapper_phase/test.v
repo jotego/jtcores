@@ -19,6 +19,7 @@ module test;
     jtframe_gated_cen #(.W(2),.NUM(1),.DEN(4),.MFREQ(48000)) u_memcen6(
         .rst(rst),.clk(clk48),.busy(1'b0),.cen(cen12),.fave(cen_fave),.fworst(cen_fworst));
     jtframe_frac_cen #(.W(2),.WC(6)) u_frac_phase_ref(
+        .rst(1'b0 ),
         .clk(clk48),.n(6'd1),.m(6'd4),.cen(frac_cen12),.cenb());
     assign pxl48=cen12[1];
     assign pxl2_48=cen12[0];

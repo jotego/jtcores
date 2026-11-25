@@ -99,6 +99,7 @@ end
 
 // CPU clock enable: 9.000 MHz at 48 MHz input or 9.216 MHz at 49.152 MHz.
 jtframe_frac_cen u_cpucen(
+    .rst   (1'b0),
     .clk   (clk),
     .n     (10'd24),
     .m     (10'd128),
@@ -108,6 +109,7 @@ jtframe_frac_cen u_cpucen(
 
 // Pixel and HDMI clock enables.
 jtframe_frac_cen u_videocen(
+    .rst   (1'b0),
     .clk   (clk),
     .n     (10'd32),
     .m     (m_video),
@@ -117,6 +119,7 @@ jtframe_frac_cen u_videocen(
 
 // Audio enables: 3.5795 MHz, then divide-by-two stages through 111.86 kHz.
 jtframe_frac_cen #(.W(7), .WC(12)) u_audiocen(
+    .rst   (1'b0),
     .clk   (clk),
     .n     (12'd67),
     .m     (12'd920),

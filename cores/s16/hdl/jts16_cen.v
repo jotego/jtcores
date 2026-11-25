@@ -21,6 +21,7 @@ parameter CLK96=0;
 wire nc, ncb, nc2, ncb2, nc3, nc4;
 
 jtframe_frac_cen #(2) u_pxlcen(
+    .rst    ( 1'b0      ),
     .clk    ( clk       ),
     .n      ( 10'd1     ),
     .m      ( CLK96 ? 10'd8 : 10'd4  ),
@@ -32,6 +33,7 @@ jtframe_frac_cen #(2) u_pxlcen(
 // Sound subsystem uses clk24 = 25.1748 MHz
 
 jtframe_frac_cen u_mcucen(   // 8MHz
+    .rst    ( 1'b0      ),
     .clk    ( clk24     ),
     .n      ( 10'd143   ),
     .m      ( 10'd450   ),
@@ -40,6 +42,7 @@ jtframe_frac_cen u_mcucen(   // 8MHz
 );
 
 jtframe_frac_cen u_fmcen(   // 4MHz
+    .rst    ( 1'b0      ),
     .clk    ( clk24     ),
     .n      ( 10'd143   ),
     .m      ( 10'd900   ),
@@ -48,6 +51,7 @@ jtframe_frac_cen u_fmcen(   // 4MHz
 );
 
 jtframe_frac_cen #(.WC(14)) u_sndcen( // 5 MHz
+    .rst    ( 1'b0      ),
     .clk    ( clk24     ),
     .n      ( 14'd1373  ),
     .m      ( 14'd6913  ),
@@ -57,6 +61,7 @@ jtframe_frac_cen #(.WC(14)) u_sndcen( // 5 MHz
 
 `ifndef S16B
     jtframe_frac_cen #(.WC(14)) u_pcmcen(  // 6 MHz
+        .rst    ( 1'b0      ),
         .clk    ( clk24     ),
         .n      ( 14'd1619  ),
         .m      ( 14'd6793  ),
@@ -66,6 +71,7 @@ jtframe_frac_cen #(.WC(14)) u_sndcen( // 5 MHz
 `else
     // 640 kHz
     jtframe_frac_cen  #(.WC(16)) u_pcmcen(
+        .rst    ( 1'b0      ),
         .clk    ( clk24     ),
         .n      ( 16'd873   ),
         .m      ( 16'd34340 ),

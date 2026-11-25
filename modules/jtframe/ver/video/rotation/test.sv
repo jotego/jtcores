@@ -6,7 +6,7 @@ integer cycle=0, x=0, y=0, frame=0, outfd;
 integer period=7, filter=0, fractional=0, realtiming=0, direction=1;
 integer width=320, height=240, htotal=446, vtotal=286;
 wire [1:0] cen;
-jtframe_frac_cen #(.W(2)) cen_gen(.clk(clk),.n(10'd7),.m(10'd24),.cen(cen),.cenb());
+jtframe_frac_cen #(.W(2)) cen_gen(.rst(1'b0),.clk(clk),.n(10'd7),.m(10'd24),.cen(cen),.cenb());
 wire pe=fractional ? cen[1] : (cycle%period)==0;
 wire ppe=fractional ? cen[0] : ((cycle*2)%period)<2;
 reg [14:0] picture[0:262143];

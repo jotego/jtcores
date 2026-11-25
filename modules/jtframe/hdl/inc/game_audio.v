@@ -100,6 +100,7 @@ assign snd_vu   = 0;
 assign snd_peak = 0;
 wire ncs;
 jtframe_frac_cen #(.WC({{ .FracW }})) u_cen192(
+    .rst    ( rst       ),
     .clk    ( clk       ),
     .n      ( {{.FracN}} ),
     .m      ( {{.FracM}} ),

@@ -115,6 +115,7 @@ jtframe_cen3p57 u_fmcen(
 );
 
 jtframe_frac_cen u_okicen(
+    .rst        (  1'b0             ),
     .clk        (  clk              ),
     .n          ( 10'd1             ),
     .m          ( 10'd48            ),

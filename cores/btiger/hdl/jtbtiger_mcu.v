@@ -28,6 +28,7 @@ reg  last_mcu_wr;
 wire nc, cen;
 
 jtframe_frac_cen u_cen(
+    .rst    ( 1'b0      ),
     .clk    ( clk       ),
     .n      ( 10'd1     ),
     .m      ( 10'd24    ),

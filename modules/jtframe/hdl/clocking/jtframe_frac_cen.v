@@ -10,11 +10,12 @@
 /* verilator tracing_off */
 
 module jtframe_frac_cen #(parameter W=2,WC=10)(
+    input         rst,
     input         clk,
     input   [WC-1:0] n,         // numerator
     input   [WC-1:0] m,         // denominator
-    output reg [W-1:0] cen,
-    output reg [W-1:0] cenb // 180 shifted
+    output     [W-1:0] cen,
+    output     [W-1:0] cenb // 180 shifted
 );
 
 wire [WC:0] step={1'b0,n},
@@ -29,9 +30,15 @@ always @(*) begin
     next2 = next-lim;
 end
 
+reg  [W-1:0] cen_r=0, cenb_r=0;
 reg  half    = 0;
+reg  rst_l   = 0;
+wire restart = rst_l & ~rst;
 wire over    = next>=lim;
 wire halfway = next >= (lim>>1)  && !half;
+
+assign cen  = cen_r  & ~{W{restart}};
+assign cenb = cenb_r & ~{W{restart}};
 
 reg  [W-1:0] edgecnt = 0;
 wire [W-1:0] next_edgecnt = edgecnt + 1'd1;
@@ -48,8 +55,8 @@ end
 `endif
 
 always @(posedge clk) begin
-    cen  <= 0;
-    cenb <= 0;
+    cen_r  <= 0;
+    cenb_r <= 0;
 
     if( cencnt >= absmax ) begin
         // something went wrong: restart
@@ -58,15 +65,24 @@ always @(posedge clk) begin
     if( halfway ) begin
         half <= 1'b1;
         edgecnt_b <= next_edgecnt_b;
-        cenb <= { toggle_b[W-2:0], 1'b1 };
+        cenb_r <= { toggle_b[W-2:0], 1'b1 };
     end
     if( over ) begin
         cencnt <= next2;
         half <= 1'b0;
         edgecnt <= next_edgecnt;
-        cen <= { toggle[W-2:0], 1'b1 };
+        cen_r <= { toggle[W-2:0], 1'b1 };
     end else begin
         cencnt <= next;
+    end
+    rst_l <= rst;
+    if( restart ) begin
+        cencnt    <= 0;
+        half      <= 0;
+        edgecnt   <= 0;
+        edgecnt_b <= 0;
+        cen_r     <= 0;
+        cenb_r    <= 0;
     end
 end
 

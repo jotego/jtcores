@@ -54,6 +54,7 @@ end
 assign snd_cen = enc ? cpu_cen : ntsc_cen;
 
 jtframe_frac_cen #(.W(4),.WC(4)) u_cpu_cen(
+    .rst    ( 1'b0  ),
     .clk    ( clk24 ),
     .n      ( 4'd1  ),
     .m      ( 4'd8  ),
@@ -62,6 +63,7 @@ jtframe_frac_cen #(.W(4),.WC(4)) u_cpu_cen(
 );
 
 jtframe_frac_cen #(.W(2),.WC(6)) u_snd_cen(
+    .rst    ( 1'b0  ),
     .clk    ( clk24 ),
     .n      ( 6'd7   ),
     .m      ( 6'd47  ),

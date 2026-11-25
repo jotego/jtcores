@@ -42,7 +42,7 @@ wire          restart = rst_l & ~rst;
 
 assign cnt_en    = !busy || rst;
 assign glitch    = pre[0] & busy;
-assign cen       = pre & {W{~busy}};
+assign cen       = pre & {W{~busy & ~restart}};
 assign over      = cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
 assign cencnt_nx = {1'b0,cencnt}+NUM2[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
 assign rec_nx    = {1'b0,cencnt}+NUM2[CW:0];

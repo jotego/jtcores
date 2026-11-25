@@ -11,6 +11,7 @@ localparam [9:0] N=10'd5;
 localparam [9:0] M=10'd12;
 
 jtframe_frac_cen uut(
+    .rst    ( 1'b0  ),
     .clk    ( clk   ),
     .n      ( N     ),         // numerator
     .m      ( M     ),         // denominator

@@ -54,6 +54,7 @@ assign dbg_rom_addr = rom_addr;
 
 // Generate 14.31818 MHz cen from 50 MHz clock (63/220 ratio)
 jtframe_frac_cen #(.W(2)) u_frac_cen(
+    .rst        ( 1'b0      ),
     .clk        ( clk       ),
     .n          ( 10'd63    ),
     .m          ( 10'd220   ),

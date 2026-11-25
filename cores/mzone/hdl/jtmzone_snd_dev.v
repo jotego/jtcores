@@ -119,6 +119,7 @@ assign irq_rst = rst | (!iorq_n && !m1_n);
 // PCB Z80 clock is 18.432 MHz / 6 = 3.072 MHz. Divide the
 // approximately 24.576 MHz sound clock by eight to match it.
 jtframe_frac_cen #(.W(2),.WC(8)) u_cpu_cen(
+    .rst             ( 1'b0                                 ),
     .clk             ( clk                                  ),
     .n               ( 8'd1                                 ),
     .m               ( 8'd8                                 ),
@@ -134,6 +135,7 @@ jtframe_cen3p57 #(.CLK24(1)) u_ay_cen(
 
 `ifndef NOSOUND
 jtframe_frac_cen #(.W(2),.WC(8)) u_dac_cen(
+    .rst             ( 1'b0                                 ),
     .clk             ( clk                                  ),
     .n      ( 8'd7      ),  // close to 14.31818 MHz / 2 from the 24 MHz sound clock
     .m               ( 8'd24                                ),

@@ -89,6 +89,7 @@ module jtframe_cen3p57(
 `endif
 
     jtframe_frac_cen #(.W(2),.WC(16)) u_frac(
+        .rst    ( 1'b0  ),
         .clk    ( clk   ),
         .n      ( STEP<<CLK24 ),
         .m      ( LIM   ),

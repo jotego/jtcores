@@ -64,7 +64,7 @@ wire [ 7:0] raw_red, raw_green, raw_blue;
 reg  [ 7:0] AD_mem, SD_mem; // , RD_mem;
 wire [15:0] CD;
 wire        EDCLK_d, EDCLK_o, BGACK_pull, nc, cen20, reg_m5;
-reg         rst_n, clk2=0;
+reg         rst_n, clk2=0, rst_l=0;
 reg  [ 1:0] dtackr;
 reg         clk10=0;
 reg         rnw_r, asn_r;
@@ -92,6 +92,7 @@ always @(posedge clk48) begin
     AD_mem    <= AD;
     SD_mem    <= SD;
     if( cen20  ) clk10  <= ~clk10;
+    if( rst_l && !rst ) clk10 <= 0;
     asn_r <= asn;
     dsn_r <= dsn;
     rnw_r <= rnw;
@@ -99,7 +100,10 @@ end
 
 always @(posedge clk48) dtackr <= {dtackr[0], dtack_pull};
 
-always @(posedge clk48) clk2 <= ~clk2;
+always @(posedge clk48) begin
+    rst_l <= rst;
+    clk2  <= rst_l && !rst ? 1'b0 : ~clk2;
+end
 
 // Keep the active-low YM reset synchronous to its MCLK and avoid a half-cycle launch path.
 always @(posedge clk48) rst_n <= ~rst;
@@ -211,6 +215,7 @@ vram #(.SERIAL_LOOKAHEAD(1'b1)) u_vram(
 /* verilator lint_on PINMISSING */
 
 jtframe_frac_cen #(.WC(5)) u_cen20(
+    .rst    ( rst       ),
     .clk    ( clk48     ),
     .n      ( 5'd5      ),
     .m      ( 5'd12     ),
