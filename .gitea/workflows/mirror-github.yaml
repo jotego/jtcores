@@ -1,0 +1,49 @@
+name: Push master to GitHub
+
+# Every night, push Gitea master to jotego/jtcores-private on GitHub.
+# A plain push: if GitHub master has commits that are not on Gitea, the push is
+# rejected and the job fails, so nothing is ever overwritten.
+# See modules/jtframe/doc/gitea-ci.md
+
+on:
+  schedule:
+    - cron: 'CRON_TZ=Europe/Madrid 0 4 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: mirror-github
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    runs-on: jtcores-host
+    timeout-minutes: 30
+    steps:
+      - name: Push master to jotego/jtcores-private
+        shell: bash
+        env:
+          GITEA_TOKEN: ${{ gitea.token }}
+          GITHUB_URL: git@github.com:jotego/jtcores-private.git
+        run: |
+          set -euo pipefail
+          # a persistent bare repository keeps the fetch and the push incremental
+          repo="${JTCI_ROOT:-/tmp/jtcores-$(id -u)/gitea-runner/ci}/mirror-github.git"
+          mkdir -p "$(dirname "$repo")"
+          exec 9> "$repo.lock"
+          flock 9
+          [ -d "$repo" ] || git init --quiet --bare "$repo"
+          cd "$repo"
+          # the token header is scoped to the Gitea server, never sent to GitHub
+          GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0="http.${GITHUB_SERVER_URL%/}/.extraHeader" \
+          GIT_CONFIG_VALUE_0="Authorization: token $GITEA_TOKEN" \
+            git fetch --quiet --no-tags \
+              "${GITHUB_SERVER_URL%/}/$GITHUB_REPOSITORY.git" "+refs/heads/master:refs/heads/master"
+          echo "Gitea master is $(git rev-parse --short refs/heads/master)"
+          export GIT_SSH_COMMAND="ssh -o BatchMode=yes"
+          if ! git push --no-verify "$GITHUB_URL" refs/heads/master:refs/heads/master; then
+            echo "::error::Push rejected. GitHub master probably has commits that are not on Gitea; merge them into Gitea master first."
+            exit 1
+          fi

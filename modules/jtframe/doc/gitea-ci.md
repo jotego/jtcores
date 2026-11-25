@@ -43,6 +43,19 @@ Differences from GitHub:
   on GitHub skip here too because act_runner sets `GITHUB_ACTIONS=true`.
 - Jobs run under `nice -n 10` because the hosts are also used interactively.
 
+## Pushing master to GitHub
+
+`.gitea/workflows/mirror-github.yaml` pushes Gitea `master` to the
+`master` branch of `jotego/jtcores-private` on GitHub every night at 4am Madrid
+time. It can also be started by hand from the Actions page. The job runs on a
+`jtcores-host` runner and pushes over SSH with the runner user's GitHub key. It
+keeps a bare repository at `$JTCI_ROOT/mirror-github.git`, so each night only
+the new commits are fetched and pushed.
+
+The push is never forced. If someone pushed commits to GitHub `master` that are
+not on Gitea, the push is rejected and the job fails. Bring those commits into
+Gitea `master` and the next run, or a manual one, catches up.
+
 ## Checkouts
 
 The workflow does not use `actions/checkout`. Each host keeps one checkout per
