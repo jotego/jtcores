@@ -15,34 +15,25 @@
     Author: Andrea Bogazzi
     Date: 2026
 
-    Black Panther (Konami GX604, 1987).
-
-    The GFX board (GX400A_VIDEO and the K0052xx custom ICs) and gx400_cen are
-    reused unmodified from the Nemesis core by LMN-san, OScherler and Raki
-    (GPLv3) -- MAME implements the video for both games with one shared
-    gx400_base_state, so the boards are the same silicon. The 68000 board and
-    the sound board are specific to this game. */
+    Black Panther (Konami GX604, 1987). */
 
 module jtblkpan_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        cen9, cen6, cen6b, clk6, cen12, cen3p5, cen1p7;
+wire        cen9, cen6b, clk6, cen3p5, cen1p7;
 wire        hflip, vflip;
 wire        chacs_n, objram_n, vcs1, vcs2, vzcs;
 wire [15:1] video_addr;
-wire [15:0] video_din, video_dout;
+wire [15:0] video_dout;
 wire        main_uds_n, main_lds_n, main_rw_n;
-wire [10:0] video_pal_addr;
-wire        preLHBL, preLVBL, preLVBL_n;
+wire        preLHBL, vblank;
 wire [14:0] rgb, rgb_blk;
 
 wire [ 7:0] snd_latch;
 wire        snd_irq;
 wire [ 7:0] in0, in1, in2;
 
-assign pxl_cen  = cen6;
-assign pxl2_cen = cen12;
 assign dip_flip = 0;
 assign debug_view = 0;
 
@@ -62,17 +53,17 @@ assign in1 = { dipsw[31], 1'b0, ~joystick1[5], ~joystick1[4],
 assign in2 = { 2'b00,      ~joystick2[5], ~joystick2[4],
                ~joystick2[2], ~joystick2[3], ~joystick2[0], ~joystick2[1] };
 
-gx400_cen u_cen(
-    .i_clk               ( clk    ),
-    .i_vsync60           ( 1'b0   ),
-    .o_cen12             ( cen12  ),
-    .o_cen6              ( cen6   ),
-    .o_cen6b             ( cen6b  ),
-    .o_clk6              ( clk6   ),
-    .o_cen9              ( cen9   ),
-    .o_cen3p5            ( cen3p5 ),
-    .o_cen1p7            ( cen1p7 ),
-    .o_cen_audio_clk_div (        )
+jtnemsis_gx400_cen u_cen(
+    .clk           ( clk      ),
+    .vsync60       ( 1'b0     ),
+    .cen_12        ( pxl2_cen ),
+    .cen_6         ( pxl_cen  ),
+    .cen_6b        ( cen6b    ),
+    .clk6          ( clk6     ),
+    .cen_9         ( cen9     ),
+    .cen_3p5       ( cen3p5   ),
+    .cen_1p7       ( cen1p7   ),
+    .audio_div_cen (          )
 );
 
 jtblkpan_main u_main(
@@ -93,7 +84,7 @@ jtblkpan_main u_main(
     .o_vzcs      ( vzcs          ),
     .o_hflip     ( hflip         ),
     .o_vflip     ( vflip         ),
-    .i_vbl       ( preLVBL_n     ),
+    .i_vbl       ( vblank        ),
 
     .o_pal_addr  ( palcpu_addr   ),
     .o_pal_we    ( palcpu_we     ),
@@ -146,57 +137,88 @@ jtblkpan_snd u_snd(
     .debug_bus  ( debug_bus  )
 );
 
-GX400A_VIDEO u_video(
-    .i_MCLK     ( clk         ),
-    .i_RESET    ( rst         ),
-    .i_HFLIP    ( hflip       ),
-    .i_VFLIP    ( vflip       ),
-    .i_INTER_NON( 1'b0        ),
-    .i_288_256  ( 1'b0        ),
+jtnemsis_gx400a_video u_video(
+    .clk                ( clk             ),
+    .rst                ( rst             ),
+    .pxl_cen            ( pxl_cen         ),
+    .pxl_cenb           ( cen6b           ),
+    .clk6               ( clk6            ),
+    .hflip              ( hflip           ),
+    .vflip              ( vflip           ),
+    .inter_non          ( 1'b0            ),
+    .resolution_288_256 ( 1'b0            ),
+    .gfx_en             ( gfx_en          ),
 
-    .i_cen6     ( cen6        ),
-    .i_cen6b    ( cen6b       ),
-    .i_clk6     ( clk6        ),
+    .HS                 ( HS              ),
+    .VS                 ( VS              ),
+    .preLHBL            ( preLHBL         ),
+    .vblank             ( vblank          ),
+    .pal_addr           ( pal_addr        ),
+    .color_source       (                 ),
+    .h1_n               (                 ),
+    .h2                 (                 ),
+    .v256               (                 ),
 
-    .o_HS       ( HS          ),
-    .o_VS       ( VS          ),
-    .o_HBL      ( preLHBL     ),
-    .o_VBL      ( preLVBL_n   ),
+    .cpu_addr           ( video_addr      ),
+    .cpu_din            ( main_dout       ),
+    .cpu_dout           ( video_dout      ),
+    .uds_n              ( main_uds_n      ),
+    .lds_n              ( main_lds_n      ),
+    .rnw                ( main_rw_n       ),
+    .chacs_n            ( chacs_n         ),
+    .objram_n           ( objram_n        ),
+    .vcs1               ( vcs1            ),
+    .vcs2               ( vcs2            ),
+    .vzcs               ( vzcs            ),
 
-    .o_1h_n     (             ),
-    .o_2h       (             ),
-    .o_256v     (             ),
+    .scroll_cpu_addr    ( scroll_cpu_addr ),
+    .scroll_cpu_din     ( scroll_cpu_din  ),
+    .scroll_cpu_we      ( scroll_cpu_we   ),
+    .scroll_cpu_dout    ( scroll_dout     ),
+    .scroll_gfx_addr    ( scroll_gfx_addr ),
+    .scroll_gfx_dout    ( scroll_gfx_dout ),
 
-    .i_addr         ( video_addr ),
-    .i_data_bus_in  ( main_dout  ),
-    .o_data_bus_out ( video_dout ),
+    .obj_cpu_addr       ( obj_cpu_addr    ),
+    .obj_cpu_din        ( obj_cpu_din     ),
+    .obj_cpu_we         ( obj_cpu_we      ),
+    .obj_cpu_dout       ( obj_dout        ),
+    .obj_gfx_addr       ( obj_gfx_addr    ),
+    .obj_gfx_dout       ( obj_gfx_dout    ),
 
-    .i_uds_n    ( main_uds_n  ),
-    .i_lds_n    ( main_lds_n  ),
-    .i_RnW      ( main_rw_n   ),
-    .i_chacs_n  ( chacs_n     ),
-    .i_objram_n ( objram_n    ),
-    .i_vcs1     ( vcs1        ),
-    .i_vcs2     ( vcs2        ),
-    .i_vzcs     ( vzcs        ),
+    .vram1_cpu_addr     ( vram1_cpu_addr  ),
+    .vram1_cpu_din      ( vram1_cpu_din   ),
+    .vram1_cpu_we       ( vram1_cpu_we    ),
+    .vram1_cpu_dout     ( vram1_dout      ),
+    .vram_gfx_addr      ( vram_gfx_addr   ),
+    .vram1_gfx_dout     ( vram1_gfx_dout  ),
 
-    .o_pal_addr ( video_pal_addr )
+    .vram2_cpu_addr     ( vram2_cpu_addr  ),
+    .vram2_cpu_din      ( vram2_cpu_din   ),
+    .vram2_cpu_we       ( vram2_cpu_we    ),
+    .vram2_cpu_dout     ( vram2_dout      ),
+    .vram2_gfx_addr     ( vram2_gfx_addr  ),
+    .vram2_gfx_dout     ( vram2_gfx_dout  ),
+
+    .char_cpu_addr      ( char_cpu_addr   ),
+    .char_cpu_din       ( char_cpu_din    ),
+    .char_cpu_we        ( char_cpu_we     ),
+    .char_cpu_dout      ( char_dout       ),
+    .char_gfx_addr      ( char_gfx_addr   ),
+    .char_gfx_dout      ( char_gfx_dout   )
 );
 
 // ---------------------------------------------------------------------------
 // Colour. xBGR_555 straight out of the palette RAM -- no resistor-ladder LUT
 // on this board (MAME: PALETTE(...).set_format(palette_device::xBGR_555)).
 // ---------------------------------------------------------------------------
-assign pal_addr = video_pal_addr;
-assign preLVBL  = ~preLVBL_n;
 assign rgb      = { pal_dout[14:10], pal_dout[9:5], pal_dout[4:0] }; // B,G,R
 assign { blue, green, red } = rgb_blk;
 
 jtframe_blank #( .DLY(0), .DW(15) ) u_blank(
     .clk      ( clk      ),
-    .pxl_cen  ( cen6     ),
+    .pxl_cen  ( pxl_cen  ),
     .preLHBL  ( preLHBL  ),
-    .preLVBL  ( preLVBL  ),
+    .preLVBL  ( ~vblank  ),
     .LHBL     ( LHBL     ),
     .LVBL     ( LVBL     ),
     .preLBL   (          ),

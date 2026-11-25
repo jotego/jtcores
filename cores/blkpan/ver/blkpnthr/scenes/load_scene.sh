@@ -1,22 +1,52 @@
 #!/bin/bash
-# Copy a captured scene's RAM images into ver/game/ so the next sim starts with
-# them. Run the sim with -d NOMAIN so the 68000 does not overwrite them:
-#
-#   cores/blkpan/ver/blkpnthr/scenes/load_scene.sh 1200
-#   FRAMES=4 ROMS_HOST=~/mameroms ./sim-core.sh blkpan blkpnthr -d NOMAIN
-#
 set -euo pipefail
-FRAME=${1:?usage: load_scene.sh <frame>}
-HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-SRC="$HERE/burst_$(printf %05d "$FRAME")"
-[ -d "$SRC" ] || SRC="/tmp/blkpan_scene_$(printf %05d "$FRAME")"
-[ -d "$SRC" ] || { echo "no scene for frame $FRAME"; exit 1; }
-DST="$HERE/../../game"
-mkdir -p "$DST"
-cp "$SRC"/*.hex "$SRC"/pal.bin "$DST"/
-echo "loaded scene $FRAME from $SRC into $DST"
-ls "$DST"/*.hex "$DST"/pal.bin | sed 's|.*/|  |'
 
-# NOTE: these files stay in ver/game and are read by ANY later sim. Before a
-# normal full run, clear them:
-#   rm -f cores/blkpan/ver/game/{charram*.hex,objram.hex,scrollram.hex,vram1_*.hex,vram2.hex,pal.bin}
+frame=${1:?usage: load_scene.sh <frame>}
+if [[ ! "$frame" =~ ^[0-9]{1,9}$ ]]; then
+    echo "Invalid frame number: $frame" >&2
+    exit 1
+fi
+here=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+scene=$(printf '%05d' "$((10#$frame))")
+src="$here/burst_$scene"
+if [ ! -f "$src/pal.bin" ]; then
+    src="/tmp/blkpan_scene_$scene"
+fi
+if [ ! -f "$src/pal.bin" ]; then
+    echo "No RAM dumps for frame $frame" >&2
+    exit 1
+fi
+
+python3 - "$src" "$here/.." <<'PY'
+import sys
+from pathlib import Path
+
+src, dst = map(Path, sys.argv[1:])
+
+def pack(size, *lanes):
+    data = bytearray(size * len(lanes))
+    for index, name in enumerate(lanes):
+        path = src / f"{name}.hex"
+        lane = bytes.fromhex(path.read_text())
+        if len(lane) != size:
+            raise ValueError(f"{path}: expected {size} bytes, got {len(lane)}")
+        data[index::len(lanes)] = lane
+    return data
+
+palette = (src / "pal.bin").read_bytes()
+if len(palette) != 4096:
+    raise ValueError(f"{src / 'pal.bin'}: expected 4096 bytes, got {len(palette)}")
+
+images = {
+    "pal": palette,
+    "scroll": pack(2048, "scrollram"),
+    "obj": pack(2048, "objram"),
+    "vram1": pack(4096, "vram1_lo", "vram1_hi"),
+    "vram2": pack(4096, "vram2"),
+    "char": pack(16384, "charram1_lo", "charram1_hi", "charram2_lo", "charram2_hi"),
+}
+for name, data in images.items():
+    (dst / f"{name}.bin").write_bytes(data)
+PY
+
+printf 'Loaded scene %s into %s. Run jtsim with -d NOMAIN to keep the RAM contents.\n' "$frame" "$(cd "$here/.." && pwd -P)"

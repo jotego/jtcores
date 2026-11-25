@@ -1,17 +1,8 @@
-# Black Panther (Konami GX604) ROM map, byte offsets. 640kB total, one bank.
-#
-#   0x00000  68000 program   512kB   main
-#   0x80000  Z80 program      32kB   snd
-#   0x88000  K007232 samples 128kB   pcm
-#
-# There are no gfx ROMs: tiles and sprites are drawn from 64kB of CPU-written
-# charram, which lives inside GX400A_VIDEO.
+
 params:
   - { name: SND_OFFSET, value: "(`SND_START)>>1" }
   - { name: PCM_OFFSET, value: "(`PCM_START)>>1" }
 
-# main_dout is referenced from an expression in the palette dual port, so it
-# has to be declared explicitly to keep its width.
 ports:
   - { name: main_dout, msb: 15, lsb: 0 }
 
@@ -43,20 +34,79 @@ sdram:
         offset: PCM_OFFSET
 
 bram:
-  # Palette: 2048 entries x 16 bits, xBGR_555. The 68000 sees it byte-wide on
-  # the low lane at 0x080000-0x081fff (MAME: palette membits 8, umask 0x00ff).
   - name: pal
     addr_width: 12           # bytes -> 2048 16-bit entries
     data_width: 16
-    # Scene replay: MAME's palette dump (odd bytes, high-then-low per entry).
     simfile: { big_endian: true }
     dual_port:
       name: palcpu
       addr: palcpu_addr
-      # The 68000 writes palette BYTES on the low lane (MAME umask 0x00ff), so
-      # the byte is in main_dout[7:0] for BOTH halves of the 16-bit entry.
-      # Duplicating it lets palcpu_we pick the half without moving the data.
       din:  "{2{main_dout[7:0]}}"
       dout: palcpu_dout
       we:   palcpu_we
       rw:   true
+
+  - name: scroll
+    size: 2kB
+    data_width: 8
+    addr: scroll_cpu_addr
+    din: scroll_cpu_din
+    we: scroll_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: scroll_gfx_addr
+      dout: scroll_gfx_dout
+
+  - name: obj
+    size: 2kB
+    data_width: 8
+    addr: obj_cpu_addr
+    din: obj_cpu_din
+    we: obj_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: obj_gfx_addr
+      dout: obj_gfx_dout
+
+  - name: vram1
+    size: 8kB
+    data_width: 16
+    addr: vram1_cpu_addr
+    din: vram1_cpu_din
+    we: vram1_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: vram_gfx_addr
+      dout: vram1_gfx_dout
+
+  - name: vram2
+    size: 4kB
+    data_width: 8
+    addr: vram2_cpu_addr
+    din: vram2_cpu_din
+    we: vram2_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: vram2_gfx_addr
+      dout: vram2_gfx_dout
+
+  - name: char
+    size: 64kB
+    data_width: 32
+    addr: char_cpu_addr
+    din: char_cpu_din
+    we: char_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: char_gfx_addr
+      dout: char_gfx_dout
