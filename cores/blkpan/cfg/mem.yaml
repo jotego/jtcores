@@ -41,6 +41,12 @@ sdram:
         addr_width: 17
         data_width: 8
         offset: PCM_OFFSET
+    - buses:
+      - name: workram
+        addr_width: 15
+        data_width: 16
+        din: main_dout
+        rw: true
 
 bram:
   - name: pal
@@ -119,3 +125,8 @@ bram:
       name: video
       addr: char_gfx_addr
       dout: char_gfx_dout
+
+  - name: sndram
+    size: 2kB
+    data_width: 8
+    rw: true

@@ -4,6 +4,9 @@ blkpan:
       - jtblkpan_main.v
       - jtblkpan_addr_dec.v
       - jtblkpan_snd.v
+  - when: [SIMSCENE]
+    get:
+      - jtblkpan_intlatch_mmr.v
 
 nemsis:
   - get:

@@ -51,7 +51,14 @@ module jtblkpan_main(
     output            o_rom_cs,
     output     [18:1] o_rom_addr,
     input      [15:0] i_rom_data,
-    input             i_rom_ok
+    input             i_rom_ok,
+
+    output            o_ram_cs,
+    output            o_ram_we,
+    output     [ 1:0] o_ram_dsn,
+    output     [14:1] o_ram_addr,
+    input      [15:0] i_ram_data,
+    input             i_ram_ok
 );
 
 wire [23:1] cpu_addr;
@@ -74,13 +81,14 @@ assign o_vcs1    = vcs1;
 assign o_vcs2    = vcs2;
 assign o_vzcs    = vzcs;
 assign o_rom_addr= cpu_addr[18:1];
+assign o_ram_addr= cpu_addr[14:1];
+assign o_ram_cs  = ram_cs && !rst && !(uds_n && lds_n);
+assign o_ram_we  = o_ram_cs && !rw_n;
+// The SDRAM slot uses both byte lanes during its reset erase.
+assign o_ram_dsn = o_ram_cs ? { uds_n, lds_n } : 2'b00;
 
 `ifndef NOMAIN
 
-
-wire        UDSWn   = rw_n | uds_n;
-wire        LDSWn   = rw_n | lds_n;
-wire [ 1:0] dsn     = { uds_n, lds_n };
 
 // Palette: MAME keeps it byte-wide on the low lane (umask 0x00ff, membits 8),
 // so one 68000 word address holds one palette BYTE. a[1] picks which half of
@@ -116,23 +124,6 @@ jtblkpan_addr_dec u_dec(
     .o_vcs1        ( vcs1        ),
     .o_vcs2        ( vcs2        ),
     .o_vzcs        ( vzcs        )
-);
-
-// ---------------------------------------------------------------------------
-// Work RAM: 32kB at 090000-097fff
-// ---------------------------------------------------------------------------
-wire [7:0] ram_lo, ram_hi;
-
-jtframe_ram #(.AW(14),.DW(8)) u_ram_lo(
-    .clk ( clk ), .cen ( 1'b1 ),
-    .addr( cpu_addr[14:1] ), .data( cpu_dout[ 7:0] ),
-    .we  ( ram_cs & ~LDSWn ), .q( ram_lo )
-);
-
-jtframe_ram #(.AW(14),.DW(8)) u_ram_hi(
-    .clk ( clk ), .cen ( 1'b1 ),
-    .addr( cpu_addr[14:1] ), .data( cpu_dout[15:8] ),
-    .we  ( ram_cs & ~UDSWn ), .q( ram_hi )
 );
 
 // ---------------------------------------------------------------------------
@@ -175,25 +166,18 @@ end
 // Interrupts. Black Panther takes IRQ2 on vblank (salamand_state::vblank_irq2);
 // IRQ1 exists on the board but this game does not enable it.
 // ---------------------------------------------------------------------------
-reg  [2:0] ipl_n;
-reg        irq2, vbl_l;
+wire [2:0] ipl_n;
+wire       irq2;
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        irq2  <= 0;
-        vbl_l <= 0;
-    end else begin
-        vbl_l <= i_vbl;
-        // MAME asserts IRQ2 on the vblank edge and clears it ONLY through
-        // irq2_enable_w(0) -- never on interrupt acknowledge. Clearing on ack
-        // here killed the request before the CPU could take it, and the game
-        // spun forever in its vblank wait loop at PC 0x000B8C.
-        if( i_vbl && !vbl_l && irq2_en ) irq2 <= 1;
-        if( !irq2_en                   ) irq2 <= 0;
-    end
-end
+jtframe_edge u_irq2(
+    .rst    ( rst      ),
+    .clk    ( clk      ),
+    .edgeof ( i_vbl    ),
+    .clr    ( ~irq2_en ),
+    .q      ( irq2     )
+);
 
-always @(*) ipl_n = irq2 ? 3'b101 : 3'b111;   // level 2
+assign ipl_n = irq2 && !rst ? 3'b101 : 3'b111;
 
 // VPAn low during an interrupt acknowledge gives the autovector. The 68000
 // drives A[23:4] high in that cycle, so keying on A23 covers it (same trick as
@@ -210,6 +194,7 @@ always @(posedge clk, posedge rst) begin
     // VPAn low means the 68000 is autovectoring (interrupt acknowledge, or the
     // A23 window): it uses VPA instead of DTACK, so keep DTACK negated there.
     else if( as_n || !vpa_n ) DTACKn <= 1;
+    else if( ram_cs ) DTACKn <= !(o_ram_cs && i_ram_ok);
     else DTACKn <= o_rom_cs ? ~i_rom_ok : 1'b0;
 end
 
@@ -220,7 +205,7 @@ always @(*) begin
     cpu_din = 16'hffff;
     case( 1'b1 )
         o_rom_cs: cpu_din = i_rom_data;
-        ram_cs:   cpu_din = { ram_hi, ram_lo };
+        ram_cs:   cpu_din = i_ram_data;
         pal_cs:   cpu_din = { 8'hff, cpu_addr[1] ? i_pal_dout[7:0] : i_pal_dout[15:8] };
         dsw0_cs:  cpu_din = { i_dsw0, i_dsw0 };
         dsw1_cs:  cpu_din = { i_dsw1, i_dsw1 };

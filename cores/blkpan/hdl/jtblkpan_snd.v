@@ -44,6 +44,11 @@ module jtblkpan_snd(
     input      [ 7:0] rom_data,
     input             rom_ok,
 
+    output     [10:0] ram_addr,
+    output     [ 7:0] ram_din,
+    output            ram_we,
+    input      [ 7:0] ram_dout,
+
     // K007232 samples
     output     [16:0] pcma_addr, pcmb_addr,
     input      [ 7:0] pcma_dout, pcmb_dout,
@@ -58,12 +63,12 @@ module jtblkpan_snd(
 );
 
 wire [15:0] A;
-wire [ 7:0] cpu_dout, ram_dout, fm_dout;
+wire [ 7:0] cpu_dout, fm_dout;
 reg  [ 7:0] cpu_din;
 wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, int_n;
 wire        mem_cs = ~mreq_n & rfsh_n;
 wire        ram_cs, latch_cs, pcm_cs, fm_cs;
-reg         irq_ff, irq_l;
+wire        irq_ff;
 
 assign rom_cs   = mem_cs && !A[15];                       // 0000-7fff
 assign ram_cs   = mem_cs &&  A[15:11]==5'b1_0000;         // 8000-87ff
@@ -71,19 +76,19 @@ assign latch_cs = mem_cs &&  A[15:12]==4'ha;              // a000
 assign pcm_cs   = mem_cs &&  A[15:12]==4'hb;              // b000-b00d
 assign fm_cs    = mem_cs &&  A[15:12]==4'hc;              // c000-c001
 assign rom_addr = A[14:0];
-assign int_n    = ~irq_ff;
+assign ram_addr = A[10:0];
+assign ram_din  = cpu_dout;
+assign ram_we   = ram_cs & ~wr_n;
+assign int_n    = rst | ~irq_ff;
 
 // 7474: set on the rising edge of the outlatch bit, cleared by /IORQ
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        irq_ff <= 0;
-        irq_l  <= 0;
-    end else begin
-        irq_l <= i_irq;
-        if( i_irq && !irq_l ) irq_ff <= 1;
-        if( !iorq_n         ) irq_ff <= 0;
-    end
-end
+jtframe_edge u_irq(
+    .rst    ( rst     ),
+    .clk    ( clk     ),
+    .edgeof ( i_irq   ),
+    .clr    ( ~iorq_n ),
+    .q      ( irq_ff  )
+);
 
 always @(*) begin
     cpu_din = 8'hff;
@@ -95,12 +100,6 @@ always @(*) begin
         default:;
     endcase
 end
-
-jtframe_ram #(.AW(11),.DW(8)) u_ram(
-    .clk ( clk ), .cen( 1'b1 ),
-    .addr( A[10:0] ), .data( cpu_dout ),
-    .we  ( ram_cs & ~wr_n ), .q( ram_dout )
-);
 
 jtframe_z80_romwait u_cpu(
     .rst_n    ( ~rst      ),

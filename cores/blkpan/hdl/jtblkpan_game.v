@@ -23,13 +23,14 @@ module jtblkpan_game(
 
 reg  [ 2:0] clk6_holder = 3'd0;
 wire        cen12, cen6, cen6b, clk6;
-wire        hflip, vflip;
+wire        hflip, vflip, main_hflip, main_vflip;
 wire        chacs_n, objram_n, vcs1, vcs2, vzcs;
 wire [15:1] video_addr;
 wire [15:0] video_dout;
 wire        main_uds_n, main_lds_n, main_rw_n;
 wire        preLHBL, vblank;
 wire [14:0] rgb, rgb_blk;
+reg  [14:0] rgb_dly;
 
 wire [ 7:0] snd_latch;
 wire        snd_irq;
@@ -37,6 +38,28 @@ wire [ 7:0] in0, in1, in2;
 
 assign dip_flip = 0;
 assign debug_view = 0;
+
+`ifdef SIMSCENE
+jtblkpan_intlatch_mmr #(
+    .SIMFILE ( "mmr.bin" )
+) u_intlatch(
+    .rst        ( rst   ),
+    .clk        ( clk   ),
+    .cs         ( 1'b0  ),
+    .addr       ( 2'd0  ),
+    .rnw        ( 1'b1  ),
+    .din        ( 8'd0  ),
+    .hflip      ( hflip ),
+    .vflip      ( vflip ),
+    .ioctl_addr ( 2'd0  ),
+    .ioctl_din  (       ),
+    .debug_bus  ( 8'd0  ),
+    .st_dout    (       )
+);
+`else
+assign hflip = main_hflip;
+assign vflip = main_vflip;
+`endif
 
 // ---------------------------------------------------------------------------
 // Cabinet. Black Panther's ports are IP_ACTIVE_HIGH (unusual -- Nemesis and
@@ -78,8 +101,8 @@ jtblkpan_main u_main(
     .o_vcs1      ( vcs1          ),
     .o_vcs2      ( vcs2          ),
     .o_vzcs      ( vzcs          ),
-    .o_hflip     ( hflip         ),
-    .o_vflip     ( vflip         ),
+    .o_hflip     ( main_hflip    ),
+    .o_vflip     ( main_vflip    ),
     .i_vbl       ( vblank        ),
 
     .o_pal_addr  ( palcpu_addr   ),
@@ -98,9 +121,17 @@ jtblkpan_main u_main(
     .o_rom_cs    ( main_cs       ),
     .o_rom_addr  ( main_addr     ),
     .i_rom_data  ( main_data     ),
-    .i_rom_ok    ( main_ok       )
+    .i_rom_ok    ( main_ok       ),
+
+    .o_ram_cs    ( workram_cs    ),
+    .o_ram_we    ( workram_we    ),
+    .o_ram_dsn   ( workram_dsn   ),
+    .o_ram_addr  ( workram_addr  ),
+    .i_ram_data  ( workram_data  ),
+    .i_ram_ok    ( workram_ok    )
 );
 
+`ifndef NOSOUND
 jtblkpan_snd u_snd(
     .rst        ( rst        ),
     .clk        ( clk        ),
@@ -117,6 +148,11 @@ jtblkpan_snd u_snd(
     .rom_data   ( snd_data   ),
     .rom_ok     ( snd_ok     ),
 
+    .ram_addr   ( sndram_addr ),
+    .ram_din    ( sndram_din  ),
+    .ram_we     ( sndram_we   ),
+    .ram_dout   ( sndram_dout ),
+
     .pcma_addr  ( pcma_addr  ),
     .pcma_dout  ( pcma_data  ),
     .pcma_cs    ( pcma_cs    ),
@@ -132,6 +168,12 @@ jtblkpan_snd u_snd(
 
     .debug_bus  ( debug_bus  )
 );
+`else
+assign { snd_addr, pcma_addr, pcmb_addr } = 49'd0;
+assign { snd_cs, pcma_cs, pcmb_cs } = 3'd0;
+assign { sndram_addr, sndram_din, sndram_we } = 20'd0;
+assign { fm_l, fm_r, pcm } = 43'd0;
+`endif
 
 jtnemsis_gx400a_video u_video(
     .clk                ( clk             ),
@@ -210,6 +252,9 @@ jtnemsis_gx400a_video u_video(
 assign rgb      = { pal_dout[14:10], pal_dout[9:5], pal_dout[4:0] }; // B,G,R
 assign { blue, green, red } = rgb_blk;
 
+always @(posedge clk) if(cen6)
+    rgb_dly <= rgb;
+
 jtframe_blank #( .DLY(0), .DW(15) ) u_blank(
     .clk      ( clk      ),
     .pxl_cen  ( cen6     ),
@@ -218,7 +263,7 @@ jtframe_blank #( .DLY(0), .DW(15) ) u_blank(
     .LHBL     ( LHBL     ),
     .LVBL     ( LVBL     ),
     .preLBL   (          ),
-    .rgb_in   ( rgb      ),
+    .rgb_in   ( rgb_dly  ),
     .rgb_out  ( rgb_blk  )
 );
 

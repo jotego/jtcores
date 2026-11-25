@@ -11,12 +11,14 @@ JTFRAME_HEIGHT=224
 # shared by gx400_state and salamand_state).
 JTFRAME_PLL=jtframe_pll6144
 GX400_UNFOLD_DRAM_ADDR
+JTFRAME_BA1_WEN
 
 JTFRAME_DIPBASE=16
 
 # ---- ROM map, byte offsets ----
 SND_START          =0x080000
 PCM_START          =0x088000
+JTFRAME_BA1_START  =0x0A8000
 
 [mister]
 JTFRAME_ARX=5
