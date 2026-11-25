@@ -1,0 +1,15 @@
+nemsis:
+  - get:
+      - jtnemsis_gx400_cen.v
+      - jtnemsis_main.v
+      - jtnemsis_68k_addr_dec.v
+      - jtnemsis_u11k_mmr.v
+      - jtnemsis_u13j_mmr.v
+
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml

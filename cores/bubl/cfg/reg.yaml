@@ -1,4 +1,0 @@
-bublbobl:
-tokio:
-  skip: true
-  inputs: reg.cab

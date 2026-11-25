@@ -252,10 +252,12 @@ jtikaopm u_opm( // IKAOPM version used for sword sound
     .right  ( fm_r      )
 );
 
+wire pcm_cen_g = pcm_cen & ~rst;
+
 jt5205 u_pcm0( // 8kHz, 4 bits/sample
     .rst    ( pcm0_rst    ),
     .clk    ( clk         ),
-    .cen    ( pcm_cen     ),
+    .cen    ( pcm_cen_g   ),
     .sel    ( 2'b10       ),
     .din    ( pcm0_nibble ),
     .sound  ( pcm0        ),
@@ -267,7 +269,7 @@ jt5205 u_pcm0( // 8kHz, 4 bits/sample
 jt5205 u_pcm1( // 8kHz, 4 bits/sample
     .rst    ( pcm1_rst    ),
     .clk    ( clk         ),
-    .cen    ( pcm_cen     ),
+    .cen    ( pcm_cen_g   ),
     .sel    ( 2'b10       ),
     .din    ( pcm1_nibble ),
     .sound  ( pcm1        ),

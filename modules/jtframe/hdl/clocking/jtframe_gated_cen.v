@@ -37,6 +37,8 @@ reg  [ W-1:0] toggle=0, toggle_l=0, pre=0;
 wire [DIGITS*4-1:0] full_ave, full_worst;
 wire          glitch, cnt_en;
 integer       i;
+reg           rst_l=0;
+wire          restart = rst_l & ~rst;
 
 assign cnt_en    = !busy || rst;
 assign glitch    = pre[0] & busy;
@@ -53,6 +55,7 @@ function [CW-1:0] clip(input [CW:0]a); begin
 end endfunction
 
 always @(posedge clk) begin
+    rst_l  <= rst;
     cencnt <= clip(cencnt_nx);
     rec    <= clip(rec_nx);
     if(glitch) begin
@@ -64,6 +67,13 @@ always @(posedge clk) begin
         pre <= ~toggle & toggle_l;
     end else begin
         pre <= 0;
+    end
+    if( restart ) begin
+        cencnt   <= 0;
+        rec      <= 0;
+        toggle   <= 0;
+        toggle_l <= 0;
+        pre      <= 0;
     end
 end
 

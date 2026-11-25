@@ -54,8 +54,10 @@ func (p GitHubPublisher) Preflight(build BuildIdentity) error {
 }
 
 func (p GitHubPublisher) Publish(summary Summary) (string, map[string]any, error) {
-	marker := fmt.Sprintf("<!-- jtutil-regression:%s:%s -->", summary.Build.RunID, summary.Build.Attempt)
-	if valid_commit(summary.RunID) { marker = "<!-- jtutil-regression:"+summary.RunID+" -->" }
+	if !valid_commit(summary.RunID) {
+		return "", nil, fmt.Errorf("the run ID must be a full commit SHA")
+	}
+	marker := "<!-- jtutil-regression:" + summary.RunID + " -->"
 	body := formatGitHubSummary(summary, marker)
 	if buildReportsToPR(summary.Build) {
 		if summary.Build.PR < 1 {
@@ -113,13 +115,7 @@ func (p GitHubPublisher) Publish(summary Summary) (string, map[string]any, error
 		return "", nil, e
 	}
 	defer os.Remove(bodyFile)
-	label := summary.Build.RunID
-	if summary.Build.RunNumber > 0 {
-		label = fmt.Sprint(summary.Build.RunNumber)
-	}
-	title:=fmt.Sprintf("SiDi128 regression: %s #%s", build_workflow_label(summary.Build), label)
-	if valid_commit(summary.RunID) {title="SiDi128 regression: "+summary.RunID[:12]}
-	out, e := p.run("issue", "create", "--repo", githubRepository, "--title", title, "--body-file", bodyFile)
+	out, e := p.run("issue", "create", "--repo", githubRepository, "--title", "MiSTer regression: "+summary.RunID[:12], "--body-file", bodyFile)
 	if e != nil {
 		return "", nil, e
 	}
@@ -197,19 +193,13 @@ func parseLastURL(output string) string {
 
 func formatGitHubSummary(summary Summary, marker string) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "# SiDi128 video regression\n\n%s\n\n", marker)
-	label := summary.Build.RunID
-	if summary.Build.RunNumber > 0 {
-		label = fmt.Sprint(summary.Build.RunNumber)
-	}
-	if valid_commit(summary.RunID) {fmt.Fprintf(&b,"RBF source commit: `%s`.\n\n",summary.Build.SHA)} else {
-		fmt.Fprintf(&b, "Build: %s #%s (run %s, attempt %s), source `%s`, ref `%s`.\n\n", build_workflow_label(summary.Build), label, summary.Build.RunID, summary.Build.Attempt, summary.Build.SHA, summary.Build.Ref)
-	}
+	fmt.Fprintf(&b, "# MiSTer video regression\n\n%s\n\n", marker)
+	fmt.Fprintf(&b, "RBF source commit: `%s`.\n\n", summary.Build.SHA)
 	fmt.Fprintf(&b, "Duration: %s. Status: **%s**.\n\n", summary.Duration.Round(time.Second), summary.Status)
 	fmt.Fprintln(&b, "## Coverage")
 	fmt.Fprintln(&b)
 	fmt.Fprintln(&b, "| Outcome | Games |\n|---|---:|")
-	for _, outcome := range []Outcome{Pass, New, Fail, Error, Unsupported, Pending} {
+	for _, outcome := range []Outcome{Pass, New, Fail, Error, Pending} {
 		if count := summary.Coverage[string(outcome)]; count > 0 {
 			fmt.Fprintf(&b, "| %s | %d |\n", outcome, count)
 		}
@@ -219,9 +209,6 @@ func formatGitHubSummary(summary Summary, marker string) string {
 		if game.Outcome == New || game.Outcome == Fail || game.Outcome == Error {
 			attention++
 		}
-	}
-	if summary.OperationalError != "" {
-		attention++
 	}
 	fmt.Fprintln(&b)
 	if attention == 0 {
@@ -234,15 +221,15 @@ func formatGitHubSummary(summary Summary, marker string) string {
 				fmt.Fprintf(&b, "- `%s/%s` — **%s** at %s: %s.\n", game.Core, game.Setname, game.Outcome, game.Stage, game.Message)
 			}
 		}
-		if summary.OperationalError != "" {
-			fmt.Fprintf(&b, "- Batch operation: %s.\n", summary.OperationalError)
-		}
 	}
 	fmt.Fprintf(&b, "\nCaptures and execution records are retained under `$JOTEGO/regression` (run `%s`).\n", summary.RunID)
 	return b.String()
 }
 
-func build_workflow_label(build BuildIdentity) string {
-    if build.Workflow==compileSidi128Workflow { return "compile_sidi128" }
-    return "compile_all"
+func valid_commit(commit string) bool {
+	if len(commit) != 40 { return false }
+	for _, c := range commit {
+		if !(c >= '0' && c <= '9' || c >= 'a' && c <= 'f') { return false }
+	}
+	return true
 }

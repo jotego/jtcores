@@ -18,35 +18,6 @@ type FrameSignature struct {
 	Interior [32]byte
 }
 
-// SignatureImage hashes canonical decoded RGBA pixels, independent of PNG
-// compression, palette representation, or row stride.
-func SignatureImage(frame int, img image.Image) (FrameSignature, error) {
-	bounds := img.Bounds()
-	w, h := bounds.Dx(), bounds.Dy()
-	if w <= 0 || h <= 0 {
-		return FrameSignature{}, fmt.Errorf("invalid image dimensions %dx%d", w, h)
-	}
-	hash := sha256.New()
-	var dimensions [8]byte
-	binary.LittleEndian.PutUint32(dimensions[0:4], uint32(w))
-	binary.LittleEndian.PutUint32(dimensions[4:8], uint32(h))
-	_, _ = hash.Write(dimensions[:])
-	var pixel [3]byte
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			r, g, b, a := img.At(x, y).RGBA()
-			if a != 0xffff {
-				return FrameSignature{}, fmt.Errorf("image contains non-opaque pixels")
-			}
-			pixel[0], pixel[1], pixel[2] = byte(r>>8), byte(g>>8), byte(b>>8)
-			_, _ = hash.Write(pixel[:])
-		}
-	}
-	var digest [32]byte
-	copy(digest[:], hash.Sum(nil))
-	return FrameSignature{Frame: frame, Width: w, Height: h, Pixels: digest}, nil
-}
-
 // SignatureImageAtCapturePrecision hashes pixels after truncation to the
 // native per-channel capture precision shared by the FPGA and MAME images.
 func SignatureImageAtCapturePrecision(frame int, img image.Image, bits int) (FrameSignature, error) {

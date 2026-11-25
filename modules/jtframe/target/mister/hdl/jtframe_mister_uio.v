@@ -11,11 +11,9 @@ module jtframe_mister_uio #(
     input              rst, clk,
     input              io_enable, io_strobe,
     input       [15:0] host_word,
-    input      [127:0] cab_caps, cap_caps,
+    input      [127:0] cab_caps, cap_caps, cap_result,
     input      [255:0] cab_snapshot,
-    output       [5:0] cap_result_index,
-    input        [7:0] cap_result_byte,
-    input              cab_snapshot_valid, cap_result_valid,
+    input              cab_snapshot_valid,
     output             response_enable,
     output reg  [15:0] response_word,
     output             start,
@@ -29,10 +27,10 @@ module jtframe_mister_uio #(
 );
 
 reg [127:0] caps_latch;
-reg cab_read_valid, cap_read_valid;
+reg cab_read_valid;
 reg wait_idle;
 wire is_cab_caps, is_cap_caps, is_cab_read, is_cap_read;
-wire [6:0] read_index;
+wire [4:0] read_index;
 
 assign start  = !rst && !wait_idle && io_enable && io_strobe && !active;
 assign finish = !rst && !wait_idle && !io_enable && active;
@@ -40,8 +38,7 @@ assign is_cab_caps = command==16'h0080;
 assign is_cap_caps = CAPTURE_SUPPORT && command==16'h0090;
 assign is_cab_read = command==16'h0087;
 assign is_cap_read = CAPTURE_SUPPORT && command==16'h0092;
-assign read_index = words-1'b1;
-assign cap_result_index = read_index[5:0];
+assign read_index = words[4:0]-1'b1;
 assign response_enable = !rst && !wait_idle && io_enable && active &&
                          (is_cab_caps || is_cap_caps || is_cab_read || is_cap_read);
 
@@ -56,7 +53,6 @@ always @(posedge clk) begin
         caps_latch <= 0;
         response_word <= 0;
         cab_read_valid <= 0;
-        cap_read_valid <= 0;
         // A reset in the middle of a packet must discard its whole tail.
         // If the bus is idle at reset, the first subsequent packet is valid.
         wait_idle <= io_enable;
@@ -74,8 +70,8 @@ always @(posedge clk) begin
             bad_index <= 0;
             if(host_word==16'h0080) caps_latch <= cab_caps;
             if(host_word==16'h0090) caps_latch <= cap_caps;
+            if(host_word==16'h0092) caps_latch <= cap_result;
             if(host_word==16'h0087) cab_read_valid <= cab_snapshot_valid;
-            if(host_word==16'h0092) cap_read_valid <= cap_result_valid;
         end else begin
             if(words!=7'h7f) words <= words+1'd1;
             if(words<=12) payload[{(words[3:0]-1'b1),3'b000} +: 8] <= host_word[7:0];
@@ -83,14 +79,11 @@ always @(posedge clk) begin
                 bad_word <= 1;
                 bad_index <= words;
             end
-            if(is_cab_caps || is_cap_caps)
+            if(is_cab_caps || is_cap_caps || is_cap_read)
                 response_word <= caps_latch[{read_index[2:0],4'b0000} +: 16];
             else if(is_cab_read)
                 response_word <= cab_read_valid ?
                     {8'd0,cab_snapshot[{read_index[4:0],3'b000} +: 8]} : 16'd0;
-            else if(is_cap_read)
-                response_word <= cap_read_valid ?
-                    {8'd0,cap_result_byte} : 16'd0;
         end
     end
 end

@@ -3,6 +3,7 @@
  * Date: 18-8-2026 */
 
 module jtharier_sound(
+    input                rst,
     input                snd_rstn, // PPI0 port B bit 5, held low by the 68000
     input                clk,
     input                ym2151,   // Enduro Racer sound-board selection
@@ -42,6 +43,7 @@ wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, jt03_irq_n, jt51_irq_n,
 reg  [ 7:0] cpu_din;
 reg         ram_cs, fm_cs, pcmcmd_cs, latch_cs,
             snd_rst, jt03_rst, jt51_rst, int_n;
+wire        srst_n = snd_rstn & ~rst;
 
 assign jt51_csn =~(fm_cs &  ym2151);
 assign jt03_csn =~(fm_cs & ~ym2151);
@@ -51,9 +53,9 @@ assign latch_rd = latch_cs;
 
 always @(posedge clk) begin
     int_n    <= ym2151 ? jt51_irq_n : jt03_irq_n;
-    snd_rst  <= ~snd_rstn;
-    jt03_rst <= ~snd_rstn |  ym2151;
-    jt51_rst <= ~snd_rstn | ~ym2151;
+    snd_rst  <= ~srst_n;
+    jt03_rst <= ~srst_n |  ym2151;
+    jt51_rst <= ~srst_n | ~ym2151;
 end
 
 always @(*) begin
@@ -79,7 +81,7 @@ always @(*) begin
 end
 
 jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
-    .rst_n      ( snd_rstn ),
+    .rst_n      ( srst_n   ),
     .clk        ( clk      ),
     .cen        ( cen_fm   ),
     .cpu_cen    (          ),

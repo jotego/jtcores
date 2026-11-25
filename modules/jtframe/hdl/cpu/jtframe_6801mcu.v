@@ -223,6 +223,7 @@ always @(posedge clk) begin
         p3ddr <= 0;
         p4ddr <= 0;
         frc   <= 0;
+        cen_frc <= 0;
         ocr1  <='hffff;
         icr1  <= 0;
         rmcr  <='hf0;

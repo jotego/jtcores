@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/color"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -46,11 +47,11 @@ func TestSignatureImageUsesDecodedPixelsAndGeometry(t *testing.T) {
 	second := image.NewRGBA(image.Rect(0, 0, 2, 1))
 	second.Set(0, 0, color.RGBA{R: 10, G: 20, B: 30, A: 255})
 	second.Set(1, 0, color.RGBA{R: 40, G: 50, B: 60, A: 255})
-	a, err := SignatureImage(1, first)
+	a, err := SignatureImageAtCapturePrecision(1, first, 8)
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := SignatureImage(2, second)
+	b, err := SignatureImageAtCapturePrecision(2, second, 8)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -128,15 +129,34 @@ func TestCapturePrecisionUsesWireTruncationAtCodeBoundaries(t *testing.T) {
 	}
 }
 
-func TestMameCapturePrecisionUsesCoreAndTargetMacros(t *testing.T) {
+// test_jtroot is $JTROOT or the checkout that holds this package
+func test_jtroot(t *testing.T) string {
 	root := os.Getenv("JTROOT")
-	for _, tc := range []struct {
-		core, target string
-		want         int
-	}{{"gng", "sidi128", 4}, {"s16", "sidi128", 5}, {"ajax", "sidi128", 5}, {"blkout", "mister", 4}, {"s16", "mister", 5}, {"shanon", "mister", 6}, {"ajax", "mister", 8}} {
-		got, err := mame_capture_precision(root, tc.core, tc.target)
-		if err != nil || got != tc.want {
-			t.Errorf("%s/%s capture precision = %d, %v; want %d", tc.core, tc.target, got, err, tc.want)
+	if root == "" {
+		root, _ = filepath.Abs("../../../../..")
+	}
+	if _, e := os.Stat(filepath.Join(root, "cores", "gng", "cfg", "macros.def")); e != nil {
+		t.Skip("no jtcores checkout:", e)
+	}
+	return root
+}
+
+func TestCaptureBitsUseMiSTerMacros(t *testing.T) {
+	root := test_jtroot(t)
+	for _, key := range []string{"JTROOT", "JTFRAME", "CORES", "MODULES"} {
+		t.Setenv(key, os.Getenv(key))
+	}
+	for core, want := range map[string]int{"blkout": 4, "s16": 5, "shanon": 4, "ajax": 8} {
+		if colorw, e := CoreColorW(root, core); e != nil || capture_bits(colorw) != want {
+			t.Errorf("%s JTFRAME_COLORW = %d, %v; want %d capture bits", core, colorw, e, want)
+		}
+	}
+	if _, e := CoreColorW(root, "nosuchcore"); e == nil {
+		t.Error("a missing core was accepted")
+	}
+	for colorw, want := range map[int]int{1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 4, 7: 4, 8: 8} {
+		if got := capture_bits(colorw); got != want {
+			t.Errorf("COLORW %d gives %d capture bits, want %d", colorw, got, want)
 		}
 	}
 }
@@ -177,26 +197,6 @@ func TestNativeColorPrecisionIgnoresOnlyUncapturedLowBits(t *testing.T) {
 		}
 		if ImagesEqualAtCapturePrecision(img, img, bits) {
 			t.Errorf("invalid native precision %d compared equal", bits)
-		}
-	}
-}
-
-func TestMameTargetCapturePrecisionMapsAllNativeWidths(t *testing.T) {
-	for width := 1; width <= 8; width++ {
-		mister, err := mame_target_capture_precision(width, "mister")
-		if err != nil || mister != width {
-			t.Errorf("MiSTer COLORW%d resolved to %d, %v", width, mister, err)
-		}
-		sidi, err := mame_target_capture_precision(width, "sidi128")
-		want := 5
-		if width < 5 { want = 4 }
-		if err != nil || sidi != want {
-			t.Errorf("SiDi128 COLORW%d resolved to %d, %v; want %d", width, sidi, err, want)
-		}
-	}
-	for _, width := range []int{0, 9} {
-		if _, err := mame_target_capture_precision(width, "mister"); err == nil {
-			t.Errorf("invalid MiSTer COLORW%d accepted", width)
 		}
 	}
 }
@@ -256,7 +256,7 @@ func signature_test_frame_size(t *testing.T, frame, width, height int, value col
 			img.SetRGBA(x, y, value)
 		}
 	}
-	signature, err := SignatureImage(frame, img)
+	signature, err := SignatureImageAtCapturePrecision(frame, img, 8)
 	if err != nil {
 		t.Fatal(err)
 	}

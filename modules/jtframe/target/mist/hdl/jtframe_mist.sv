@@ -20,6 +20,7 @@ module jtframe_mist #(parameter
     input              clk_rom,
     input              clk_pico,
     input              pll_locked,
+    input              ph24,
     // interface with microcontroller
     output      [63:0] status,
     output      [31:0] dipsw,
@@ -446,6 +447,7 @@ jtframe_board #(
     .rst_req        ( rst_req         ),
     .sdram_init     ( sdram_init      ),
     .pll_locked     ( pll_locked      ),
+    .ph24           ( ph24            ),
     .ioctl_ram      ( ioctl_ram       ),
     .ioctl_cart     ( ioctl_cart      ),
     .dwnld_busy     ( dwnld_busy      ), // use busy signal from game module

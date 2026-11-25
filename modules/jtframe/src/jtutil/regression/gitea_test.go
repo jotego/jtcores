@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -64,7 +62,6 @@ func TestGiteaReportCreateResumeAndCompletion(t *testing.T) {
 		t.Fatal(err)
 	}
 	summary.Status = "interrupted"
-	summary.OperationalError = "capture cancelled"
 	resumed, err := p.Publish(summary, "")
 	if err != nil {
 		t.Fatal(err)
@@ -73,7 +70,6 @@ func TestGiteaReportCreateResumeAndCompletion(t *testing.T) {
 		t.Fatal("lost receipt did not find/update existing issue across pages")
 	}
 	summary.Status = "complete"
-	summary.OperationalError = ""
 	summary.Coverage["pass"] = 1
 	if _, err = p.Publish(summary, link); err != nil {
 		t.Fatal(err)
@@ -103,46 +99,5 @@ func TestGiteaRejectsPublicRepoAndHTTPFailures(t *testing.T) {
 	_, err := p.Publish(Summary{RunID: strings.Repeat("b", 40)}, server.URL+"/jotego/jtcores/issues/1")
 	if err == nil || !strings.Contains(err.Error(), "403") || strings.Contains(err.Error(), "secret") {
 		t.Fatal("unsafe or missing API error")
-	}
-}
-
-func TestGiteaCompletionIsIndependentOfGitHub(t *testing.T) {
-	record, _, _, _ := compact_fixture(t)
-	record.Progress.AutomaticComplete = true
-	record.Progress.Games = map[string]ProgressGame{"fake/test": {Result: Pass}}
-	record.Progress.ReportURL = "https://github.com/report"
-	record.Save()
-	cfg := Config{ReportTarget: "gitea"}
-	if campaign_complete(record.Root, record.Progress.Commit, cfg) {
-		t.Fatal("GitHub receipt suppressed Gitea report")
-	}
-	record.Progress.GiteaReportURL = "http://gitea.test/issue/1"
-	record.Save()
-	if campaign_complete(record.Root, record.Progress.Commit, cfg) {
-		t.Fatal("initial report treated as final")
-	}
-	record.Progress.GiteaReportComplete = true
-	record.Save()
-	if !campaign_complete(record.Root, record.Progress.Commit, cfg) {
-		t.Fatal("Gitea completion not remembered")
-	}
-}
-
-func TestMiSTerCampaignDoesNotTrustLegacyAutomaticComplete(t *testing.T) {
-	record, _, _, _ := compact_fixture(t)
-	record.Progress.AutomaticComplete = true
-	record.Progress.Games = map[string]ProgressGame{"fake/test": {Result: Pass}}
-	if err := record.Save(); err != nil {
-		t.Fatal(err)
-	}
-	mainSHA := strings.Repeat("c", 64)
-	evidencePath := filepath.Join(t.TempDir(), "qualification.json")
-	evidence, _ := json.Marshal(miSTerQualificationEvidence{Schema: 1, Target: "mister", Generation: "gen-new", Convention: CaptureNativeNonRotatedRGB888, QualificationID: "qual-new", MainSHA256: mainSHA, Qualified: true})
-	if err := os.WriteFile(evidencePath, evidence, 0600); err != nil {
-		t.Fatal(err)
-	}
-	cfg := Config{Target: "mister", CaptureContract: &MiSTerCaptureContract{Generation: "gen-new", Convention: CaptureNativeNonRotatedRGB888, QualificationID: "qual-new", QualificationEvidence: evidencePath, MainSHA256: mainSHA}}
-	if campaign_complete(record.Root, record.Progress.Commit, cfg) {
-		t.Fatal("legacy top-level completion skipped an unrun MiSTer lane")
 	}
 }

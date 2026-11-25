@@ -9,6 +9,7 @@ module jtframe_mist_clocks(
     output  clk96,
     output  clk48,
     output  clk24,
+    output  ph24,
     output  pll_locked,
 
     // System clocks
@@ -103,6 +104,10 @@ jtframe_rst_sync u_reset48(
     .clk        ( clk48     ),
     .rst_sync   ( rst48     )
 );
+
+reg ph24_l=0;
+assign ph24 = ph24_l;
+always @(posedge clk24) ph24_l <= ~ph24_l;
 
 jtframe_rst_sync u_reset24(
     .rst        ( game_rst  ),

@@ -1,15 +1,9 @@
-name: SiDi128 hardware regression
+name: MiSTer hardware regression
 
 on:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: 'CRON_TZ=Europe/Madrid 0 5 * * *'
   workflow_dispatch:
-    inputs:
-      legacy_sidi128:
-        description: Explicitly enable the legacy SiDi128 capture path
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   regression:
@@ -20,7 +14,6 @@ jobs:
       issues: write
     env:
       JOTEGO: ${{ secrets.JOTEGO }}
-      REGRESSION_LEGACY_SIDI128: ${{ github.event_name == 'schedule' || inputs.legacy_sidi128 || false }}
     steps:
       - name: Check regression lock before checkout
         id: gate
@@ -64,7 +57,6 @@ jobs:
       - name: Run or resume regression and report to Gitea
         if: steps.gate.outputs.available == 'true'
         env:
-          REGRESSION_CONFIG: ${{ secrets.REGRESSION_CONFIG }}
           GITEA_TOKEN: ${{ gitea.token }}
           GITEA_SERVER_URL: ${{ gitea.server_url }}
           GITEA_REPOSITORY: ${{ gitea.repository }}
