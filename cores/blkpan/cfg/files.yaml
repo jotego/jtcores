@@ -8,7 +8,6 @@ blkpan:
 nemsis:
   - get:
       - jtnemsis_gx400a_video.v
-      - jtnemsis_gx400_cen.v
       - jtnemsis_gx400_priority_handler.v
       - jtnemsis_k5290.v
       - jtnemsis_k5291.v
@@ -23,9 +22,6 @@ nemsis:
 jtframe:
   - get:
       - jtframe_ff.v
-  - from: clocking
-    get:
-      - jtframe_frac_cen.v
   - from: ram
     get:
       - jtframe_ram.v

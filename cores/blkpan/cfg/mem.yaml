@@ -6,6 +6,15 @@ params:
 ports:
   - { name: main_dout, msb: 15, lsb: 0 }
 
+clocks:
+  clk:
+    - mul: 3
+      div: 16
+      outputs: [ cen9 ]
+    - mul: 67
+      div: 920
+      outputs: [ cen3p5, cen1p7 ]
+
 audio:
   rsum: 1k
   channels:

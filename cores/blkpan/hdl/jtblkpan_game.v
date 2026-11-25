@@ -21,7 +21,8 @@ module jtblkpan_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        cen9, cen6b, clk6, cen3p5, cen1p7;
+reg  [ 2:0] clk6_holder = 3'd0;
+wire        cen12, cen6, cen6b, clk6;
 wire        hflip, vflip;
 wire        chacs_n, objram_n, vcs1, vcs2, vzcs;
 wire [15:1] video_addr;
@@ -53,18 +54,13 @@ assign in1 = { dipsw[31], 1'b0, ~joystick1[5], ~joystick1[4],
 assign in2 = { 2'b00,      ~joystick2[5], ~joystick2[4],
                ~joystick2[2], ~joystick2[3], ~joystick2[0], ~joystick2[1] };
 
-jtnemsis_gx400_cen u_cen(
-    .clk           ( clk      ),
-    .vsync60       ( 1'b0     ),
-    .cen_12        ( pxl2_cen ),
-    .cen_6         ( pxl_cen  ),
-    .cen_6b        ( cen6b    ),
-    .clk6          ( clk6     ),
-    .cen_9         ( cen9     ),
-    .cen_3p5       ( cen3p5   ),
-    .cen_1p7       ( cen1p7   ),
-    .audio_div_cen (          )
-);
+assign cen12 = pxl2_cen;
+assign cen6  = pxl_cen;
+assign clk6  = clk6_holder <= 3'd4;
+assign cen6b = clk6_holder == 3'd4;
+
+always @(posedge clk)
+    clk6_holder <= cen6 ? 3'd0 : clk6_holder + 3'd1;
 
 jtblkpan_main u_main(
     .clk         ( clk           ),
@@ -140,7 +136,7 @@ jtblkpan_snd u_snd(
 jtnemsis_gx400a_video u_video(
     .clk                ( clk             ),
     .rst                ( rst             ),
-    .pxl_cen            ( pxl_cen         ),
+    .pxl_cen            ( cen6            ),
     .pxl_cenb           ( cen6b           ),
     .clk6               ( clk6            ),
     .hflip              ( hflip           ),
@@ -216,7 +212,7 @@ assign { blue, green, red } = rgb_blk;
 
 jtframe_blank #( .DLY(0), .DW(15) ) u_blank(
     .clk      ( clk      ),
-    .pxl_cen  ( pxl_cen  ),
+    .pxl_cen  ( cen6     ),
     .preLHBL  ( preLHBL  ),
     .preLVBL  ( ~vblank  ),
     .LHBL     ( LHBL     ),
