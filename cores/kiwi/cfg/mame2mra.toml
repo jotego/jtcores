@@ -5,9 +5,6 @@ platform="jtkiwi"
 [parse]
 sourcefile=[ "tnzs.cpp" ]
 skip = { setnames = [
-    # Inputs not working
-    "plumppop",     # most left column missing, see service screen
-
     # Korean hack on mostly unrelated hardware
     "jpopnics",
 ]}
@@ -60,6 +57,7 @@ Names = [ { machine="insectx",  names="Fire,Warp"},
           { machine="kabuki",   names="Attack,Block"},
           { machine="kageki",   names="Left jab,Right hook"},
           { machine="arknoid2", names="Shoot"},
+          { machine="plumppop", names="Jump"},
           { machine="chukatai", names="Fire,Magic Bomb"},
 ]
 
