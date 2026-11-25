@@ -17,7 +17,7 @@ wire [ 7:0] tilesys_dout, objsys_dout,
 wire        tilesys_rom_dtack;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
-reg  [ 1:0] game_id;
+reg  [ 2:0] game_id;
 reg         gx878;
 
 assign debug_view = debug_mux;
@@ -28,13 +28,13 @@ always @(posedge clk) begin
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= {init,rmrd, prio, 2'd0, game_id};
+        3: debug_mux <= {init,rmrd, prio, 1'b0, game_id};
     endcase
 end
 
 always @(posedge clk) begin
     if( prog_addr==1 && prog_we && header )
-        { game_id, gx878 } <= prog_data[2:0];
+        { game_id, gx878 } <= prog_data[3:0];
 end
 
 /* verilator tracing_on */
