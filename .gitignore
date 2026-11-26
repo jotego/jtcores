@@ -135,6 +135,10 @@ scenes/
 !/cores/*/ver/**/
 !*.cab
 !sim.sh
+!/cores/shdfrc/ver/game/replay.sh
+!/cores/shdfrc/ver/game/rest2bin.sh
+!/cores/shdfrc/ver/shadfrce/mamedump.sh
+!/cores/shdfrc/ver/shadfrce/mamedump.lua
 
 # Local hardware regression machine configuration
 /.jtutil-regression.yaml

@@ -1,5 +1,6 @@
-# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
-# SPDX-License-Identifier: GPL-3.0-or-later
-# Date: 5-11-2026
-
+set_global_assignment -name IP_TOOL_NAME "ALTPLL"
+set_global_assignment -name IP_TOOL_VERSION "22.1"
+set_global_assignment -name IP_GENERATED_DEVICE_FAMILY "{Cyclone 10 LP}"
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) "jtframe_pll7000.v"]
+set_global_assignment -name MISC_FILE [file join $::quartus(qip_path) "jtframe_pll7000_bb.v"]
+set_global_assignment -name MISC_FILE [file join $::quartus(qip_path) "jtframe_pll7000.ppf"]

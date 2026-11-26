@@ -1,0 +1,45 @@
+[global]
+author=["Andrea Bogazzi"]
+
+[parse]
+sourcefile=[ "shadfrce.cpp" ]
+rename = [
+    { setname="shadfrce",  name="Shadow Force (FF, Technos, 1993)" },
+    { setname="shadfrceu", name="Shadow Force (FF, Technos, 1993, US v2)" },
+    { setname="shadfrcej", name="Shadow Force - Henshin Ninja (FF, Technos, 1993, Japan v2)" },
+]
+
+skip.setnames = [ "shadfrceu" ]
+
+[buttons]
+names = [
+    { machine="shadfrce", names="Punch,Kick,Jump" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+
+[ROM]
+regions = [
+    { name="maincpu",  width=16, reverse=true },
+    { name="tiles",    start="JTFRAME_BA1_START", width=32, parts=[
+        { name="32j1-0.4", crc="f1cca740", map="0021" },
+        { name="32j2-0.5", crc="5fac3e01", map="2100" },
+    ] },
+    { name="tiles2",   start="JTFRAME_BA2_START", files=[
+        { name="32j3-0.6", crc="d297925e", size=0x100000 },
+    ] },
+    { name="audiocpu", start="SND_START" },
+    { name="oki",      start="PCM_START" },
+    { name="chars",    start="CHAR_START" },
+    { name="obj4",     start="OBJ4_START", files=[
+        { name="32j4-0.12", crc="1ebea5b6", size=0x200000 },
+    ] },
+    { name="sprites",  start="JTFRAME_BA3_START", width=32, parts=[
+        { name="32j8-0.32", crc="201bebf6", map="0001" },
+        { name="32j7-0.25", crc="bcb37922", map="0010" },
+        { name="32j6-0.24", crc="6cde8ebe", map="0100" },
+        { name="32j5-0.13", crc="600026b5", map="1000" },
+    ] },
+]
+order = [ "maincpu", "tiles", "tiles2", "audiocpu", "oki", "chars", "obj4", "sprites" ]

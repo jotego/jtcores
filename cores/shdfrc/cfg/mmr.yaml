@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 25-11-2026
+
+- name: scene
+  size: 16
+  dw: 8
+  read_only: true
+  regs:
+    - { name: scrx0, dw: 9, at: "1[0],0" }
+    - { name: scry0, dw: 9, at: "3[0],2" }
+    - { name: scrx1, dw: 9, at: "5[0],4" }
+    - { name: scry1, dw: 9, at: "7[0],6" }
+    - { name: flip, dw: 1, at: "8[0]" }
+    - { name: video_en, dw: 1, at: "10[3]" }
+    - { name: brt, dw: 8, at: "12" }

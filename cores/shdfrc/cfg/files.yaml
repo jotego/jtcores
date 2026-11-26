@@ -1,0 +1,21 @@
+shdfrc:
+  - get:
+    - "*.v"
+jtframe:
+  - get:
+    - jtframe_edge.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_ram.v
+      - jtframe_ram16.v
+      - jtframe_ram.v
+jt51:
+jt6295:

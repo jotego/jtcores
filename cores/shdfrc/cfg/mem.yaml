@@ -1,0 +1,91 @@
+params:
+  - { name: WRAM_OFFSET, value: "`JTFRAME_BA1_START >> 1" }
+  - { name: SPR_OFFSET,  value: "(`JTFRAME_BA2_START-`JTFRAME_BA1_START) >> 1" }
+  - { name: SND_OFFSET,  value: "(`SND_START-`JTFRAME_BA2_START) >> 1" }
+  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA2_START) >> 1" }
+  - { name: OBJ4_OFFSET, value: "(`OBJ4_START-`JTFRAME_BA2_START) >> 1" }
+
+  - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA2_START) >> 1" }
+clocks:
+  clk:
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+
+    - freq: 1686900
+      outputs:
+        - cen_oki
+audio:
+
+  gain: 1.8
+  rsum: 6k
+  channels:
+    - { name: fm,  module: jt51,   rsum: 12k, pre: 0.52 }
+    - { name: pcm, module: jt6295, rsum: 12k, fir: fir_192k_4k.csv }
+sdram:
+  banks:
+    - buses:
+        - name: wram
+          addr_width: 17
+          data_width: 16
+          offset: WRAM_OFFSET
+          din: ram_din
+          rw: true
+          do_not_erase: true
+        - { name: main, addr_width: 20, data_width: 16, cache_size: 2kB }
+    - buses:
+        - name: spr
+          addr_width: 13
+          data_width: 16
+          offset: SPR_OFFSET
+          din: ram_din
+          rw: true
+          do_not_erase: true
+        - { name: scr,  addr_width: 21, data_width: 32 }
+    - buses:
+        - name: scr2
+          addr_width: 20
+          data_width: 32
+          gfx_sort: hvvvvx
+          gfx_sort_en: "(ioctl_addr < `SND_START)"
+        - { name: fgrom, addr_width: 17, data_width: 8, offset: CHAR_OFFSET }
+        - { name: obj4, addr_width: 21, data_width: 16, offset: OBJ4_OFFSET }
+        - { name: snd,  addr_width: 16, data_width: 8,  offset: SND_OFFSET }
+        - { name: pcm,  addr_width: 19, data_width: 8,  offset: PCM_OFFSET }
+    - buses:
+        - { name: obj,  addr_width: 23, data_width: 32 }
+
+bram:
+  - name: bg0
+    size: 4kB
+    data_width: 16
+    rw: true
+    addr: main_addr[11:1]
+    din: ram_din
+    dual_port: { name: bg0_rd, dout: bg0_rd_data }
+    simfile: {}
+  - name: bg1
+    size: 2kB
+    data_width: 16
+    rw: true
+    addr: main_addr[10:1]
+    din: ram_din
+    dual_port: { name: bg1_rd, dout: bg1_rd_data }
+    simfile: {}
+  - name: fg
+    size: 8kB
+    data_width: 16
+    rw: true
+    addr: main_addr[12:1]
+    din: ram_din
+    dual_port: { name: fg_rd, dout: fg_rd_data }
+    simfile: {}
+  - name: pal
+    size: 32kB
+    data_width: 16
+    rw: true
+    addr: main_addr[14:1]
+    din: ram_din
+    dual_port: { name: pal_rd, dout: pal_rd_data }
+    simfile: {}

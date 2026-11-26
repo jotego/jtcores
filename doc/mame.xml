@@ -291295,4 +291295,406 @@
 		<description>Gaelco CG1V</description>
 		<sound channels="0"/>
 	</machine>
+	<machine name="shadfrce" sourcefile="technos/shadfrce.cpp">
+		<description>Shadow Force (World, Version 3)</description>
+		<year>1993</year>
+		<manufacturer>Technos Japan</manufacturer>
+		<rom name="32a12-011.34" size="262144" crc="0c041e08" sha1="7b9d52cb1f6bc217c6e64287bd9630aa37243513" region="maincpu" offset="1"/>
+		<rom name="32a13-010.26" size="262144" crc="00985361" sha1="e9da1b096b25a6ee46bab6230dda66dccdd4bed8" region="maincpu" offset="0"/>
+		<rom name="32a14-010.33" size="262144" crc="ea03ca25" sha1="7af1ee7c36c70f80ba1e096473b5786b205ab00b" region="maincpu" offset="80001"/>
+		<rom name="32j15-01.14" size="262144" crc="3dc3a84a" sha1="166ad91b93192d94e3f6d2fe6dde02f59d334f75" region="maincpu" offset="80000"/>
+		<rom name="32j10-0.42" size="65536" crc="65daf475" sha1="7144332b2d17af8645e22e1926b33113db0d20e2" region="audiocpu" offset="0"/>
+		<rom name="32j11-0.55" size="131072" crc="7252d993" sha1="43f7de381841039aa290486aafb98e2cf3b8579b" region="chars" offset="0"/>
+		<rom name="32j4-0.12" size="2097152" crc="1ebea5b6" sha1="35bd49dda9ad75326d45ffb10c87d83fc4f1b7a8" region="sprites" offset="0"/>
+		<rom name="32j5-0.13" size="2097152" crc="600026b5" sha1="5641246300d7e20dcff1eae004647faaee6cd1c6" region="sprites" offset="200000"/>
+		<rom name="32j6-0.24" size="2097152" crc="6cde8ebe" sha1="750933798235951fe24b2e667c33f692612c0aa0" region="sprites" offset="400000"/>
+		<rom name="32j7-0.25" size="2097152" crc="bcb37922" sha1="f3eee73c8b9f4873a7f1cc42e334e7502eaee3c8" region="sprites" offset="600000"/>
+		<rom name="32j8-0.32" size="2097152" crc="201bebf6" sha1="c89d2895ea5b19daea1f88542419f4e10f437c73" region="sprites" offset="800000"/>
+		<rom name="32j1-0.4" size="1048576" crc="f1cca740" sha1="339079b95ca137e66b4f032ad67a0adf58cca100" region="tiles" offset="0"/>
+		<rom name="32j2-0.5" size="1048576" crc="5fac3e01" sha1="20c30f4c76e303285ae37e596afe86aa4812c3b9" region="tiles" offset="100000"/>
+		<rom name="32j3-0.6" size="1048576" crc="d297925e" sha1="5bc4d37bf0dc54114884c816b94a64ef1ccfeda5" region="tiles" offset="200000"/>
+		<rom name="32j9-0.76" size="524288" crc="16001e81" sha1="67928d2024f963aee91f1498b6f4c76101d2f3b8" region="oki" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="14000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1686900"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="8" vbstart="248" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="6">
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="2"/>
+			<dipvalue name="1 Coin/1 Credit" value="6" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+		</dipswitch>
+		<dipswitch name="Continue Price" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Stage Clear Energy Regain" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100%" value="12" default="yes"/>
+			<dipvalue name="50%" value="8"/>
+			<dipvalue name="25%" value="4"/>
+			<dipvalue name="0%" value="0"/>
+		</dipswitch>
+		<dipswitch name="Player's lives" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="1" value="0"/>
+			<dipvalue name="2" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Vs. Stage" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":EXTRA">
+		</port>
+		<port tag=":MISC">
+		</port>
+		<port tag=":OTHER">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="shadfrcej" sourcefile="technos/shadfrce.cpp" cloneof="shadfrce" romof="shadfrce">
+		<description>Shadow Force - Henshin Ninja (Japan, Version 2)</description>
+		<year>1993</year>
+		<manufacturer>Technos Japan</manufacturer>
+		<rom name="32j12-01.34" size="262144" crc="38fdbe1d" sha1="476d8ef2c0d2a8c568ce44631f93f8c730f91b08" region="maincpu" offset="1"/>
+		<rom name="32j13-01.26" size="262144" crc="6e1df6f1" sha1="c165553fe967b437413dd7ddc87a267548dd0ca9" region="maincpu" offset="0"/>
+		<rom name="32j14-01.33" size="262144" crc="89e3fb60" sha1="90de38558d63215a0079079030e8b1097599c9e5" region="maincpu" offset="80001"/>
+		<rom name="32j15-01.14" merge="32j15-01.14" size="262144" crc="3dc3a84a" sha1="166ad91b93192d94e3f6d2fe6dde02f59d334f75" region="maincpu" offset="80000"/>
+		<rom name="32j10-0.42" merge="32j10-0.42" size="65536" crc="65daf475" sha1="7144332b2d17af8645e22e1926b33113db0d20e2" region="audiocpu" offset="0"/>
+		<rom name="32j11-0.55" merge="32j11-0.55" size="131072" crc="7252d993" sha1="43f7de381841039aa290486aafb98e2cf3b8579b" region="chars" offset="0"/>
+		<rom name="32j4-0.12" merge="32j4-0.12" size="2097152" crc="1ebea5b6" sha1="35bd49dda9ad75326d45ffb10c87d83fc4f1b7a8" region="sprites" offset="0"/>
+		<rom name="32j5-0.13" merge="32j5-0.13" size="2097152" crc="600026b5" sha1="5641246300d7e20dcff1eae004647faaee6cd1c6" region="sprites" offset="200000"/>
+		<rom name="32j6-0.24" merge="32j6-0.24" size="2097152" crc="6cde8ebe" sha1="750933798235951fe24b2e667c33f692612c0aa0" region="sprites" offset="400000"/>
+		<rom name="32j7-0.25" merge="32j7-0.25" size="2097152" crc="bcb37922" sha1="f3eee73c8b9f4873a7f1cc42e334e7502eaee3c8" region="sprites" offset="600000"/>
+		<rom name="32j8-0.32" merge="32j8-0.32" size="2097152" crc="201bebf6" sha1="c89d2895ea5b19daea1f88542419f4e10f437c73" region="sprites" offset="800000"/>
+		<rom name="32j1-0.4" merge="32j1-0.4" size="1048576" crc="f1cca740" sha1="339079b95ca137e66b4f032ad67a0adf58cca100" region="tiles" offset="0"/>
+		<rom name="32j2-0.5" merge="32j2-0.5" size="1048576" crc="5fac3e01" sha1="20c30f4c76e303285ae37e596afe86aa4812c3b9" region="tiles" offset="100000"/>
+		<rom name="32j3-0.6" merge="32j3-0.6" size="1048576" crc="d297925e" sha1="5bc4d37bf0dc54114884c816b94a64ef1ccfeda5" region="tiles" offset="200000"/>
+		<rom name="32j9-0.76" merge="32j9-0.76" size="524288" crc="16001e81" sha1="67928d2024f963aee91f1498b6f4c76101d2f3b8" region="oki" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="14000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1686900"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="8" vbstart="248" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="6">
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="2"/>
+			<dipvalue name="1 Coin/1 Credit" value="6" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+		</dipswitch>
+		<dipswitch name="Continue Price" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Stage Clear Energy Regain" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100%" value="12" default="yes"/>
+			<dipvalue name="50%" value="8"/>
+			<dipvalue name="25%" value="4"/>
+			<dipvalue name="0%" value="0"/>
+		</dipswitch>
+		<dipswitch name="Player's lives" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="1" value="0"/>
+			<dipvalue name="2" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Vs. Stage" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":EXTRA">
+		</port>
+		<port tag=":MISC">
+		</port>
+		<port tag=":OTHER">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="shadfrceu" sourcefile="technos/shadfrce.cpp" cloneof="shadfrce" romof="shadfrce">
+		<description>Shadow Force (US, Version 2)</description>
+		<year>1993</year>
+		<manufacturer>Technos Japan</manufacturer>
+		<rom name="32a12-01.34" size="262144" crc="04501198" sha1="50f981c13f9ed19d681d494376018ba86464ea13" region="maincpu" offset="1"/>
+		<rom name="32a13-01.26" size="262144" crc="b8f8a05c" sha1="bd9d4218a7cf57b56aec1f7e710e02af8471f9d7" region="maincpu" offset="0"/>
+		<rom name="32a14-0.33" size="262144" crc="08279be9" sha1="1833526b23feddb58b21874070ad2bf3b6be8dca" region="maincpu" offset="80001"/>
+		<rom name="32a15-0.14" size="262144" crc="bfcadfea" sha1="1caa9fc30d8622ce4c7221039c446e99cc8f5346" region="maincpu" offset="80000"/>
+		<rom name="32j10-0.42" merge="32j10-0.42" size="65536" crc="65daf475" sha1="7144332b2d17af8645e22e1926b33113db0d20e2" region="audiocpu" offset="0"/>
+		<rom name="32a11-0.55" size="131072" crc="cfaf5e77" sha1="eab76e085f695c74cc868aaf95f04ff2acf66ee9" region="chars" offset="0"/>
+		<rom name="32j4-0.12" merge="32j4-0.12" size="2097152" crc="1ebea5b6" sha1="35bd49dda9ad75326d45ffb10c87d83fc4f1b7a8" region="sprites" offset="0"/>
+		<rom name="32j5-0.13" merge="32j5-0.13" size="2097152" crc="600026b5" sha1="5641246300d7e20dcff1eae004647faaee6cd1c6" region="sprites" offset="200000"/>
+		<rom name="32j6-0.24" merge="32j6-0.24" size="2097152" crc="6cde8ebe" sha1="750933798235951fe24b2e667c33f692612c0aa0" region="sprites" offset="400000"/>
+		<rom name="32j7-0.25" merge="32j7-0.25" size="2097152" crc="bcb37922" sha1="f3eee73c8b9f4873a7f1cc42e334e7502eaee3c8" region="sprites" offset="600000"/>
+		<rom name="32j8-0.32" merge="32j8-0.32" size="2097152" crc="201bebf6" sha1="c89d2895ea5b19daea1f88542419f4e10f437c73" region="sprites" offset="800000"/>
+		<rom name="32j1-0.4" merge="32j1-0.4" size="1048576" crc="f1cca740" sha1="339079b95ca137e66b4f032ad67a0adf58cca100" region="tiles" offset="0"/>
+		<rom name="32j2-0.5" merge="32j2-0.5" size="1048576" crc="5fac3e01" sha1="20c30f4c76e303285ae37e596afe86aa4812c3b9" region="tiles" offset="100000"/>
+		<rom name="32j3-0.6" merge="32j3-0.6" size="1048576" crc="d297925e" sha1="5bc4d37bf0dc54114884c816b94a64ef1ccfeda5" region="tiles" offset="200000"/>
+		<rom name="32j9-0.76" merge="32j9-0.76" size="524288" crc="16001e81" sha1="67928d2024f963aee91f1498b6f4c76101d2f3b8" region="oki" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="14000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1686900"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="8" vbstart="248" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="6" ways="8"/>
+			<control type="joy" player="2" buttons="6" ways="8"/>
+		</input>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="6">
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="2"/>
+			<dipvalue name="1 Coin/1 Credit" value="6" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+		</dipswitch>
+		<dipswitch name="Continue Price" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Stage Clear Energy Regain" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100%" value="8" default="yes"/>
+			<dipvalue name="50%" value="4"/>
+			<dipvalue name="25%" value="0"/>
+			<dipvalue name="0%" value="12"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":EXTRA">
+		</port>
+		<port tag=":MISC">
+		</port>
+		<port tag=":OTHER">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
 </mame>
