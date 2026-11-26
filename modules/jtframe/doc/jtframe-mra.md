@@ -16,14 +16,13 @@ part of the source file committed in git.
 The output will either be created in $JTROOT/release or in $JTBIN
 depending on the --git argument.
 
-Use `--mra-target mister` to apply target-specific `[parse].rename` entries to
-both the MRA filename and its XML title. A target match takes precedence over
-a rename for the same setname without a target. Without either match, JTFRAME
-uses the MAME description.
+Use `--mra-target mister` to generate an additional MRA tree under
+`mister/mra/`, with target-specific filenames and XML titles. A target match
+in `[parse].rename` takes precedence over a rename for the same setname without
+a target. Without either match, JTFRAME uses the MAME description.
 
-Release generation uses the MiSTer names in `mra/` and
-`--mra-default-copy` to write the default names to `mra-default/` for
-MiST and SiDi packaging.
+The shared `mra/` tree always uses the default titles. Release bundling
+prefers the target's MRA tree when it exists and falls back to `mra/`.
 
 Macros in macros.def are parsed by the MRA flow before conversion.
 

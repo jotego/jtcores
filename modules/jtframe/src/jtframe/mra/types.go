@@ -15,7 +15,6 @@ var Verbose bool
 type Args struct {
 	Core, Target        string
 	MRATarget           string
-	MRADefaultCopy      bool
 	Toml_path, Xml_path string
 	outdir, altdir      string
 	cheatdir, pocketdir string

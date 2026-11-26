@@ -166,7 +166,9 @@ function gather_files {
         cp "$JTBIN"/mister/*.rbf "$CORES"
     fi
 
-    cp -r "$JTBIN"/mra/* "$ROOT"
+    local mra_dir="$JTBIN/mister/mra"
+    [ -d "$mra_dir" ] || mra_dir="$JTBIN/mra"
+    cp -r "$mra_dir"/* "$ROOT"
     if [ -d "$JTBIN/games" ]; then cp -r "$JTBIN/games" "$ROOT"; fi
     if [ -d "$JTBIN/cab" ]; then cp -r "$JTBIN/cab" "$ROOT"; fi
 }

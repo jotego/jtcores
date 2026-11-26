@@ -24,6 +24,9 @@ import (
 )
 
 func (args *Args) Convert() error {
+	if target := args.MRATarget; target != "" && (!filepath.IsLocal(target) || target == "." || filepath.Base(target) != target) {
+		return fmt.Errorf("invalid MRA target %q", target)
+	}
 	pocket_clear()
 	defer close_allzip()
 	parse_args(args)
@@ -103,8 +106,8 @@ func (args *Args) convert_romless() error {
 	}
 	root := make_romless_mra(machine, args.mra_cfg, *args)
 	dump_mra(*args, machine, args.mra_cfg, root, nil)
-	if args.MRADefaultCopy {
-		dump_mra(args.default_mra_output(), machine, args.mra_cfg, root, nil)
+	if args.MRATarget != "" {
+		dump_mra(args.target_mra_output(), machine, args.mra_cfg, root, nil)
 	}
 	return dump_verilog_header(args.Core, args.mra_cfg.Header)
 }
@@ -471,26 +474,26 @@ func is_main(machine *MachineXML, mra_cfg Mame2MRA) bool {
 	return false
 }
 
-func (args Args) default_mra_output() Args {
-	args.outdir = filepath.Join(filepath.Dir(args.outdir), "mra-default")
+func (args Args) target_mra_output() Args {
+	args.outdir = filepath.Join(filepath.Dir(args.outdir), args.MRATarget, "mra")
 	args.altdir = filepath.Join(args.outdir, "_alternatives")
 	return args
 }
 
 func (args Args) dump_game_mras(machine *MachineXML, cfg Mame2MRA, root *XMLNode, coremod int, parent_names map[string]string) {
-	if args.MRADefaultCopy {
-		default_args := args.default_mra_output()
-		dump_mra(default_args, machine, cfg, root, parent_names)
-		default_args.dump_crt_480i_mra(machine, cfg, root, coremod, parent_names)
-	}
-	name := root.GetNode("name")
-	default_name := name.GetText()
-	if args.MRATarget != "" {
-		name.SetText(mra_name(machine, cfg, args.MRATarget))
-		defer name.SetText(default_name)
-	}
 	dump_mra(args, machine, cfg, root, parent_names)
 	args.dump_crt_480i_mra(machine, cfg, root, coremod, parent_names)
+	if args.MRATarget == "" {
+		return
+	}
+
+	target_args := args.target_mra_output()
+	name := root.GetNode("name")
+	default_name := name.GetText()
+	name.SetText(mra_name(machine, cfg, args.MRATarget))
+	defer name.SetText(default_name)
+	dump_mra(target_args, machine, cfg, root, parent_names)
+	target_args.dump_crt_480i_mra(machine, cfg, root, coremod, parent_names)
 }
 
 func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode, parent_names map[string]string) {
