@@ -23,6 +23,7 @@ module jtshdfrc_main(
     input         [15:0] wram_data,
     output               spr_cpu_cs, spr_cpu_we,
     input                spr_cpu_ok, spr_cpu_hold,
+    input                pal_local,
     output        [ 1:0] bg0_we, bg1_we, fg_we, pal_we,
     input         [15:0] bg0_q, bg1_q, fg_q, spr_q, pal_q,
 
@@ -69,8 +70,9 @@ assign spr_cs  = bus_active && A[23:13]==11'h0a1;
 assign pal_cs  = bus_active && A[23:15]==9'h030;
 assign scr_cs  = bus_active && A[23:4] ==20'h1c000;
 assign io_cs   = bus_active && A[23:6] ==18'h07400;
-assign wram_cs = (bus_active && A[23:16]==8'h1f) || (vram_cs && !bg0_cs && !bg1_cs);
-assign wram_addr = {vram_cs, A[15:1]};
+assign wram_cs = (bus_active && A[23:16]==8'h1f) || (vram_cs && !bg0_cs && !bg1_cs) ||
+                 (pal_cs && !pal_local);
+assign wram_addr = pal_cs ? {2'b11, A[14:1]} : {vram_cs, A[15:1]};
 
 assign bus_cs   = rom_cs | wram_cs | spr_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (wram_cs & ~wram_ok) | (spr_cs & ~spr_cpu_ok);
@@ -83,7 +85,7 @@ assign bg1_we   = dsn_we & {2{bg1_cs}};
 assign fg_we    = dsn_we & {2{fg_cs}};
 assign spr_cpu_cs = spr_cs;
 assign spr_cpu_we = !RnW;
-assign pal_we   = dsn_we & {2{pal_cs}};
+assign pal_we   = dsn_we & {2{pal_cs && pal_local}};
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -173,7 +175,7 @@ always @(posedge clk) begin
                ({16{bg1_cs}}  & bg1_q)     |
                ({16{fg_cs}}   & fg_q)      |
                ({16{spr_cs}}  & spr_q)     |
-               ({16{pal_cs}}  & pal_q)     |
+               ({16{pal_cs && pal_local}} & pal_q) |
                ({16{io_cs && A[5]}} & io_dout);
 end
 

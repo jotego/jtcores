@@ -15,6 +15,12 @@ wire [12:1] spr_rd_addr;
 wire [13:1] bg_addr;
 wire [15:0] bg_data;
 reg         bg_bank;
+wire [14:1] pal_rd_addr;
+wire [15:0] pal_rd_data, pal_dout;
+wire [ 1:0] pal_we;
+wire [13:0] pal_cpu_map = palette_map(main_addr[14:1]);
+wire [13:0] pal_vid_map = palette_map(pal_rd_addr);
+reg         pal_char_rd_sel;
 wire [ 8:0] scrx0, scry0, scrx1, scry1, vpos;
 wire        flip, video_en, line_start, snd_on;
 wire [ 7:0] brt, snd_latch;
@@ -30,6 +36,26 @@ assign bg1_rd_addr = bg_addr[10:1];
 assign bg_data     = bg_bank ? bg1_rd_data : bg0_rd_data;
 
 always @(posedge clk) bg_bank <= bg_addr[13];
+
+function [13:0] palette_map(input [13:0] index);
+    case( index[13:12] )
+        2'd0: palette_map = { index[11:10]==0 && index[5:4]==0, 1'b1, 4'd0, index[9:6], index[3:0] };
+        2'd1: palette_map = { !index[10] && !index[5], 1'b0, 2'b11, index[11], index[9:6], index[4:0] };
+        2'd2: palette_map = { !index[10], 2'b00, index[11], index[9:0] };
+        2'd3: palette_map = { index[11:10]==0, 1'b0, 2'b10, index[9:0] };
+    endcase
+endfunction
+
+assign pal_main_addr    = pal_cpu_map[11:0];
+assign pal_char_addr    = pal_cpu_map[ 7:0];
+assign pal_main_we      = pal_cpu_map[12] ? 2'b00 : pal_we;
+assign pal_char_we      = pal_cpu_map[12] ? pal_we : 2'b00;
+assign pal_dout         = pal_cpu_map[12] ? pal_char_dout : pal_main_dout;
+assign pal_main_rd_addr = pal_vid_map[11:0];
+assign pal_char_rd_addr = pal_vid_map[ 7:0];
+assign pal_rd_data      = pal_char_rd_sel ? pal_char_rd_data : pal_main_rd_data;
+
+always @(posedge clk) pal_char_rd_sel <= pal_vid_map[12];
 
 assign spr_cpu_hold = spr_cpu_cs && spr_cpu_we && spr_owner!=SPR_CPU &&
                       spr_copy_busy && main_addr[12:1]>=spr_rd_addr;
@@ -108,6 +134,7 @@ jtshdfrc_main u_main(
     .spr_cpu_we    ( spr_cpu_we     ),
     .spr_cpu_ok    ( spr_cpu_ok     ),
     .spr_cpu_hold  ( spr_cpu_hold   ),
+    .pal_local     ( pal_cpu_map[13]),
     .pal_we        ( pal_we         ),
     .bg0_q         ( bg0_dout       ),
     .bg1_q         ( bg1_dout       ),
@@ -190,8 +217,7 @@ jtshdfrc_video u_video(
     .red           ( red           ),
     .green         ( green         ),
     .blue          ( blue          ),
-    .gfx_en        ( gfx_en        ),
-    .busy          (               )
+    .gfx_en        ( gfx_en        )
 );
 /* verilator tracing_off */
 jtshdfrc_sound u_sound(

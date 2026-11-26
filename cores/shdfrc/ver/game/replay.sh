@@ -50,7 +50,7 @@ exec docker run --rm --pull=never --entrypoint /bin/bash --name jtshdfrc-shadfrc
         fi
     done
     if ((seed)); then
-        if ! jtsim -mister -skipROM -load -video 1 > build/scene-rom.log 2>&1; then
+        if ! jtsim -mister -u JTFRAME_180SHIFT -skipROM -load -video 1 > build/scene-rom.log 2>&1; then
             echo "ROM download failed. See build/scene-rom.log" >&2
             exit 1
         fi
@@ -62,7 +62,7 @@ exec docker run --rm --pull=never --entrypoint /bin/bash --name jtshdfrc-shadfrc
         export SHDFRC_SCENE="scenes/$frame"
         if ((first)); then
             if [[ ! -x ../game/dump2bin.sh ]]; then ../game/rest2bin.sh "$SHDFRC_SCENE"; fi
-            if ! jtsim -mister -skipROM -batch -fast -d SIMSCENE -d NOSOUND -video 4 > "$log" 2>&1; then
+            if ! jtsim -mister -u JTFRAME_180SHIFT -skipROM -batch -fast -d SIMSCENE -d NOSOUND -video 4 > "$log" 2>&1; then
                 echo "Scene $frame failed. See $log" >&2
                 exit 1
             fi

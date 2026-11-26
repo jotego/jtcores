@@ -23,8 +23,7 @@ module jtshdfrc_scroll(
     input         [31:0] scr2_data,
 
     output        [10:0] lbg0,
-    output        [ 9:0] lbg1,
-    output               busy
+    output        [ 9:0] lbg1
 );
 
 wire        rbank = rline[0];
@@ -185,7 +184,5 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-
-assign busy = bst!=B_IDLE || dbusy;
 
 endmodule

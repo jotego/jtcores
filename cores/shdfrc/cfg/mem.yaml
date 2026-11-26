@@ -81,11 +81,17 @@ bram:
     din: ram_din
     dual_port: { name: fg_rd, dout: fg_rd_data }
     simfile: {}
-  - name: pal
-    size: 32kB
+  - name: pal_main
+    size: 8kB
     data_width: 16
     rw: true
-    addr: main_addr[14:1]
     din: ram_din
-    dual_port: { name: pal_rd, dout: pal_rd_data }
+    dual_port: { name: pal_main_rd, dout: pal_main_rd_data }
+    simfile: {}
+  - name: pal_char
+    size: 512B
+    data_width: 16
+    rw: true
+    din: ram_din
+    dual_port: { name: pal_char_rd, dout: pal_char_rd_data }
     simfile: {}

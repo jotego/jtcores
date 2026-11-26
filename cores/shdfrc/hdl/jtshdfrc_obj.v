@@ -25,8 +25,7 @@ module jtshdfrc_obj(
     input                obj4_ok,
     input         [15:0] obj4_data,
 
-    output        [10:0] lobj,
-    output               busy
+    output        [10:0] lobj
 );
 
 wire        rbank = rline[0];
@@ -218,7 +217,5 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-
-assign busy     = scan_on || sev || ofn!=0 || ocst!=OC_IDLE || odbusy;
 
 endmodule

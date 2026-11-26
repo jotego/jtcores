@@ -44,6 +44,6 @@ cmp <(dd if="$rom" bs=65536 skip=$((0x4b)) count=$((0x20)) 2>/dev/null) \
 mkdir -p "$set_dir/frames"
 docker run "${docker_args[@]}" --detach --name "$container" "$image" -ec '
     export PATH="$PWD/bin:$JTFRAME/bin:$PATH"
-    exec jtsim -mister -setname shadfrce -skipROM -load -video "$1" > boot.log 2>&1
+    exec jtsim -mister -u JTFRAME_180SHIFT -setname shadfrce -skipROM -load -video "$1" > boot.log 2>&1
 ' _ "$frames"
 printf '%s\n' "$set_dir/frames"

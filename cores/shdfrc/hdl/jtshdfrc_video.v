@@ -51,9 +51,7 @@ module jtshdfrc_video #(parameter BG_START = 9'd160)(
     output        [ 7:0] red,
     output        [ 7:0] green,
     output        [ 7:0] blue,
-    input         [ 3:0] gfx_en,
-
-    output        [ 2:0] busy
+    input         [ 3:0] gfx_en
 );
 
 localparam [8:0] HLAST = 9'd447, VLAST = 9'd271;
@@ -115,8 +113,7 @@ jtshdfrc_char u_char(
     .fgrom_cs   ( fgrom_cs   ),
     .fgrom_ok   ( fgrom_ok   ),
     .fgrom_data ( fgrom_data ),
-    .lfg        ( lfg        ),
-    .busy       ( busy[0]    )
+    .lfg        ( lfg        )
 );
 
 jtshdfrc_scroll u_scroll(
@@ -140,8 +137,7 @@ jtshdfrc_scroll u_scroll(
     .scr2_ok    ( scr2_ok                   ),
     .scr2_data  ( scr2_data                 ),
     .lbg0       ( lbg0                      ),
-    .lbg1       ( lbg1                      ),
-    .busy       ( busy[2]                   )
+    .lbg1       ( lbg1                      )
 );
 
 jtshdfrc_obj u_obj(
@@ -164,8 +160,7 @@ jtshdfrc_obj u_obj(
     .obj4_cs       ( obj4_cs       ),
     .obj4_ok       ( obj4_ok       ),
     .obj4_data     ( obj4_data     ),
-    .lobj          ( lobj          ),
-    .busy          ( busy[1]       )
+    .lobj          ( lobj          )
 );
 
 jtshdfrc_colmix u_colmix(

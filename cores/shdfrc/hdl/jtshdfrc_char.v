@@ -17,8 +17,7 @@ module jtshdfrc_char(
     input                fgrom_ok,
     input         [ 7:0] fgrom_data,
 
-    output        [ 7:0] lfg,
-    output               busy
+    output        [ 7:0] lfg
 );
 
 wire        rbank = rline[0];
@@ -100,7 +99,5 @@ always @(posedge clk, posedge rst) begin
         endcase
     end
 end
-
-assign busy = fst!=F_IDLE;
 
 endmodule
