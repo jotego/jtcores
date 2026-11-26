@@ -33,7 +33,7 @@ sdram:
           din: ram_din
           rw: true
           do_not_erase: true
-        - { name: main, addr_width: 20, data_width: 16, cache_size: 2kB }
+        - { name: main, addr_width: 20, data_width: 16 }
     - buses:
         - name: spr
           addr_width: 13
@@ -51,8 +51,8 @@ sdram:
           gfx_sort_en: "(ioctl_addr < `SND_START)"
         - { name: fgrom, addr_width: 17, data_width: 8, offset: CHAR_OFFSET }
         - { name: obj4, addr_width: 21, data_width: 16, offset: OBJ4_OFFSET }
-        - { name: snd,  addr_width: 16, data_width: 8,  offset: SND_OFFSET }
-        - { name: pcm,  addr_width: 19, data_width: 8,  offset: PCM_OFFSET }
+        - { name: snd,  addr_width: 16, data_width: 8,  offset: SND_OFFSET, cache_size: 2kB }
+        - { name: pcm,  addr_width: 19, data_width: 8,  offset: PCM_OFFSET, cache_size: 2kB }
     - buses:
         - { name: obj,  addr_width: 23, data_width: 32 }
 
