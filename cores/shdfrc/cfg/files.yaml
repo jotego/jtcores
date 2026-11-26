@@ -1,4 +1,7 @@
 shdfrc:
+  - when: [MIST]
+    unless: [NOSOUND]
+    get: [timing.sdc]
   - get:
     - "*.v"
 jtframe:
