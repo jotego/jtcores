@@ -122,6 +122,7 @@ jtcps1_main dut(
     .mmr_dout(mmr_dout), .joymode(joymode),
     .snd_latch0(snd_latch0), .snd_latch1(snd_latch1), .UDSWn(udsw), .LDSWn(ldsw),
     .charger(charger), .joystick1(joystick1), .joystick2(joystick2),
+    .joyana_r1(16'd0), .joyana_r2(16'd0),
     .dial_x(dial_x), .dial_y(dial_y), .cab_1p(cab_1p), .coin(coin),
     .service(service), .tilt(tilt), .busreq(busreq), .busack(busack),
     .RnW(cpu_rnw), .addr(cpu_addr), .cpu_dout(cpu_dout),
