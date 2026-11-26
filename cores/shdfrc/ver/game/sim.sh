@@ -21,7 +21,6 @@ fi
 test -r "$rom_dir/shadfrce.zip"
 docker image inspect "$image" >/dev/null
 mkdir -p "$set_dir/bin"
-"$repo_root/.claude/regenerate-mame-xml" --output "$set_dir/mame.xml"
 
 docker_args=(--rm --pull=never --entrypoint /bin/bash
     -v "$repo_root:/jtcores" -w "/jtcores/$set_path"
@@ -30,8 +29,7 @@ docker_args=(--rm --pull=never --entrypoint /bin/bash
     -e JTBIN=/jtcores/release -e ROM=/jtcores/rom
     -e RLS=/jtcores/release -e MRA=/jtcores/release/mra)
 
-docker run "${docker_args[@]}" \
-    -v "$set_dir/mame.xml:/jtcores/doc/mame.xml:ro" -v "$rom_dir:/mame-roms:ro" \
+docker run "${docker_args[@]}" -v "$rom_dir:/mame-roms:ro" \
     "$image" -ec '
         set_dir=$PWD
         (cd "$JTFRAME/src/jtframe" && go build -o "$set_dir/bin/jtframe" .)
