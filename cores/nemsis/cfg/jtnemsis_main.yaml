@@ -7,6 +7,9 @@ nemsis:
       - jtnemsis_u13j_mmr.v
 
 jtframe:
+  - get:
+      - jtframe_edge.v
+      - jtframe_toggle.v
   - from: clocking
     get:
       - jtframe_frac_cen.v

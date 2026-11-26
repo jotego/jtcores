@@ -46,7 +46,9 @@ wire        req_main_cs;
 wire        hflip, vflip;
 wire        inter_non, resolution_288_256;
 wire        chacs_n, objram_n, vcs2, vcs1, vzcs;
-wire        h1_n, h2, v256, vblank;
+wire        h1_n, h2, v256, vblank, scanline_zero;
+wire        konamigt;
+wire [11:0] steering;
 
 wire [15:1] video_addr;
 wire [ 7:0] sound_db;
@@ -160,6 +162,26 @@ jtframe_prom #( .AW(8),
 // Main board
 // ---------------------------------------------------------------------------
 
+jtnemsis_header u_header(
+	.clk       ( clk            ),
+	.header    ( header         ),
+	.prog_addr ( prog_addr[2:0] ),
+	.prog_data ( prog_data      ),
+	.prog_we   ( prog_we        ),
+	.konamigt  ( konamigt       )
+);
+
+jt4701_axis u_steering(
+	.clk       ( clk                  ),
+	.rst       ( rst                  ),
+	.sigin     ( {dial_x[0],dial_x[1]} ),
+	.flag_clrn ( 1'b1                 ),
+	.flagn     (                      ),
+	.axis      ( steering             ),
+	.dir       (                      ),
+	.step      (                      )
+);
+
 jtnemsis_main u_main(
 	.rst                 ( rst              ),
 	.clk                 ( clk              ),
@@ -167,6 +189,7 @@ jtnemsis_main u_main(
 	.cen_9               ( cen_9            ),
 	.vblank              ( vblank           ),
 	.v256                ( v256             ),
+	.scanline_zero       ( scanline_zero    ),
 	.clk6                ( clk6             ),
 	.h1_n                ( h1_n             ),
 	.h2                  ( h2               ),
@@ -212,6 +235,8 @@ jtnemsis_main u_main(
 
 	.joystick1           ( joystick1        ),
 	.joystick2           ( joystick2        ),
+	.konamigt            ( konamigt         ),
+	.steering            ( steering[6:0]    ),
 	.coin                ( coin[1:0]        ),
 	.cab_1p              ( cab_1p[1:0]      ),
 	.dipsw               ( dipsw[23:0]      ),
@@ -270,6 +295,7 @@ jtnemsis_gx400a_video u_video(
 	.h1_n                 ( h1_n                 ),
 	.h2                   ( h2                   ),
 	.v256                 ( v256                 ),
+	.scanline_zero        ( scanline_zero        ),
 
 	.cpu_addr             ( video_addr           ),
 	.cpu_din              ( video_din            ),

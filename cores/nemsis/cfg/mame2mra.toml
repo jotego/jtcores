@@ -5,15 +5,19 @@ twitter="-"
 
 [parse]
 sourcefile=[ "nemesis.cpp" ]
-# nemesis.cpp also holds Salamander, TwinBee, Konami GT, City Bomber... which
-# this core does not implement. Keep only the machines using the GX400 ROM
-# board (nemesis + nemesisuk).
-mustbe.machines=[ "nemesis" ]
-skip.setnames=[ "gradius" ]
+mustbe.machines=[ "nemesis", "konamigt" ]
+skip.setnames=[ "gradius", "rf2" ]
  
 [buttons]
 names=[
+    { setname="konamigt", names="Accelerator,Brake,Gear Shift", map="ABY" },
     { names="Option,Fire,Bomb", map="YBA" },
+]
+
+[header]
+fill=0
+registers=[
+    { name="konamigt", pos="0[0]", values=[{ setname="konamigt", value=1 }] },
 ]
 
 [ROM]

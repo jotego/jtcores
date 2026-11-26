@@ -36,6 +36,7 @@ module jtnemsis_main
     input         cen_9,
     input         vblank,       // Existing preLVBL_n polarity: high while blank.
     input         v256,
+    input         scanline_zero,
     input         clk6,         // Physical 6 MHz clock level, not an enable.
     input         h1_n,
     input         h2,
@@ -77,6 +78,8 @@ module jtnemsis_main
 
     input  [ 6:0] joystick1,
     input  [ 6:0] joystick2,
+    input         konamigt,
+    input  [ 6:0] steering,
     input  [ 1:0] coin,
     input  [ 1:0] cab_1p,
     input  [23:0] dipsw,
@@ -101,6 +104,7 @@ reg         cpu_cen, cpu_cenb;
 // address and data buses
 wire        as_n, rnw, vpa_n, int16_n, int32_n, u16f_d1, u16f_d2;
 wire        cpu_halt_n, irq16_set, irq32_set;
+wire        gt_controls_n, gt_irq1, gt_irq2, gt_frame_odd, gt_gear;
 wire        ram_lo_we, ram_hi_we, video_cs_n;
 wire [ 7:0] u11k_latch_din, u13j_latch_din;
 reg         dtack_n;
@@ -196,10 +200,26 @@ assign u13j_mmr_cs = ~u13j_g_n;
 // ** [PS2401-4] @ 2E, 2F, 2G, 2H, 2J **
 // ** 8-Bit DIP Switch                **
 // ** [DIP] @ 5G                      **
-assign input_mux_a = { 3'b0, ~cab_1p[1], ~cab_1p[0], ~service, ~coin[1], ~coin[0] };
-assign input_mux_b = { 1'b0, ~joystick1[6], ~joystick1[5], ~joystick1[4], ~joystick1[2], ~joystick1[3], ~joystick1[0], ~joystick1[1] };
-assign input_mux_c = { 1'b0, ~joystick2[6], ~joystick2[5], ~joystick2[4], ~joystick2[2], ~joystick2[3], ~joystick2[0], ~joystick2[1] };
+assign input_mux_a = { 3'b0, (konamigt ? 2'b0 : ~cab_1p), ~service, ~coin[1], ~coin[0] };
+assign input_mux_b = konamigt ? { 3'b0, gt_gear, 4'b0 } :
+                     { 1'b0, ~joystick1[6], ~joystick1[5], ~joystick1[4], ~joystick1[2], ~joystick1[3], ~joystick1[0], ~joystick1[1] };
+assign input_mux_c = konamigt ? 8'b0 :
+                     { 1'b0, ~joystick2[6], ~joystick2[5], ~joystick2[4], ~joystick2[2], ~joystick2[3], ~joystick2[0], ~joystick2[1] };
 assign input_mux_d = dipsw[23:16];
+assign gt_controls_n = !(konamigt && !excs_n && rnw && cpu_addr[15:1] == 15'd0);
+
+// Clear the gear during reset while continuing to sample the button.
+jtframe_ff u_gt_gear(
+    .rst     ( 1'b0               ),
+    .clk     ( clk                ),
+    .cen     ( 1'b1               ),
+    .sigedge ( ~joystick1[6]      ),
+    .din     ( gt_gear ^ konamigt ),
+    .set     ( 1'b0               ),
+    .clr     ( rst                ),
+    .q       ( gt_gear            ),
+    .qn      (                    )
+);
 
 assign input_mux_sel = cpu_addr[2:1];
 
@@ -281,6 +301,7 @@ always @(*) begin
 		dip1_g_n:       cpu_din = { 8'h00, dipsw[7:0] };
 		dip2_g_n:       cpu_din = { 8'h00, dipsw[15:8] };
 		input_mux_g_n:  cpu_din = { 8'h00, input_mux_out };
+		gt_controls_n:  cpu_din = { {4{~joystick1[4]}}, 2'b0, {2{~joystick1[5]}}, 1'b0, steering };
 		u11k_g_n:       cpu_din = { 8'h00, u11k_out };
 		u13j_g_n:       cpu_din = { 8'h00, u13j_out };
 		video_cs_n:     cpu_din = video_din;
@@ -350,13 +371,45 @@ end
 // ** 10–Line to 4-Line Priority Encoder **
 // ** [LS147] @ 16F                      **
 always @(*) begin
-	if( ~u16f_d2 & dip_pause )
+	if( (konamigt ? gt_irq2 : ~u16f_d2) & dip_pause )
 		ipl_n = 3'b101;
-	else if( ~u16f_d1 & dip_pause )
+	else if( (konamigt ? gt_irq1 : ~u16f_d1) & dip_pause )
 		ipl_n = 3'b110;
 	else
 		ipl_n = 3'b111;
 end
+
+jtframe_toggle #(
+    .W            ( 1    ),
+    .VALUE_AT_RST ( 1'b1 )
+) u_gt_frame_odd(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+    .toggle ( scanline_zero ),
+    .q      ( gt_frame_odd  )
+);
+
+jtframe_ff #(
+    .EDGE_RESET ( 1'b1 )
+) u_gt_irq1(
+    .rst     ( rst                       ),
+    .clk     ( clk                       ),
+    .cen     ( 1'b1                      ),
+    .sigedge ( vblank                    ),
+    .din     ( gt_irq1 || !gt_frame_odd  ),
+    .set     ( 1'b0                      ),
+    .clr     ( !konamigt || !int32_n     ),
+    .q       ( gt_irq1                   ),
+    .qn      (                           )
+);
+
+jtframe_edge u_gt_irq2(
+    .rst    ( rst                     ),
+    .clk    ( clk                     ),
+    .edgeof ( scanline_zero           ),
+    .clr    ( !konamigt || !int16_n   ),
+    .q      ( gt_irq2                 )
+);
 
 // ---------------------------------------------------------------------------
 // CPU
