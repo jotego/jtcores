@@ -16,6 +16,14 @@ part of the source file committed in git.
 The output will either be created in $JTROOT/release or in $JTBIN
 depending on the --git argument.
 
+Use `--mra-target mister` to generate an additional MRA tree under
+`mister/mra/`, with target-specific filenames and XML titles. A target match
+in `[parse].rename` takes precedence over a rename for the same setname without
+a target. Without either match, JTFRAME uses the MAME description.
+
+The shared `mra/` tree always uses the default titles. Release bundling
+prefers the target's MRA tree when it exists and falls back to `mra/`.
+
 Macros in macros.def are parsed by the MRA flow before conversion.
 
 From `$JTROOT/cores`, run `jtframe mra --skipROM *` to audit all cores after
@@ -39,6 +47,7 @@ Orientation={ Fixed=true } # use when rotation CW/CCW information from MAME is n
 
 [parse]
 sourcefile=[ "mamefile1.cpp", "mamefile2.cpp"... ]
+rename=[{ setname="slapfigh", target="mister", name="Slap Fight (A77 set, 8606M PCB) [JT]" }]
 # Explicit parent sets to keep clone families together when the parent
 # is not part of the selected sourcefile list. The description is used
 # to name alternate folders.

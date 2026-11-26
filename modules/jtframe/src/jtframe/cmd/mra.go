@@ -48,6 +48,7 @@ func init() {
 	flag.BoolVarP(&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")
 	flag.BoolVarP(&mra_args.JTbin, "git", "g", false, "Save files to JTBIN")
 	flag.StringVar(&mra_args.Buttons, "buttons", "", "Buttons used by the game -upto six-")
+	flag.StringVar(&mra_args.MRATarget, "mra-target", "", "Also save MRAs with target-specific names under <target>/mra")
 	flag.StringVar(&mra_args.Setname, "setname", "", "Extract only the specified setname")
 	flag.StringVar(&mra_args.URL, "url", "https://patreon.com/jotego", "Author's URL")
 	flag.StringVar(&mra_args.Rom_path, "path", mame_roms, "Path to MAME .zip files")

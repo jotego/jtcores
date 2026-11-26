@@ -162,15 +162,15 @@ refresh_schematics() {
 }
 
 regenerate_mra() {
-	rm -rf release/mra
+	rm -rf release/mra release/mister/mra
 	find release/pocket -name "*rbf_r" | xargs -I% basename % .rbf_r | sort | uniq | sed s/^jt// > pocket.cores
 	find release/{mister,sidi,sidi128,mist} -name "*rbf" | xargs -I% basename % .rbf | sort | uniq | sed s/^jt// | sort > mister.cores
-	jtframe mra $SKIPROM --md5 --git `cat pocket.cores` --nodbg
+	jtframe mra $SKIPROM --md5 --git --mra-target mister `cat pocket.cores` --nodbg
 	comm -3 pocket.cores mister.cores > other.cores
 	sed -i '/neogeopocket/d' other.cores
 	if [ `wc -l other.cores|cut -f1 -d' '` -gt 0 ]; then
 		# cat other.cores
-		jtframe mra $SKIPROM --md5 --skipPocket --git `cat other.cores` --nodbg
+		jtframe mra $SKIPROM --md5 --skipPocket --git --mra-target mister `cat other.cores` --nodbg
 	fi
 }
 

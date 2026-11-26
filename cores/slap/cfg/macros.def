@@ -20,7 +20,5 @@ PAL_START=0x070800
 
 debug JTFRAME_IOCTL_RD=10244
 
-[mister|pocket]
-# Anton Gale already made a core for these platforms, so
-# we are not distributing the JT core for them
+[pocket]
 JTFRAME_SKIP

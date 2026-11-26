@@ -69,9 +69,10 @@ elif [ $LOCAL = 1 ]; then
     export JTBIN=$JTROOT/release
 fi
 
-cd $JTBIN/mra
-
 function cp_mist {
+    local mra_dir="$JTBIN/$1/mra"
+    [ -d "$mra_dir" ] || mra_dir="$JTBIN/mra"
+    cd "$mra_dir" || return
     cp $V $CPUPD $JTBIN/$1/*rbf $DST
     # Get the main MRA as the core's arc for JTAG programming
     for CORE in $JTBIN/$1/*rbf; do

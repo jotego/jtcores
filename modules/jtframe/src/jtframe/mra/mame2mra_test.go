@@ -54,6 +54,36 @@ func Test_patch_is_skipped(t *testing.T) {
 	}
 }
 
+func TestMRANameForTarget(t *testing.T) {
+	cfg, err := NewMRAcfgFromTOML(strings.NewReader(`
+[parse]
+rename = [
+    { setname = "game", name = "Default title" },
+    { setname = "game", target = "mister", name = "MiSTer title" },
+    { setname = "other", target = "mister", name = "Other MiSTer title" },
+]
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		setname string
+		target  string
+		want    string
+	}{
+		{setname: "game", target: "mister", want: "MiSTer title"},
+		{setname: "game", target: "mist", want: "Default title"},
+		{setname: "game", want: "Default title"},
+		{setname: "other", target: "mist", want: "MAME title"},
+		{setname: "unknown", target: "mister", want: "MAME title"},
+	} {
+		machine := &MachineXML{Name: test.setname, Description: "MAME title"}
+		if got := mra_name(machine, cfg, test.target); got != test.want {
+			t.Errorf("%s on %q: got %q, want %q", test.setname, test.target, got, test.want)
+		}
+	}
+}
+
 func Test_Convert_romless_mra(t *testing.T) {
 	root := t.TempDir()
 	init_test_git(t, root)

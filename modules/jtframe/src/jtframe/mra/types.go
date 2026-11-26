@@ -14,6 +14,7 @@ var Verbose bool
 
 type Args struct {
 	Core, Target        string
+	MRATarget           string
 	Toml_path, Xml_path string
 	outdir, altdir      string
 	cheatdir, pocketdir string
@@ -379,6 +380,7 @@ type ParseCfg struct {
 	Rename        []struct {
 		Setname string
 		Name    string
+		Target  string
 	}
 	Older int // minimum year allow to parse
 	Skip  struct {

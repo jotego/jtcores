@@ -93,10 +93,12 @@ copy_mister_files() {
     mkdir -p $DEST/games/mame
     cp $JTUTIL/jtbeta.zip $DEST/games/mame
     cp $JTBIN/mister/*rbf "$DEST"/_Arcade/cores
+    local mra_dir="$JTBIN/mister/mra"
+    [ -d "$mra_dir" ] || mra_dir="$JTBIN/mra"
+    cp -r "$mra_dir"/* "$DEST/_Arcade"
 }
 
 copy_mist_sidi_files() {
-    cp -r $JTBIN/mra/* "$DEST"/_Arcade
     cp -r $JTBIN/{mist,sidi,sidi128,mra} "$DEST"
 }
 

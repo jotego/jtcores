@@ -3,6 +3,11 @@ author=["jotego"]
 
 [parse]
 sourcefile=["slapfght.cpp"]
+rename=[
+    { setname="alcon", target="mister", name="Alcon (US) [JT]" },
+    { setname="slapfigh", target="mister", name="Slap Fight (A77 set, 8606M PCB) [JT]" },
+    { setname="slapfigha", target="mister", name="Slap Fight (A76 set, GX-006-A PCB) [JT]" },
+]
 # These systems have different CPU, protection or video wiring.
 skip={ machines=["perfrman","grdian"], bootlegs=true }
 
