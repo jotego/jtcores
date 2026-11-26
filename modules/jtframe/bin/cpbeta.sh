@@ -89,15 +89,20 @@ copy_all_targets() {
 }
 
 copy_mister_files() {
-    mkdir -p "$DEST"/_Arcade/cores "$DEST/mra"
+    mkdir -p "$DEST"/_Arcade/cores
     mkdir -p $DEST/games/mame
     cp $JTUTIL/jtbeta.zip $DEST/games/mame
     cp $JTBIN/mister/*rbf "$DEST"/_Arcade/cores
+    cp -r "$JTBIN"/mra/* "$DEST"/_Arcade
 }
 
 copy_mist_sidi_files() {
-    cp -r $JTBIN/mra/* "$DEST"/_Arcade
-    cp -r $JTBIN/{mist,sidi,sidi128,mra} "$DEST"
+    local mra_dir="$JTBIN/mra"
+    if [ -d "$JTBIN/mra-default" ]; then
+        mra_dir="$JTBIN/mra-default"
+    fi
+    cp -r "$mra_dir" "$DEST/mra"
+    cp -r $JTBIN/{mist,sidi,sidi128} "$DEST"
 }
 
 copy_pocket_files() {

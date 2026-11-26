@@ -103,6 +103,9 @@ func (args *Args) convert_romless() error {
 	}
 	root := make_romless_mra(machine, args.mra_cfg, *args)
 	dump_mra(*args, machine, args.mra_cfg, root, nil)
+	if args.MRADefaultCopy {
+		dump_mra(args.default_mra_output(), machine, args.mra_cfg, root, nil)
+	}
 	return dump_verilog_header(args.Core, args.mra_cfg.Header)
 }
 
@@ -190,8 +193,7 @@ func (args *Args) dump_alt_setnames(parsed_machines []ParsedMachine, parent_name
 				all_errors = common.JoinErrors(all_errors, fmt.Errorf("%s (%s): %w", d.machine.Name, altversion, e))
 				continue
 			}
-			dump_mra(alt_args, d.machine, args.mra_cfg, alt_xml, parent_names)
-			alt_args.dump_crt_480i_mra(d.machine, args.mra_cfg, alt_xml, coremod, parent_names)
+			alt_args.dump_game_mras(d.machine, args.mra_cfg, alt_xml, coremod, parent_names)
 			count++
 		}
 	}
@@ -392,8 +394,7 @@ func (args *Args) produce_mra_rom_nvram(d ParsedMachine, parent_names map[string
 		}
 	}
 	save_nvram(d.mra_xml)
-	dump_mra(*args, d.machine, mra_cfg, d.mra_xml, parent_names)
-	args.dump_crt_480i_mra(d.machine, mra_cfg, d.mra_xml, d.coremod, parent_names)
+	args.dump_game_mras(d.machine, mra_cfg, d.mra_xml, d.coremod, parent_names)
 }
 
 func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
@@ -468,6 +469,28 @@ func is_main(machine *MachineXML, mra_cfg Mame2MRA) bool {
 		}
 	}
 	return false
+}
+
+func (args Args) default_mra_output() Args {
+	args.outdir = filepath.Join(filepath.Dir(args.outdir), "mra-default")
+	args.altdir = filepath.Join(args.outdir, "_alternatives")
+	return args
+}
+
+func (args Args) dump_game_mras(machine *MachineXML, cfg Mame2MRA, root *XMLNode, coremod int, parent_names map[string]string) {
+	if args.MRADefaultCopy {
+		default_args := args.default_mra_output()
+		dump_mra(default_args, machine, cfg, root, parent_names)
+		default_args.dump_crt_480i_mra(machine, cfg, root, coremod, parent_names)
+	}
+	name := root.GetNode("name")
+	default_name := name.GetText()
+	if args.MRATarget != "" {
+		name.SetText(mra_name(machine, cfg, args.MRATarget))
+		defer name.SetText(default_name)
+	}
+	dump_mra(args, machine, cfg, root, parent_names)
+	args.dump_crt_480i_mra(machine, cfg, root, coremod, parent_names)
 }
 
 func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode, parent_names map[string]string) {
@@ -632,13 +655,22 @@ func set_rbfname(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) *X
 	return root.AddNode("rbf", cfg.rbf)
 }
 
-func mra_name(machine *MachineXML, cfg Mame2MRA) string {
+func mra_name(machine *MachineXML, cfg Mame2MRA, target string) string {
+	name := machine.Description
+	found_default := false
 	for _, ren := range cfg.Parse.Rename {
-		if ren.Setname == machine.Name {
+		if ren.Setname != machine.Name {
+			continue
+		}
+		if target != "" && ren.Target == target {
 			return ren.Name
 		}
+		if ren.Target == "" && !found_default {
+			name = ren.Name
+			found_default = true
+		}
 	}
-	return machine.Description
+	return name
 }
 
 func notEmpty(a, b string) string {
@@ -703,7 +735,7 @@ func make_root_node(machine *MachineXML, cfg Mame2MRA, args Args) *XMLNode {
 	root := MakeNode("misterromdescription")
 	make_about_node(&root, cfg.Global)
 	make_rotation_node(&root, machine.Display)
-	root.AddNode("name", mra_name(machine, cfg)) // machine.Description)
+	root.AddNode("name", mra_name(machine, cfg, ""))
 	root.AddNode("setname", machine.Name)
 	root.AddNode("mameversion", Mame_version())
 	root.AddNode("year", machine.Year)

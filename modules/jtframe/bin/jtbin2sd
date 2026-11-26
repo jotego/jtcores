@@ -69,7 +69,11 @@ elif [ $LOCAL = 1 ]; then
     export JTBIN=$JTROOT/release
 fi
 
-cd $JTBIN/mra
+MRA_DIR="$JTBIN/mra"
+if [ -d "$JTBIN/mra-default" ]; then
+    MRA_DIR="$JTBIN/mra-default"
+fi
+cd "$MRA_DIR"
 
 function cp_mist {
     cp $V $CPUPD $JTBIN/$1/*rbf $DST
@@ -105,7 +109,7 @@ function cp_mist {
 }
 
 if [ -n "$RUNMRA" ]; then
-    RBF=`find $JTBIN/mra -name "*.mra" -print0 | xargs -0 -I_ xmllint --xpath '//rbf/text()' _ | sort | uniq | sed s/^jt//`
+    RBF=`find "$MRA_DIR" -name "*.mra" -print0 | xargs -0 -I_ xmllint --xpath '//rbf/text()' _ | sort | uniq | sed s/^jt//`
     jtframe mra $RBF $MAINONLY
 fi
 
