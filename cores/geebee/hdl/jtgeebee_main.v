@@ -61,8 +61,8 @@ wire ram_cycle = ram_sel && !mreq_n && (!rd_n || !wr_n);
 wire video_cycle = (vram_sel || cgrom_sel) && !mreq_n && (!rd_n || !wr_n);
 // Sheet 8: 4F/4E feed 3V READY logic; 2U receives RAM select.
 // 8224 READY feeds 8080 1F pin23; WAIT leaves 1F pin24.
-wire ready_n = (!ram_cycle || ram_waited) &&
-               !(video_cycle && ready_h_nq && ready_v_q);
+wire ready = (!ram_cycle || ram_waited) &&
+             !(video_cycle && ready_h_nq && ready_v_q);
 reg [7:0] din;
 reg [7:0] latch;
 reg vblank_d;
@@ -76,8 +76,8 @@ assign gfx_cpu_addr = addr[9:0];
 assign gfx_cpu_rd   = bus_rd && cgrom_sel;
 // Sheet 9: 2114s 3H and 3F form the 1Kx8 video RAM.
 assign vram_addr    = addr[9:0];
-// Sheet 9: 3U inhibits /WE while 8080 1F asserts WAIT.
-assign vram_we      = cen_cpu && bus_wr && vram_sel && ready_n;
+// Sheet 9: 3U holds /WE high during 1F WAIT to protect the video circuit's VRAM access.
+assign vram_we      = cen_cpu && bus_wr && vram_sel && ready;
 assign vram_din     = dout;
 assign workram_addr = addr[7:0];
 assign workram_we   = cen_cpu && bus_wr && ram_sel;
@@ -148,7 +148,7 @@ T80s #(
     .RESET_n( ~rst    ),
     .CLK    ( clk     ),
     .CEN    ( cen_cpu ),
-    .WAIT_n ( ready_n ),
+    .WAIT_n ( ready   ),
     .INT_n  ( ~irq    ),
     .NMI_n  ( 1'b1    ),
     .BUSRQ_n( 1'b1    ),
