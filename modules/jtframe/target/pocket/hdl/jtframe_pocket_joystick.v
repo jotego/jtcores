@@ -22,6 +22,12 @@ module jtframe_pocket_joystick(
     input      [15:0] cont1,     cont2,     cont3,     cont4,
     input      [31:0] cont1_joy, cont2_joy, cont3_joy, cont4_joy,
     input      [ 3:0] analog_en,
+    // SNAC analog sticks (jtframe_analogizer, JTFRAME joyana format): while the SNAC
+    // controllers have sticks (snac_joyana_en), player n gets SNAC controller n's sticks
+    // instead of the Pocket controller ones
+    input      [15:0] snac_joyana_l1, snac_joyana_r1, snac_joyana_l2, snac_joyana_r2,
+                      snac_joyana_l3, snac_joyana_r3, snac_joyana_l4, snac_joyana_r4,
+    input             snac_joyana_en,
     output reg [15:0] joystick1, joystick2, joystick3, joystick4,
                       joyana_l1, joyana_l2, joyana_l3, joyana_l4,
                       joyana_r1, joyana_r2, joyana_r3, joyana_r4
@@ -54,10 +60,10 @@ always @(posedge clk_sys) begin
     joystick2 <= joyconv(cont2,button_map);
     joystick3 <= joyconv(cont3,button_map);
     joystick4 <= joyconv(cont4,button_map);
-    { joyana_r1, joyana_l1 } <= joyanaconv(cont1_joy, analog_en[0]);
-    { joyana_r2, joyana_l2 } <= joyanaconv(cont2_joy, analog_en[1]);
-    { joyana_r3, joyana_l3 } <= joyanaconv(cont3_joy, analog_en[2]);
-    { joyana_r4, joyana_l4 } <= joyanaconv(cont4_joy, analog_en[3]);
+    { joyana_r1, joyana_l1 } <= snac_joyana_en ? { snac_joyana_r1, snac_joyana_l1 } : joyanaconv(cont1_joy, analog_en[0]);
+    { joyana_r2, joyana_l2 } <= snac_joyana_en ? { snac_joyana_r2, snac_joyana_l2 } : joyanaconv(cont2_joy, analog_en[1]);
+    { joyana_r3, joyana_l3 } <= snac_joyana_en ? { snac_joyana_r3, snac_joyana_l3 } : joyanaconv(cont3_joy, analog_en[2]);
+    { joyana_r4, joyana_l4 } <= snac_joyana_en ? { snac_joyana_r4, snac_joyana_l4 } : joyanaconv(cont4_joy, analog_en[3]);
 end
 
 endmodule
