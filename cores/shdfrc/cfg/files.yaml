@@ -1,5 +1,5 @@
 shdfrc:
-  - when: [MIST]
+  - when: [MIST, POCKET]
     unless: [NOSOUND]
     get: [timing.sdc]
   - get:
