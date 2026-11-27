@@ -23,7 +23,6 @@
 module jtblkpan_main(
     input             clk,
     input             rst,
-    input             cen9,
 
     // Video board
     output     [15:1] o_addr,
@@ -33,6 +32,7 @@ module jtblkpan_main(
     output            o_chacs_n, o_objram_n, o_vcs1, o_vcs2, o_vzcs,
     output            o_hflip, o_vflip,
     input             i_vbl,          // active high during vertical blanking
+    input             i_clk6, i_h1_n, i_h2,
 
     // Palette (xBGR_555, 2048 entries in BRAM)
     output     [10:0] o_pal_addr,
@@ -41,7 +41,7 @@ module jtblkpan_main(
 
     // Sound board
     output reg [ 7:0] o_snd_latch,
-    output reg        o_snd_irq,      // rising edge -> Z80 IRQ (7474)
+    output            o_snd_irq,      // rising edge -> Z80 IRQ (7474)
 
     // Cabinet. Active HIGH on this board (MAME IP_ACTIVE_HIGH), already
     // corrected in the game module.
@@ -66,9 +66,10 @@ wire [15:0] cpu_dout;
 reg  [15:0] cpu_din;
 wire        as_n, rw_n, uds_n, lds_n;
 wire        FC0, FC1, FC2;
-wire        ram_cs, pal_cs, outlatch_cs, intlatch_cs, snd_cs, wdog_cs,
+wire        rom_cs, ram_cs, pal_cs, outlatch_cs, intlatch_cs, snd_cs, wdog_cs,
             dsw0_cs, dsw1_cs, in0_cs, in1_cs, in2_cs;
 wire        chacs_n, objram_n, vcs1, vcs2, vzcs;
+wire        lanes_idle = uds_n && lds_n;
 
 assign o_addr    = cpu_addr[15:1];
 assign o_dout    = cpu_dout;
@@ -81,8 +82,9 @@ assign o_vcs1    = vcs1;
 assign o_vcs2    = vcs2;
 assign o_vzcs    = vzcs;
 assign o_rom_addr= cpu_addr[18:1];
+assign o_rom_cs  = rom_cs && !rst && !lanes_idle;
 assign o_ram_addr= cpu_addr[14:1];
-assign o_ram_cs  = ram_cs && !rst && !(uds_n && lds_n);
+assign o_ram_cs  = ram_cs && !rst && !lanes_idle;
 assign o_ram_we  = o_ram_cs && !rw_n;
 // The SDRAM slot uses both byte lanes during its reset erase.
 assign o_ram_dsn = o_ram_cs ? { uds_n, lds_n } : 2'b00;
@@ -107,7 +109,7 @@ jtblkpan_addr_dec u_dec(
     .i_uds_n       ( uds_n       ),
     .i_cpu_addr    ( cpu_addr    ),
 
-    .o_rom_cs      ( o_rom_cs    ),
+    .o_rom_cs      ( rom_cs      ),
     .o_ram_cs      ( ram_cs      ),
     .o_pal_cs      ( pal_cs      ),
     .o_outlatch_cs ( outlatch_cs ),
@@ -134,20 +136,22 @@ jtblkpan_addr_dec u_dec(
 //   handler, i.e. irq1/irq2 are swapped -> b0 = irq2 enable, b1 = irq1 enable,
 //   b2 = flip X, b3 = flip Y.
 // ---------------------------------------------------------------------------
-reg irq1_en, irq2_en, flipx, flipy;
+reg       irq1_en, irq2_en, flipx, flipy;
+reg [7:0] outlatch;
 
 assign o_hflip = flipx;
 assign o_vflip = flipy;
+assign o_snd_irq = outlatch[3];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        o_snd_irq <= 0;
+        outlatch  <= 0;
         irq1_en   <= 0;
         irq2_en   <= 0;
         flipx     <= 0;
         flipy     <= 0;
     end else begin
-        if( outlatch_cs && !rw_n ) o_snd_irq <= cpu_dout[11];   // b3 of the upper byte
+        if( outlatch_cs && !rw_n ) outlatch <= cpu_dout[15:8];
         if( intlatch_cs && !rw_n ) begin
             irq2_en <= cpu_dout[0];
             irq1_en <= cpu_dout[1];
@@ -187,16 +191,74 @@ wire vpa_n = |{ ~cpu_addr[23], as_n };
 // ---------------------------------------------------------------------------
 // DTACK
 // ---------------------------------------------------------------------------
-reg DTACKn;
+wire        DTACKn, cpu_cen, cpu_cenb;
+wire        scroll_obj_cs = !vzcs || !objram_n;
+wire        vram_char_cs = !vcs1 || !vcs2 || !chacs_n;
+wire        vram_slot = !i_clk6 && i_h1_n && !i_h2;
+wire        io_dtack_n, scroll_obj_dtack_n, vram_char_dtack_n;
+wire        bus_legit = scroll_obj_cs || vram_char_cs || !vpa_n;
+wire        bus_busy = !vpa_n || (rom_cs && !i_rom_ok) || (ram_cs && !i_ram_ok) ||
+                      (scroll_obj_cs && scroll_obj_dtack_n) || (vram_char_cs && vram_char_dtack_n);
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) DTACKn <= 1;
-    // VPAn low means the 68000 is autovectoring (interrupt acknowledge, or the
-    // A23 window): it uses VPA instead of DTACK, so keep DTACK negated there.
-    else if( as_n || !vpa_n ) DTACKn <= 1;
-    else if( ram_cs ) DTACKn <= !(o_ram_cs && i_ram_ok);
-    else DTACKn <= o_rom_cs ? ~i_rom_ok : 1'b0;
-end
+jtframe_ff u_io_dtack(
+    .rst     ( rst        ),
+    .clk     ( clk        ),
+    .cen     ( 1'b1       ),
+    .sigedge ( i_clk6     ),
+    .set     ( lanes_idle ),
+    .clr     ( 1'b0       ),
+    .din     ( lanes_idle ),
+    .q       ( io_dtack_n ),
+    .qn      (            )
+);
+
+jtframe_ff u_scroll_obj_dtack(
+    .rst     ( rst                ),
+    .clk     ( clk                ),
+    .cen     ( 1'b1               ),
+    .sigedge ( i_h1_n             ),
+    .set     ( lanes_idle         ),
+    .clr     ( 1'b0               ),
+    .din     ( lanes_idle         ),
+    .q       ( scroll_obj_dtack_n ),
+    .qn      (                    )
+);
+
+jtframe_ff u_vram_char_dtack(
+    .rst     ( rst                ),
+    .clk     ( clk                ),
+    .cen     ( 1'b1               ),
+    .sigedge ( vram_slot          ),
+    .set     ( lanes_idle         ),
+    .clr     ( 1'b0               ),
+    .din     ( io_dtack_n         ),
+    .q       ( vram_char_dtack_n  ),
+    .qn      (                    )
+);
+
+jtframe_68kdtack_cen #(
+    .W        ( 5 ),
+    .RECOVERY ( 1 )
+) u_dtack(
+    .rst       ( rst              ),
+    .clk       ( clk              ),
+    .cpu_cen   ( cpu_cen          ),
+    .cpu_cenb  ( cpu_cenb         ),
+    .bus_cs    ( 1'b1             ),
+    .bus_busy  ( bus_busy         ),
+    .bus_legit ( bus_legit        ),
+    .bus_ack   ( 1'b0             ),
+    .RnW       ( rw_n             ),
+    .BGACKn    ( 1'b1             ),
+    .ASn       ( as_n             ),
+    .DSn       ( { uds_n, lds_n } ),
+    .num       ( 4'd3             ),
+    .den       ( 5'd16            ),
+    .waitn     ( 2'd0             ),
+    .DTACKn    ( DTACKn           ),
+    .fave      (                  ),
+    .fworst    (                  )
+);
 
 // ---------------------------------------------------------------------------
 // CPU data in
@@ -204,14 +266,15 @@ end
 always @(*) begin
     cpu_din = 16'hffff;
     case( 1'b1 )
-        o_rom_cs: cpu_din = i_rom_data;
-        ram_cs:   cpu_din = i_ram_data;
-        pal_cs:   cpu_din = { 8'hff, cpu_addr[1] ? i_pal_dout[7:0] : i_pal_dout[15:8] };
-        dsw0_cs:  cpu_din = { i_dsw0, i_dsw0 };
-        dsw1_cs:  cpu_din = { i_dsw1, i_dsw1 };
-        in0_cs:   cpu_din = { i_in0,  i_in0  };
-        in1_cs:   cpu_din = { i_in1,  i_in1  };
-        in2_cs:   cpu_din = { i_in2,  i_in2  };
+        rom_cs:      cpu_din = i_rom_data;
+        ram_cs:      cpu_din = i_ram_data;
+        outlatch_cs: cpu_din = { outlatch, 8'hff };
+        pal_cs:      cpu_din = { 8'hff, cpu_addr[1] ? i_pal_dout[7:0] : i_pal_dout[15:8] };
+        dsw0_cs:     cpu_din = { i_dsw0, i_dsw0 };
+        dsw1_cs:     cpu_din = { i_dsw1, i_dsw1 };
+        in0_cs:      cpu_din = { i_in0,  i_in0  };
+        in1_cs:      cpu_din = { i_in1,  i_in1  };
+        in2_cs:      cpu_din = { i_in2,  i_in2  };
         default:
             if( !chacs_n || !objram_n || !vcs1 || !vcs2 || !vzcs )
                 cpu_din = i_video_din;
@@ -221,21 +284,12 @@ end
 // ---------------------------------------------------------------------------
 // CPU
 // ---------------------------------------------------------------------------
-reg cen9d, cen9b;
-
-always @(posedge clk) begin : cen_dly
-    reg cen9x;
-    cen9d <= cen9;
-    cen9x <= cen9d;
-    cen9b <= cen9x;
-end
-
 fx68k u_cpu(
     .clk        ( clk         ),
     .extReset   ( rst         ),
     .pwrUp      ( rst         ),
-    .enPhi1     ( cen9d       ),
-    .enPhi2     ( cen9b       ),
+    .enPhi1     ( cpu_cen     ),
+    .enPhi2     ( cpu_cenb    ),
     .HALTn      ( ~rst        ),
 
     .eab        ( cpu_addr    ),
@@ -270,13 +324,14 @@ fx68k u_cpu(
 assign as_n = 1, rw_n = 1, uds_n = 1, lds_n = 1;
 assign FC0 = 0, FC1 = 0, FC2 = 0;
 assign cpu_addr = 23'd0, cpu_dout = 16'd0;
-assign o_rom_cs = 0;
+assign rom_cs = 0;
 assign ram_cs = 0, pal_cs = 0, outlatch_cs = 0, intlatch_cs = 0, snd_cs = 0;
 assign wdog_cs = 0, dsw0_cs = 0, dsw1_cs = 0, in0_cs = 0, in1_cs = 0, in2_cs = 0;
 assign chacs_n = 1, objram_n = 1, vcs1 = 1, vcs2 = 1, vzcs = 1;
 assign o_pal_addr = 11'd0, o_pal_we = 2'd0;
 assign o_hflip = 0, o_vflip = 0;
-initial begin o_snd_latch = 0; o_snd_irq = 0; end
+assign o_snd_irq = 0;
+initial o_snd_latch = 0;
 
 `endif
 

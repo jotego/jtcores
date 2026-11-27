@@ -28,7 +28,7 @@ wire        chacs_n, objram_n, vcs1, vcs2, vzcs;
 wire [15:1] video_addr;
 wire [15:0] video_dout;
 wire        main_uds_n, main_lds_n, main_rw_n;
-wire        preLHBL, vblank;
+wire        preLHBL, vblank, h1_n, h2;
 wire [14:0] rgb, rgb_blk;
 reg  [14:0] rgb_dly;
 
@@ -88,7 +88,6 @@ always @(posedge clk)
 jtblkpan_main u_main(
     .clk         ( clk           ),
     .rst         ( rst           ),
-    .cen9        ( cen9          ),
 
     .o_addr      ( video_addr    ),
     .o_dout      ( main_dout     ),
@@ -104,6 +103,9 @@ jtblkpan_main u_main(
     .o_hflip     ( main_hflip    ),
     .o_vflip     ( main_vflip    ),
     .i_vbl       ( vblank        ),
+    .i_clk6      ( clk6          ),
+    .i_h1_n      ( h1_n          ),
+    .i_h2        ( h2            ),
 
     .o_pal_addr  ( palcpu_addr   ),
     .o_pal_we    ( palcpu_we     ),
@@ -193,8 +195,8 @@ jtnemsis_gx400a_video u_video(
     .vblank             ( vblank          ),
     .pal_addr           ( pal_addr        ),
     .color_source       (                 ),
-    .h1_n               (                 ),
-    .h2                 (                 ),
+    .h1_n               ( h1_n            ),
+    .h2                 ( h2              ),
     .v256               (                 ),
 
     .cpu_addr           ( video_addr      ),
