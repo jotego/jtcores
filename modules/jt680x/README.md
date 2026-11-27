@@ -2,6 +2,42 @@
 
 By Jose Tejada (@topapate)
 
+## MC6802 core
+
+Use `modules/jt680x/cfg/jt6802.yaml` and instantiate `jt6802`. The consuming
+core must define `JT680X_6802` in its `cfg/macros.def`; the profile selects the
+6802 microcode, while the macro selects the matching datapath and control
+logic.
+
+`cen` is four times the nominal E clock. `ready` is active high and `mr_n` is
+active low; either can hold a high-E transfer. `enable` pauses the external
+phase clock. `done` marks one accepted transfer, and `opcode_fetch` marks an
+accepted opcode read. `rst` resets the bus phase; `cpu_rst` resets and
+resynchronizes the CPU without resetting the external phase. The CPU wrapper
+does not include the on-chip 128-byte RAM or RE/ROM mapping: the containing
+core owns those parts of the address map and memory interface.
+
+The native profile implements the documented MC6800 instruction set. Behavior
+for other opcode bytes is unspecified. With `EXT_DECODE=1`, the caller supplies
+the decoded opcode on `opcode`; `opcode_raw` exposes the byte read from memory.
+That mode is intended for an explicit derivative decoder, which must decide
+which extension bytes are enabled.
+
+Local checks:
+
+```sh
+source setprj.sh
+jtframe ucode jt680x 6802 --output 6801 --report
+"$JTFRAME/bin/simunit-all.sh" --only jt6802 --jobs 1
+```
+
+The opcode simunit checks all 197 documented opcodes against an independent
+timing inventory and exercises directed architectural effects. The wrapper
+simunit covers reset phase synchronization, ready/MR holds, writes, interrupt
+frames, WAI wake, and RTI.
+These digital bus tests do not model analog standby current or establish full
+manual conformance.
+
 You can show your appreciation through
 * [Patreon](https://patreon.com/jotego)
 * [Paypal](https://paypal.me/topapate)

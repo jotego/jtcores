@@ -1,0 +1,153 @@
+# SPDX-FileCopyrightText: 2026 JOTEGO
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Seicro-only opcode extensions layered over the strict native MC6802 profile.
+
+config:
+  implicit: true
+  entry_len: 32
+  entries: 256
+  cycle_factor: 4
+  bus_error: berr
+include:
+  - 6802.yaml
+ops:
+  - { name: BRN,      op: 0x21, cycles: 4 }
+  - { name: JSRD,      op: 0x9d, cycles: 6 }
+  - { name: STIM,     op: 0x71, cycles: 6 }
+  - { name: BTST,     op: 0x7b, cycles: 6 }
+  - { name: ADCX,     op: 0xec, cycles: 5 }
+  - { name: ADDX,     op: 0xfc, cycles: 5 }
+  - { name: FCCOMPAT, op: 0x13, cycles: 4 }
+ucode:
+  - mnemo: [ BRN ]
+    seq:
+      - inc_pc, brlatch
+      -
+      - fetch
+      - inc_pc
+      - invalid, pc_rmux, ld1_opnd, branch
+      - invalid, ld0_opnd
+      - invalid, add_alu, branch, pc_ld
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      -
+      -
+      - fetch
+      - ni
+  - mnemo: [ JSRD ]
+    seq:
+      - dira_jsr, inc_pc
+      - ea_ld, pc_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, md_shift, s_rmux, ld0_opnd
+      - s_ea, wr, md_shift
+      - s_ea, wr, md_shift
+      - s_ea, wr, md_shift, sub_alu, s_ld
+      - s_ea, invalid
+      - s_ea, invalid
+      - s_ea, invalid
+      - s_ea, invalid
+      - m_ea
+      - m_ea
+      - m_ea, ea_rmux, ld0_opnd
+      - m_ea, pc_ld
+      -
+      -
+      - fetch
+      - ni
+  - mnemo: [ ADCX ]
+    seq:
+      - inc_pc, imm_jsr
+      - x_rmux, ld0_opnd
+      - md_rmux, ld1_opnd
+      - add_alu, x_ld, hnzvc_cc
+      -
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      -
+      -
+      - fetch
+      - ni
+  - mnemo: [ ADDX ]
+    seq:
+      - inc_pc, ext16_jsr
+      - x_rmux, ld0_opnd
+      - md_rmux, ld1_opnd
+      - add_alu, alu16, x_ld, nzvc_cc, fetch
+      - ni
+  - mnemo: [ STIM ]
+    seq:
+      - inc_pc
+      -
+      - fetch, alt
+      - inc_pc
+      -
+      -
+      - fetch
+      - inc_pc, ld0_opnd
+      - x_rmux, ld1_opnd
+      - x_ea, invalid, add_alu, ea_ld
+      - x_ea, invalid, alt, ld0_opnd
+      - x_ea, invalid, md_ld, nzv0_cc
+      - m_ea, wr
+      - m_ea, wr
+      - m_ea, wr
+      - m_ea, wr
+      - m_ea, invalid
+      - m_ea, invalid
+      - m_ea, invalid
+      - m_ea, invalid
+      -
+      -
+      - fetch
+      - ni
+  - mnemo: [ BTST ]
+    seq:
+      - inc_pc
+      -
+      - fetch, alt
+      - inc_pc
+      -
+      -
+      - fetch
+      - inc_pc, ld0_opnd
+      - x_rmux, ld1_opnd
+      - x_ea, invalid, add_alu, ea_ld
+      - x_ea, invalid, alt, ld1_opnd
+      - x_ea, invalid
+      - m_ea
+      - m_ea
+      - m_ea, fetch
+      - ld0_opnd
+      - m_ea, invalid, and_alu, nzv0c0_cc
+      - m_ea, invalid
+      - m_ea, invalid
+      - m_ea, invalid
+      -
+      -
+      - fetch
+      - ni
+  # Frisky non-NSC $FC behavior is undocumented; its compatibility sequence
+  # remains provisional and is selected only by the Seicro opcode adapter.
+  - mnemo: [ FCCOMPAT ]
+    seq:
+      - inc_pc, imm16_jsr
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      -
+      -
+      - fetch
+      - ni

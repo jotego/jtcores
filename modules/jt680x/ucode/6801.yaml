@@ -20,6 +20,7 @@ config:
   implicit: true
 include:
   - 680x.yaml
+  - 6801_bus.yaml
 ops:
   # 2^8  op entries
   # 2^12 ucode entries -> 16 entries/instruction

@@ -1,0 +1,15 @@
+!/cfg/rom_layout*.json
+!/doc/bootstrap.json
+!/ver/.gitkeep
+/status.md
+/doc/sch/*.pdf
+!/ver/hdl/
+!/ver/hdl/*/
+!/ver/hdl/*/.simunit
+!/ver/hdl/*/gather.f
+!/ver/hdl/*/test.v
+!/ver/game/
+!/ver/game/sim.sh
+!/ver/game/rest2bin.sh
+!/ver/sectrzont/
+!/ver/sectrzont/boot.cab

@@ -1,0 +1,112 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 15-10-2026
+
+params:
+  - { name: MAINCPU_OFFSET, value: "0" }
+  - { name: GFX_OFFSET, value: "0" }
+
+clocks:
+  clk:
+    - mul: 1
+      div: 16
+      outputs: [cpu_cen, audio_cen]
+
+audio:
+  rsum: 47k
+  rsum_feedback_res: true
+  gain: 0.5
+  rc: { r: 0, c: 0 }
+  channels:
+    - name: psg_snd
+      data_width: 16
+      unsigned: true
+      dcrm: true
+      rsum: 100k
+      rc_en: true
+      rc:
+        - { r: 47k, c: 1n }
+        - { r: 47k, c: 1n }
+    - name: dac_snd
+      data_width: 16
+      unsigned: true
+      dcrm: true
+      rsum: 100k
+      rc_en: true
+      rc:
+        - { r: 47k, c: 1n }
+
+sdram:
+  banks:
+    - buses:
+        - name: maincpu
+          addr_width: 15
+          data_width: 8
+          offset: MAINCPU_OFFSET
+        - name: mcu
+          addr_width: 15
+          data_width: 8
+          offset: MAINCPU_OFFSET
+    - buses:
+        - name: scr
+          addr_width: 14
+          data_width: 16
+          offset: GFX_OFFSET
+        - name: obj
+          addr_width: 14
+          data_width: 16
+          offset: GFX_OFFSET
+
+bram:
+  - name: nvram
+    size: 256
+    data_width: 8
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+
+  - name: proms
+    size: 64
+    data_width: 8
+    prom: true
+
+  - name: sharedram
+    size: 2kB
+    data_width: 8
+    rw: true
+    dual_port:
+      name: mcu_sharedram
+      rw: true
+      din: mcu_sharedram_din
+      dout: mcu_sharedram_dout
+      we: mcu_sharedram_we
+
+  - name: videoram
+    size: 1kB
+    data_width: 8
+    rw: true
+    simfile: {}
+    dual_port: { name: tile_vram, dout: tile_vram_data }
+  - name: colorram
+    size: 512
+    data_width: 8
+    rw: true
+    simfile: {}
+    dual_port: { name: tile_color, dout: tile_color_data }
+  - name: spriteram0
+    size: 128
+    data_width: 8
+    rw: true
+    simfile: {}
+    dual_port: { name: obj_ram0, dout: obj_ram0_data }
+  - name: spriteram1
+    size: 32
+    data_width: 8
+    rw: true
+    simfile: {}
+    dual_port: { name: obj_ram1, dout: obj_ram1_data }
+  - name: row_scroll
+    size: 32
+    data_width: 8
+    rw: true
+    simfile: {}
+    dual_port: { name: scroll_video, dout: scroll_video_data }

@@ -6,6 +6,7 @@ module jt680x_regs(
     input             rst,
     input             clk,
     input             cen,
+    input      [ 7:0] opcode,
     // CONTROL
     input             alt,
     input             branch,
@@ -14,11 +15,19 @@ module jt680x_regs(
     input             inc_pc,
     input             md_shift,
     input             op0inv,
+`ifdef JT680X_6802
+    input      [ 2:0] ea_sel,
+`else
     input      [ 1:0] ea_sel,
+`endif
     input      [ 1:0] opnd_sel,
     input      [ 3:0] ld_sel,
     input      [ 3:0] rmux_sel,
+`ifdef JT680X_6802
+    input      [ 3:0] cc_sel,
+`else
     input      [ 4:0] cc_sel,
+`endif
     input      [ 3:0] iv,
     output reg [15:0] md,
     // ALU
@@ -48,7 +57,9 @@ always @* begin
     case( rmux_sel )
            A_RMUX: rmux = { 8'd0, a };
            B_RMUX: rmux = { 8'd0, b };
+`ifndef JT680X_6802
            D_RMUX: rmux = { a, b };
+`endif
            X_RMUX: rmux = x;
            S_RMUX: rmux = s;
           PC_RMUX: rmux = pc;
@@ -60,6 +71,11 @@ always @* begin
           default: rmux = { md[15:8], alt ? md_alt : md[7:0] };
     endcase
     case( ea_sel )
+`ifdef JT680X_6802
+        O_EA: addr = pc-16'd1;
+        X_EA: addr = x;
+        P_EA: addr = {x[15:8],ea[7:0]};
+`endif
         S_EA: addr = s;
         M_EA: addr = ea;
         default: addr = pc;
@@ -100,7 +116,9 @@ always @( posedge clk, posedge rst ) begin
             N0ZVC_CC:    {n,z,v,c} <= {1'b0,rslt_cc[2:0]};
               NZV_CC:    {n,z,v  } <= rslt_cc[3:1];
                 Z_CC:       z      <= rslt_cc[2];
+`ifndef JT680X_6802
                 C_CC:           c  <= rslt_cc[0];
+`endif
              NZV0_CC:    {n,z,v  } <= {rslt_cc[3:2],1'b0};
             N0Z1V0C0_CC: {n,z,v,c} <= 4'b0100;
             NZV0C1_CC:   {n,z,v,c} <= {rslt_cc[3:2],2'b01};
@@ -117,7 +135,9 @@ always @( posedge clk, posedge rst ) begin
         case( ld_sel )
               A_LD:     a <= rslt[7:0];
               B_LD:     b <= rslt[7:0];
+`ifndef JT680X_6802
               D_LD: {a,b} <= rslt;
+`endif
               X_LD:     x <= rslt;
               S_LD:     s <= rslt;
              MD_LD:    md <= rslt;
@@ -134,7 +154,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         brok <= 0;
     end else if(cen) begin
-        if( brlatch ) case(md[3:0])
+        if( brlatch ) case(opcode[3:0])
             4'b0000: brok <= 1; // bra
             4'b0001: brok <= 0; // brn
             4'b0010: brok <= !(c | z); // bhi
