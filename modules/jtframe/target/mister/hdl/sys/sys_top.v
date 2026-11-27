@@ -678,12 +678,18 @@ ddr_svc ddr_svc
 	.ram_write(ram2_write),
 	.ram_bcnt(ram2_bcnt),
 
-`ifndef MISTER_DISABLE_ALSA
+`ifdef MISTER_ENABLE_ALSA
 	.ch0_addr(alsa_address),
 	.ch0_burst(1),
 	.ch0_data(alsa_readdata),
 	.ch0_req(alsa_req),
 	.ch0_ready(alsa_ready),
+`else
+	.ch0_addr(29'd0),
+	.ch0_burst(8'd0),
+	.ch0_data(),
+	.ch0_req(1'b0),
+	.ch0_ready(),
 `endif
 
 	.ch1_addr(pal_addr),
@@ -1660,9 +1666,12 @@ audio_out audio_out
 	.core_l(audio_l),
 	.core_r(audio_r),
 
-`ifndef MISTER_DISABLE_ALSA
+`ifdef MISTER_ENABLE_ALSA
 	.alsa_l(alsa_l),
 	.alsa_r(alsa_r),
+`else
+	.alsa_l(16'd0),
+	.alsa_r(16'd0),
 `endif
 
 	.i2s_bclk(HDMI_SCLK),
@@ -1689,7 +1698,7 @@ audio_out audio_out
 `endif
 
 
-`ifndef MISTER_DISABLE_ALSA
+`ifdef MISTER_ENABLE_ALSA
 	wire aspi_sck,aspi_mosi,aspi_ss,aspi_miso;
 	cyclonev_hps_interface_peripheral_spi_master spi
 	(
