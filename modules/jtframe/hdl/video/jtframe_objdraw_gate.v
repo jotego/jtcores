@@ -16,7 +16,7 @@
 module jtframe_objdraw_gate #( parameter
     AW    =  9,    // Buffer with
     CW    = 12,    // code width
-    PW    =  8,    // pixel width (lower four bits come from ROM)
+    PW    =  8,    // pixel width (lower BPP bits come from ROM)
     ZW    =  6,    // zoom step width - see description in jtframe_draw
     ZI    = ZW-1,  // integer part of the zoom width
     ZENLARGE= 0,   // enable zoom enlarging
@@ -30,14 +30,14 @@ module jtframe_objdraw_gate #( parameter
     FLIP_OFFSET=0, // Added to ~hdump when flip==1 and HJUMP==0
     KEEP_OLD   =0, // new writes do not overwrite old ones (reverse priority)
     BUFDLY     =0, // extra latency to add to buf_addr and buf_we, use if buf_din is not combinational
-    ALPHAW     =4,
+    ALPHAW     =0, // 0 uses BPP for the transparency test
     ALPHA      =0,
     SHADOW     =0, // 1 for shadows
     SW         =1, // Shadow bits width (Use with SHADOW==1)
     SHADOW_PEN = ALPHA, // Value used by only-shadow sprites. Use independently from SHADOW
     // object line buffer
-    PACKED     =0  // 0 if rom_data is { plane3, plane2, plane1, plane0 }, 8 bits each
-                   // 1 if rom_data packs the 4 planes in nibbles
+    PACKED     =0, // 0 for one byte per plane, 1 for one BPP-bit group per pixel
+    BPP        =4
 )(
     input               rst,
     input               clk,
@@ -59,12 +59,12 @@ module jtframe_objdraw_gate #( parameter
 
     input               hflip,
     input               vflip,
-    input      [PW-5:0] pal,
+    input      [PW-BPP-1:0] pal,
 
     output     [CW+6:2] rom_addr, // {code,H,Y}
     output              rom_cs,
     input               rom_ok,
-    input      [31:0]   rom_data,
+    input      [8*BPP-1:0] rom_data,
 
     output     [PW-1:0] buf_pred,   // line buffer data to be altered and
     input      [PW-1:0] buf_din,    // then fed back through these ports
@@ -79,24 +79,29 @@ reg  [CW-1:0] dr_code;
 reg  [AW-1:0] dr_xpos;
 reg    [ 3:0] dr_ysub;
 reg           dr_hflip, dr_vflip, dr_draw;
-reg  [PW-5:0] dr_pal;
+reg  [PW-BPP-1:0] dr_pal;
 
 reg  [ZW-1:0] dr_hzoom;
 reg           dr_hz_keep;
 
 wire [AW-1:0] buf_addr;
 wire          buf_we, we_dly;
-wire   [31:0] rom_sorted;
+wire  [8*BPP-1:0] rom_sorted;
 
 wire          pre_bsy;
 
-assign rom_sorted = PACKED==0 ? rom_data :
-{rom_data[31], rom_data[27], rom_data[23], rom_data[19], rom_data[15], rom_data[11], rom_data[7], rom_data[3],
- rom_data[30], rom_data[26], rom_data[22], rom_data[18], rom_data[14], rom_data[10], rom_data[6], rom_data[2],
- rom_data[29], rom_data[25], rom_data[21], rom_data[17], rom_data[13], rom_data[ 9], rom_data[5], rom_data[1],
- rom_data[28], rom_data[24], rom_data[20], rom_data[16], rom_data[12], rom_data[ 8], rom_data[4], rom_data[0] };
-
+genvar plane, pixel;
 generate
+    if( PACKED ) begin : gen_packed
+        for( plane=0; plane<BPP; plane=plane+1 ) begin : gen_plane
+            for( pixel=0; pixel<8; pixel=pixel+1 ) begin : gen_pixel
+                assign rom_sorted[plane*8+pixel] = rom_data[pixel*BPP+plane];
+            end
+        end
+    end else begin : gen_planar
+        assign rom_sorted = rom_data;
+    end
+
     if( LATCH ) begin
         always @(posedge clk) begin
             dr_draw <= draw;
@@ -191,7 +196,8 @@ jtframe_draw #(
     .ZI      ( ZI       ),
     .ZENLARGE( ZENLARGE ),
     .SWAPH   ( SWAPH    ),
-    .KEEP_OLD( KEEP_OLD )
+    .KEEP_OLD( KEEP_OLD ),
+    .BPP     ( BPP      )
 )u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -219,7 +225,7 @@ jtframe_draw #(
 jtframe_obj_buffer #(
     .AW         ( AW          ),
     .DW         ( PW          ),
-    .ALPHAW     ( ALPHAW      ),
+    .ALPHAW     ( ALPHAW==0 ? BPP : ALPHAW ),
     .ALPHA      ( ALPHA       ),
     .SW         ( SW          ),
     .SHADOW     ( SHADOW      ),
