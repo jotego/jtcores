@@ -55,14 +55,16 @@ assign lwr     = ~pbl[COMM_WR] & pb_out[COMM_WR];
 assign ale[1]  = ~pbl[ADHI_LE] & pb_out[ADHI_LE];
 assign ale[0]  = ~pbl[ADLO_LE] & pb_out[ADLO_LE];
 
+always @(posedge clk) pbl <= pb_out;
+
 always @(posedge clk) begin
     if( rst ) begin
         ibf     <= 0;
         obf     <= HIGH_FOR_COLT_BOOTUP;
         mcu2bus <= 8'hff;
         bus2mcu <= 0;
+        bm_addr <= 0;
     end else begin
-        pbl <= pb_out;
         if(lrd) ibf <= 0;
         if(bs_wr) begin
             bus2mcu <= bs_dout;

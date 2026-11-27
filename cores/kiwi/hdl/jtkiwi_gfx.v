@@ -325,33 +325,45 @@ reg         tm_page_l;
 wire        pg_change = tm_page != tm_page_l;
 
 always @(posedge clk) begin
-    if (cfg_we && cpu_addr[1:0] == 1 && !cpu_dout[5]) dma_start <= 1;
-    LVBL_l <= LVBL;
+    LVBL_l    <= LVBL;
     tm_page_l <= tm_page;
-    if (auto_dma) begin
-        // Start sprite dma_bsy
-        dma_cnt <= 0;
-        dma_obj <= 1;
-        dma_tm  <= 0;
-        dma_st  <= 0;
-    end else if (dma_start && !dma_bsy) begin
-        // Start tilemap dma_bsy
+end
+
+always @(posedge clk) begin
+    if (rst) begin
         dma_start <= 0;
         dma_cnt   <= 0;
-        dma_tm    <= 1;
+        dma_obj   <= 0;
+        dma_tm    <= 0;
         dma_st    <= 0;
-    end else if (dma_bsy && pxl_cen ) begin // executed at 6MHz. Needs confirmation from PCB measurements
-        dma_st <= ~dma_st;
-        if (!dma_st) begin
-            // read phase
-            dma_data <= dma_dout;
-        end else begin
-            // write phase
-            dma_cnt <= dma_cnt + 1'd1;
-            if (&dma_cnt) begin
-                dma_cnt <= 0;
-                dma_obj <= 0;
-                dma_tm  <= 0;
+        dma_data  <= 0;
+    end else begin
+        if (cfg_we && cpu_addr[1:0] == 1 && !cpu_dout[5]) dma_start <= 1;
+        if (auto_dma) begin
+            // Start sprite dma_bsy
+            dma_cnt <= 0;
+            dma_obj <= 1;
+            dma_tm  <= 0;
+            dma_st  <= 0;
+        end else if (dma_start && !dma_bsy) begin
+            // Start tilemap dma_bsy
+            dma_start <= 0;
+            dma_cnt   <= 0;
+            dma_tm    <= 1;
+            dma_st    <= 0;
+        end else if (dma_bsy && pxl_cen ) begin // executed at 6MHz. Needs confirmation from PCB measurements
+            dma_st <= ~dma_st;
+            if (!dma_st) begin
+                // read phase
+                dma_data <= dma_dout;
+            end else begin
+                // write phase
+                dma_cnt <= dma_cnt + 1'd1;
+                if (&dma_cnt) begin
+                    dma_cnt <= 0;
+                    dma_obj <= 0;
+                    dma_tm  <= 0;
+                end
             end
         end
     end

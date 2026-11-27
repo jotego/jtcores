@@ -122,7 +122,10 @@ end
 
 always @(posedge clk) begin
     comb_rstn <= snd_rstn & ~rst;
-    if( cen6 ) begin
+    if( !comb_rstn ) begin
+        fmcs_l  <= 0;
+        fm_busy <= 0;
+    end else if( cen6 ) begin
         fmcs_l <= fm_cs;
         fm_busy <= fm_cs & ~fmcs_l;
     end
@@ -345,6 +348,7 @@ jtframe_i8742 #(
     .SIMFILE("../../firmware/arknoid2.bin")
 ) u_mcu(
     .rst        ( mcu_comb_rst ),
+    .ram_clr    ( rst        ),
     .clk        ( clk        ),
     .cen        ( cen6       ),
 
@@ -408,11 +412,16 @@ always @(posedge clk) begin
     snd_fm_cs   <= ~snd_iorq_n && snd_m1_n && !snd_A[1];
     snd_latch_cs<= ~snd_iorq_n && snd_m1_n &&  snd_A[1];
 
-    if (kabuki_dipsnd && !A[1]) begin
-        snd_int_n <= 0;
-        snd_latch <= dout;
+    if (rst) begin
+        snd_int_n <= 1;
+        snd_latch <= 0;
+    end else begin
+        if (kabuki_dipsnd && !A[1]) begin
+            snd_int_n <= 0;
+            snd_latch <= dout;
+        end
+        if (snd_latch_cs) snd_int_n <= 1;
     end
-    if (snd_latch_cs) snd_int_n <= 1;
 end
 
 wire [7:0] snd_din =

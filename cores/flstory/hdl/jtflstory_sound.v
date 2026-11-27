@@ -133,6 +133,7 @@ always @(posedge clk) begin
         if( cmd_rd  ) ibf <= 0;
         if( dac_we  ) dac <= cpu_dout;
     end
+    if( rst ) dac <= 0;
 end
 
 always @* begin
@@ -290,6 +291,7 @@ jt7630_bal #(15) u_bal(
 wire [15:0] msm_amp, psg_amp, psg2_amp;
 
 jt7630_vol u_vol(
+    .rst    ( rst     ),
     .clk    ( clk     ),
     .vol0   ( psg_vol ),
     .vol1   ( msm_vol ),
@@ -301,6 +303,7 @@ jt7630_vol u_vol(
 
 // not sure
 jt7630_vol u_vol_psg2(
+    .rst    ( rst       ),
     .clk    ( clk       ),
     .vol0   ( psg2_vol  ),
     .vol1   ( 4'd0      ),

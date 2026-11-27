@@ -55,7 +55,7 @@ wire [  7:0] panmx = chpan[chI * 8+: 8];
 wire [ 15:0] fdmx  = chfd [chII*16+:16];
 wire         lstop = &ram0_dout;
 reg  [  5:0] cencnt=0;
-reg          ch_cen;
+reg          ch_cen, rst_l=0;
 
 assign ram1_addr = { bank, addr[11:0] };
 assign ram1_we   = addr[12] & cs & wr;
@@ -113,8 +113,13 @@ endgenerate
 // output rate must be 10MHz/384 = 26.041kHz
 // 384/8 = 48 -> internal cen
 always @(posedge clk) begin
+    rst_l  <= rst;
     if(cen) cencnt <= cencnt==47 ? 6'd0 : cencnt+6'd1;
-    ch_cen <= cencnt==0 && cen;
+    ch_cen <= cencnt==0 && cen && !rst;
+    if(rst_l && !rst) begin
+        cencnt <= 0;
+        ch_cen <= 0;
+    end
 end
 
 reg  [63:0] last;
@@ -140,6 +145,10 @@ always @(posedge clk, posedge rst) begin
         sign_IV   <= 0;
         sign_V    <= 0;
         last      <= 0;
+        pan_II    <= 0;
+        pan_III   <= 0;
+        mul_l     <= 0;
+        mul_r     <= 0;
     end else if(ch_cen) begin
         chI   <= chI+3'd1;
         chII  <= chI;

@@ -6,6 +6,7 @@
 module jt7630_vol #( parameter
     SW=16        // signal bit width
 )(
+    input           rst,
     input           clk,
     input     [3:0] vol0,  vol1,
     input  [SW-1:0] sin0,  sin1,
@@ -20,7 +21,7 @@ assign sout0 = mul0[SW+9-:SW];
 assign sout1 = mul1[SW+9-:SW];
 
 always @(posedge clk) begin
-    sel <= ~sel;
+    sel <= rst ? 1'b0 : ~sel;
     if(sel) mul1<=gain*sin1; else mul0<=gain*sin0;
     case(sel?vol0:vol1)
         15: gain <= 10'd1023;
