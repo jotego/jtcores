@@ -14,28 +14,49 @@ wire cmpblk_n;
 wire char_pxl, char_gate, ball_pxl, bgw, ball_on, flip;
 wire snd_wr;
 wire [7:0] snd_din, ball_x, ball_y;
-wire [7:0] sw0, sw1, dsw, paddle;
-`ifdef SIMSCENE
-reg [7:0] scene_regs [0:5];
-initial $readmemh("scene_mmr.hex", scene_regs);
-wire cpu_rst = 1'b1;
-wire bgw_eff = scene_regs[0][0];
-wire ball_on_eff = scene_regs[1][0];
-wire [7:0] ball_x_eff = scene_regs[2];
-wire [7:0] ball_y_eff = scene_regs[3];
-wire flip_eff = scene_regs[4][0];
-`else
-wire cpu_rst = rst;
-wire bgw_eff = bgw;
-wire ball_on_eff = ball_on;
-wire [7:0] ball_x_eff = ball_x;
-wire [7:0] ball_y_eff = ball_y;
-wire flip_eff = flip ^ dip_flip;
-`endif
 
 // Sheet 9: 74157s 2D/2E switch 2708 addressing between CPU and video.
 assign gfx1_addr  = gfx_cpu_rd && !cmpblk_n ? {1'b0, gfx_cpu_addr} : gfx_video_addr;
 assign debug_view = 8'd0;
+
+`ifdef NOMAIN
+wire flip_eff = flip;
+
+assign maincpu_addr = 12'd0;
+assign gfx_cpu_addr = 10'd0;
+assign gfx_cpu_rd   = 1'b0;
+assign vram_addr    = 10'd0;
+assign vram_we      = 1'b0;
+assign vram_din     = 8'd0;
+assign workram_addr = 8'd0;
+assign workram_we   = 1'b0;
+assign workram_din  = 8'd0;
+assign snd_wr      = 1'b0;
+assign snd_din     = 8'd0;
+
+jtgeebee_scene_mmr #(
+    .SIMFILE ( "mmr.bin" )
+) u_scene(
+    .rst        ( rst     ),
+    .clk        ( clk     ),
+    .cs         ( 1'b0    ),
+    .addr       ( 3'd0    ),
+    .rnw        ( 1'b1    ),
+    .din        ( 8'd0    ),
+    .bgw        ( bgw     ),
+    .ball_on    ( ball_on ),
+    .ball_h     ( ball_x  ),
+    .ball_v     ( ball_y  ),
+    .flip_x     ( flip    ),
+    .flip_y     (         ),
+    .ioctl_addr ( 3'd0    ),
+    .ioctl_din  (         ),
+    .debug_bus  ( 8'd0    ),
+    .st_dout    (         )
+);
+`else
+wire [7:0] sw0, sw1, dsw, paddle;
+wire flip_eff = flip ^ dip_flip;
 
 jtgeebee_cab u_cab(
     .clk      ( clk          ),
@@ -59,7 +80,7 @@ jtgeebee_cab u_cab(
 
 jtgeebee_main u_main(
     .clk          ( clk          ),
-    .rst          ( cpu_rst      ),
+    .rst          ( rst          ),
     .cen_cpu      ( cpu_cen      ),
     .pxl_cen      ( pxl_cen      ),
     .h            ( h            ),
@@ -90,15 +111,16 @@ jtgeebee_main u_main(
     .ball_x       ( ball_x       ),
     .ball_y       ( ball_y       )
 );
+`endif
 
 jtgeebee_video u_video(
     .clk        ( clk             ),
     .rst        ( rst             ),
     .pxl_cen    ( pxl_cen         ),
     .flip       ( flip_eff        ),
-    .ball_on    ( ball_on_eff     ),
-    .ball_x     ( ball_x_eff      ),
-    .ball_y     ( ball_y_eff      ),
+    .ball_on    ( ball_on         ),
+    .ball_x     ( ball_x          ),
+    .ball_y     ( ball_y          ),
     .vram_addr  ( vram_video_addr ),
     .vram_data  ( vram_video_data ),
     .gfx_addr   ( gfx_video_addr  ),
@@ -122,7 +144,7 @@ jtgeebee_colmix u_colmix(
     .char_pxl  ( char_pxl      ),
     .char_gate ( char_gate     ),
     .ball_pxl  ( ball_pxl      ),
-    .bgw       ( bgw_eff       ),
+    .bgw       ( bgw           ),
     .lhbl      ( LHBL          ),
     .lvbl      ( LVBL          ),
     .red       ( red           ),
@@ -130,6 +152,7 @@ jtgeebee_colmix u_colmix(
     .blue      ( blue          )
 );
 
+`ifndef NOSOUND
 jtgeebee_snd u_sound(
     .clk       ( clk       ),
     .rst       ( rst       ),
@@ -140,5 +163,8 @@ jtgeebee_snd u_sound(
     .v         ( v[7:0]    ),
     .snd       ( sound     )
 );
+`else
+assign sound = 16'd0;
+`endif
 
 endmodule

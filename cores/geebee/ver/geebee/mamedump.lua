@@ -16,12 +16,12 @@ local root=assert(machine.devices[":"])
 local layout={
     ram={name="video",source=":geebee_videoram",bytes=1024,target="vram.bin"},
     mmr={
-        {name="bgw",item="0/m_geebee_bgw",target="bgw_eff"},
-        {name="ball_on",item="0/m_ball_on",target="ball_on_eff"},
-        {name="ball_h",item="0/m_ball_h",target="ball_x_eff"},
-        {name="ball_v",item="0/m_ball_v",target="ball_y_eff"},
-        {name="flip_x",item="0/m_flip_screen_x",target="flip_eff"},
-        {name="flip_y",item="0/m_flip_screen_y",target="flip_eff"}
+        {name="bgw",item="0/m_geebee_bgw",target="u_scene.bgw"},
+        {name="ball_on",item="0/m_ball_on",target="u_scene.ball_on"},
+        {name="ball_h",item="0/m_ball_h",target="u_scene.ball_h"},
+        {name="ball_v",item="0/m_ball_v",target="u_scene.ball_v"},
+        {name="flip_x",item="0/m_flip_screen_x",target="u_scene.flip_x"},
+        {name="flip_y",item="0/m_flip_screen_y",target="u_scene.flip_y"}
     }
 }
 for _,block in ipairs(layout.mmr) do

@@ -5,6 +5,7 @@
 - name: scene
   size: 6
   dw: 8
+  read_only: true
   regs:
     - { name: bgw, dw: 1, at: "0[0]" }
     - { name: ball_on, dw: 1, at: "1[0]" }

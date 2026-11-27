@@ -29,12 +29,9 @@ export MRA="$JTROOT/release/mra"
 export GEEBEE_SCENE_DIR="scenes/$1"
 export PATH="$PWD/bin:$JTFRAME/bin:$PATH"
 (cd "$JTFRAME/src/jtframe" && go build -o "$OLDPWD/bin/jtframe" .)
-{
-    jtframe mem geebee --target mister --local
-    ../game/dump2bin.sh "$GEEBEE_SCENE_DIR/dump.bin"
-} > "build/scene_${1}_prepare.log" 2>&1
+jtframe mem geebee --target mister --local > "build/scene_${1}_prepare.log" 2>&1
 "$JTFRAME/bin/jtsim" -mister -setname geebee -skipROM -load \
-    -d SIMSCENE -d NOMAIN -d NOSOUND -video 3 > "sim_results/$1.log" 2>&1
+    -d NOMAIN -d NOSOUND -video 3 > "sim_results/$1.log" 2>&1
 ' _ "$scene"
 scene_frame=$(find frames -maxdepth 1 -name 'frame_*.png' | sort -V | tail -1)
 [[ -n "$scene_frame" ]] || { echo "No scene image: $set_dir/sim_results/$scene.log" >&2; exit 1; }
