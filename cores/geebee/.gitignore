@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Date: 16-11-2026
 
+/doc/*.pdf
+/status.md
+
 !ver/game/rest2bin.sh
 !ver/game/simscene.sh
 !ver/geebee/mamedump.sh

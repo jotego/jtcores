@@ -65,8 +65,6 @@ cores/*/neptuno/*
 cores/*/pocket/*
 cores/*/sch/*/*pdf
 cores/*/sch/*pdf
-cores/geebee/doc/*.pdf
-cores/geebee/status.md
 cores/*/sidi/*
 cores/*/sidi128/*
 cores/*/sockit/*
