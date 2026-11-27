@@ -348,6 +348,7 @@ jtriders_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
     .lgtnfght   ( 1'b0      ),
     .glfgreat   ( 1'b1      ),
+    .blswhstl   ( 1'b0      ),
 
     // Base Video
     .lhbl       ( lhbl      ),

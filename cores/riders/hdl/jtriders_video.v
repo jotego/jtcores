@@ -8,7 +8,7 @@ module jtriders_video(
     input             pxl_cen,
     input             pxl2_cen,
 
-    input             ssriders, lgtnfght, glfgreat, tmnt2,
+    input             ssriders, lgtnfght, glfgreat, tmnt2, blswhstl,
     output            cpu_n, enc_done,
 
     // Base Video
@@ -49,6 +49,7 @@ module jtriders_video(
 
     // control
     input             rmrd,     // Tile ROM read mode
+    input             tile_bank,
     output            flip,
 
     // RAM with ROM MSB address for tile ROM
@@ -139,7 +140,7 @@ wire        lyrf_blnk_n,
             lyrb_blnk_n, lyro_precs,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg, obj_cpu_ok,
             mmr_noa1;
-reg         skip12;
+reg         skip12, oram_cpu;
 
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
 assign cpu_saddr = skip12 ? { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] } :
@@ -162,7 +163,8 @@ function [31:0] sort_glfgreat( input [31:0] raw);
 endfunction
 
 always @(posedge clk) begin
-    skip12 <= lgtnfght | glfgreat;
+    skip12   <= lgtnfght | glfgreat;
+    oram_cpu <= lgtnfght | blswhstl;
 end
 /* verilator tracing_off */
 jtriders_dump #(.FULLOBJ(1), .PSAC(1)) u_dump(
@@ -189,10 +191,15 @@ jtriders_dump #(.FULLOBJ(1), .PSAC(1)) u_dump(
 always @(posedge clk) vdtac <= pre_vdtac && obj_cpu_ok;
 
 always @* begin
-    lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
-    lyra_addr = { 1'b0, pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
-    lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+    lyrf_addr = tile_addr( pre_f, lyrf_col );
+    lyra_addr = tile_addr( pre_a, lyra_col );
+    lyrb_addr = tile_addr( pre_b, lyrb_col );
 end
+
+function [20:2] tile_addr( input [12:0] pre, input [7:0] col );
+    tile_addr = blswhstl ? { 1'b0, tile_bank, pre[12:11], col[3:2], col[4], col[0], pre[10:0] } :
+                           { 1'b0, pre[12:11], col[3:2], col[4], col[1:0], pre[10:0] };
+endfunction
 
 function [7:0] cgate( input [7:0] c);
     cgate = { c[7:5], 5'd0 };
@@ -206,10 +213,9 @@ endfunction
 // and it also prevents a bad column of background at
 // the end of stage 2
 // It also makes the grid look squared, wihtout nothing hanging off the sides
+// Now set per game with frames in cfg/mame2mra.toml
 jtaliens_scroll #(
-    .HB_OFFSET( 9'd2 ), // good for lgtnfght, what about ssriders?
-    .HB_EXTRAL( 9'd8 ),
-    .HB_EXTRAR( 9'd8 )
+    .HB_OFFSET( 9'd2 ) // good for lgtnfght, what about ssriders?
 ) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -365,17 +371,17 @@ wire [ 1:0] oramw;
 
 assign mmr_noa1 = !glfgreat || !cpu_addr[14];
 assign ommra = mmr_noa1 ? {cpu_addr[4:2],cpu_dsn[1]} : cpu_addr[4:1];
-assign orama = lgtnfght ? cpu_addr[13:1] : oram_addr;
-assign oramd = lgtnfght ? cpu_dout : oram_din;
-assign oramw = lgtnfght ? {2{cpu_we}}&~cpu_dsn : oram_we;
+assign orama = oram_cpu ? cpu_addr[13:1] : oram_addr;
+assign oramd = oram_cpu ? cpu_dout : oram_din;
+assign oramw = oram_cpu ? {2{cpu_we}}&~cpu_dsn : oram_we;
 assign vmux  = vrender;
 /* verilator tracing_on */
-jtriders_obj #(.RAMW(13),.CPU_ROM_REG(1),.HFLIP_OFFSET(10'd325),.SHADOW(SHADOW)) u_obj(    // sprite logic
+jtriders_obj #(.RAMW(13),.CPU_ROM_REG(1),.HFLIP_OFFSET(10'h266),.HFLIP_NEGOFF(1),.CLR7(1),.SHADOW(SHADOW)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
-    .lgtnfght   ( lgtnfght  ),
+    .lgtnfght   ( oram_cpu  ),
 
     // Base Video (inputs)
     .hs         ( hs        ),
@@ -424,6 +430,7 @@ jtriders_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
     .lgtnfght   ( lgtnfght  ),
     .glfgreat   ( glfgreat  ),
+    .blswhstl   ( blswhstl  ),
 
     // Base Video
     .lhbl       ( lhbl      ),

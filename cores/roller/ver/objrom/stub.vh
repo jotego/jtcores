@@ -1,5 +1,5 @@
 module jt053244 #(
-    parameter HFLIP_OFFSET=0,VFLIP_OFFSET=0,DEBUG_FLICKER=1
+    parameter HFLIP_OFFSET=0,VFLIP_OFFSET=0,DEBUG_FLICKER=1,HFLIP_NEGOFF=0,CLR7=0
 )(
     input rst,clk,pxl2_cen,pxl_cen,cs,cpu_we,
     input [3:0] cpu_addr,

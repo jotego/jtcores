@@ -22,6 +22,7 @@ This FPGA core is compatible with the following arcade PCBs:
 - TMNT Turtles in Time
 - Lightning Fighters (Trigon)
 - Golfing Greats
+- Bells & Whistles (Detana!! Twin Bee)
 
 Due to limitations in the internal RAM memory of small FPGA devices, Golfing Greats will not run on MiST/SiDi FPGAs and TMNT2 will not work on SiDi.
 
@@ -35,6 +36,7 @@ Game           | Object Chipset            | Sound Chipset             | Remarks
 ---------------|---------------------------|---------------------------|---------------------
 xmen		   | 053246/053247             | 054539/054321             | same object chipset as simpsons
 ssriders       | 053244/053245             | 053260                    | objects like parodius. Protection chip for object RAM
+blswhstl       | 053244/053245             | 053260                    | 054000 collision chip. 320 pixels wide
 
 # CPU Bus Timing
 

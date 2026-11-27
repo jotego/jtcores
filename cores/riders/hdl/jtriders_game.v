@@ -9,19 +9,20 @@ module jtriders_game(
 localparam SSRIDERS = 0,
            TMNT2    = 1,
            LGTNFGHT = 2,
-           GLFGREAT = 3;
+           GLFGREAT = 3,
+           BLSWHSTL = 4;
 
 /* verilator tracing_on */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy, psac_cs, psac_bank,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n, enc_done,
             cpu_rnw, vdtac, pq, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, riders_brn, riders_bgackn, prot_irqn, riders_cs, objreg_cs, oram_cs,
-            ram_cs;
+            ram_cs, tile_bank;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
-reg         ssriders=0, tmnt2=0, lgtnfght=0, glfgreat=0;
+reg         ssriders=0, tmnt2=0, lgtnfght=0, glfgreat=0, blswhstl=0;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch,
             st_main, st_video;
@@ -68,7 +69,7 @@ always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
-        2: debug_mux <= { 4'd0,glfgreat,lgtnfght,tmnt2,ssriders };
+        2: debug_mux <= { 3'd0,blswhstl,glfgreat,lgtnfght,tmnt2,ssriders };
         3: debug_mux <= { enc_done, 1'b0, dimpol, dimmod, 1'b0, dim };
     endcase
 end
@@ -79,6 +80,7 @@ always @(posedge clk) begin
         tmnt2    <= prog_data[TMNT2];
         lgtnfght <= prog_data[LGTNFGHT];
         glfgreat <= prog_data[GLFGREAT];
+        blswhstl <= prog_data[BLSWHSTL];
     end
 end
 
@@ -90,6 +92,7 @@ jtriders_main u_main(
     .glfgreat       ( glfgreat      ),
     .tmnt2          ( tmnt2         ),
     .ssriders       ( ssriders      ),
+    .blswhstl       ( blswhstl      ),
 
     .LVBL           ( LVBL          ),
     .cpu_we         ( cpu_we        ),
@@ -156,6 +159,7 @@ jtriders_main u_main(
     .dimpol         ( dimpol        ),
     .dim            ( dim           ),
     .cbnk           (               ),
+    .tile_bank      ( tile_bank     ),
     .objreg_cs      ( objreg_cs     ),
 
     .obj_cs         ( objsys_cs     ),
@@ -249,6 +253,7 @@ jtriders_video u_video (
     .lgtnfght       ( lgtnfght      ),
     .glfgreat       ( glfgreat      ),
     .tmnt2          ( tmnt2         ),
+    .blswhstl       ( blswhstl      ),
 
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      (               ),
@@ -282,6 +287,7 @@ jtriders_video u_video (
     .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
+    .tile_bank      ( tile_bank     ),
     .dma_bsy        ( dma_bsy       ),
     .platch         ( platch        ),
     // PSAC GFX
@@ -356,6 +362,7 @@ jtriders_sound u_sound(
     .lgtnfght   ( lgtnfght      ),
     .glfgreat   ( glfgreat      ),
     .ssriders   ( ssriders      ),
+    .blswhstl   ( blswhstl      ),
 
     // communication with main CPU
     .main_dout  ( ram_din       ),

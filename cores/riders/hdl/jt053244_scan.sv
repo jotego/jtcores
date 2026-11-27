@@ -42,7 +42,7 @@
     input      [ 7:0] debug_bus
 );
 
-parameter HFLIP_OFFSET = 0, VFLIP_OFFSET = 0, DEBUG_FLICKER = 1;
+parameter HFLIP_OFFSET = 0, VFLIP_OFFSET = 0, DEBUG_FLICKER = 1, HFLIP_NEGOFF = 0;
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
@@ -76,7 +76,7 @@ assign vflip_off = gvf ? VFLIP_OFFSET[9:0] : 0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset + 10'h66 + hflip_off;
+    xadj <= HFLIP_NEGOFF==1 && ghf ? hflip_off - xoffset : xoffset + 10'h66 + hflip_off;
     yadj <= yoffset + 10'h107 + vflip_off;
     hscl <= rd_pzoffset(hzoom);
     /* verilator lint_off WIDTH */

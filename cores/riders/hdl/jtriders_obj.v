@@ -9,6 +9,8 @@ module jtriders_obj #(parameter
     CPU_8BIT = 0,
     HFLIP_OFFSET = 0,
     VFLIP_OFFSET = 0,
+    HFLIP_NEGOFF = 0,
+    CLR7 = 0,
     DEBUG_FLICKER = 1,
     SHADOW = 0
 )(
@@ -170,7 +172,7 @@ assign shd     =  pre_pxl[14];
 assign prio    =  {1'd1,pre_pxl[10:9],2'd0} ;
 assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
-jt053244 #(.HFLIP_OFFSET(HFLIP_OFFSET),.VFLIP_OFFSET(VFLIP_OFFSET),
+jt053244 #(.HFLIP_OFFSET(HFLIP_OFFSET),.VFLIP_OFFSET(VFLIP_OFFSET),.HFLIP_NEGOFF(HFLIP_NEGOFF),.CLR7(CLR7),
     .DEBUG_FLICKER(DEBUG_FLICKER)
     )u_scan(    // sprite logic
     .rst        ( rst       ),

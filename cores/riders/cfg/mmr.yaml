@@ -22,3 +22,6 @@
     - name: zlock
       dw: 1
       at: "16[0]"
+- include:
+    core: simson
+    name: k054000

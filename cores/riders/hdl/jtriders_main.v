@@ -5,7 +5,7 @@
 module jtriders_main(
     input                rst,
     input                clk, // 48 MHz
-    input                lgtnfght, glfgreat, tmnt2, ssriders,
+    input                lgtnfght, glfgreat, tmnt2, ssriders, blswhstl,
     input                LVBL, dma_bsy,
     input                cpu_n,       // low when CPU can access video RAM
 
@@ -67,6 +67,7 @@ module jtriders_main(
     output reg           dimpol,
     output reg  [ 2:0]   dim,
     output reg  [ 2:0]   cbnk,      // unconnected in ssriders
+    output reg           tile_bank,
     // EEPROM
     output      [ 6:0]   nv_addr,
     input       [ 7:0]   nv_dout,
@@ -91,11 +92,11 @@ wire [ 2:0] FC;
 reg  [ 2:0] IPLn, riders_dim;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, iowr_cs, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs, pslrm_cs, psvrm_cs,
-            riders_son, riders_rmrd, adc_cs, out_cs, hit_cs, prot_cs;
+            riders_son, riders_rmrd, adc_cs, out_cs, hit_cs, prot_cs, hip_cs;
 reg  [15:0] cpu_din, cab_dout;
 wire        ok_dly;
 wire [15:0] glfgreat_cab, cpu_dout;
-wire [ 7:0] riders_cab, lgtnfght_cab;
+wire [ 7:0] riders_cab, lgtnfght_cab, blswhstl_cab, hip_dout;
 wire [ 2:0] lgtnfght_dim;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn, adc=0;
 wire        dtac_mux, lgtnfght_son, lgtnfght_rmrd, vq_cs, bus_legit, dma_owns;
@@ -189,6 +190,7 @@ always @* begin
     adc_cs     = 0;
     out_cs     = 0;
     hit_cs     = 0;
+    hip_cs     = 0;
     // wdog     = 0;
     if(!asn_mx) begin if(lgtnfght) casez(A[20:16])
         5'o0?: rom_cs = 1;
@@ -228,7 +230,29 @@ always @* begin
         10'b10_????_????: vram_cs = 1;     // 20'0000 ~ 2F'FFFF - LS139 @ 3F
         10'b11_????_????: psvrm_cs= 1;     // 30'0000 ~ 3F'FFFF - LS139 @ 3F
         default:;
-    endcase end else case(a_mx[23:20]) // tmnt2/ssriders
+    endcase end else if(blswhstl) case(a_mx[23:20])
+        0: rom_cs    = 1;
+        1: vram_cs   = 1;
+        2: ram_cs    = a_mx[14] & ~BUSn;
+        3: obj_cs    = 1;
+        4: pal_cs    = 1;
+        5: hip_cs    = 1;
+        6: objreg_cs = 1;
+        7: if(!a_mx[19]) case(a_mx[11:8])
+                0: cab_cs  = 1;
+                2: iowr_lo = 1;
+                3: iowr_hi = 1;
+                default:;
+            endcase else case(a_mx[11:8])
+                6: begin
+                    snd_cs     = !a_mx[2];
+                    riders_son =  a_mx[2];
+                end
+                7: pcu_cs = 1;
+                default:;
+            endcase
+        default:;
+    endcase else case(a_mx[23:20]) // tmnt2/ssriders
         0: rom_cs = 1;
         1: case(a_mx[19:18])
             0: ram_cs  = a_mx[14] & ~BUSn;
@@ -262,15 +286,16 @@ always @* begin
     endcase end
 `ifdef SIMULATION
     none_cs = ~BUSn & ~|{rom_cs, ram_cs, pal_cs, iowr_lo, iowr_hi, iowr_cs, /*wdog,*/
-        cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, riders_son, pcu_cs, prot_cs};
+        cab_cs, vram_cs, obj_cs, objreg_cs, snd_cs, riders_son, pcu_cs, prot_cs, hip_cs};
 `endif
 end
 
 always @(posedge clk) begin
-    IPLn    <= {tile_irqn,1'b1, (lgtnfght | glfgreat) ? tile_irqn : prot_irqn};
+    IPLn    <= {tile_irqn,1'b1, blswhstl | ((lgtnfght | glfgreat) ? tile_irqn : prot_irqn)};
     HALTn   <= dip_pause & ~rst;
     cab_dout<= glfgreat ? glfgreat_cab:
                lgtnfght ? {8'd0,lgtnfght_cab}:
+               blswhstl ? {8'd0,blswhstl_cab}:
                           {8'd0,riders_cab  };
     sndon   <= lgtnfght ? lgtnfght_son  : riders_son;
     dim     <= lgtnfght ? lgtnfght_dim  : riders_dim;
@@ -282,6 +307,7 @@ always @(posedge clk) begin
                prot_cs  ? prot_dout        :
                vram_cs  ? {2{vram_dout}}   :
                hit_cs   ? {8'd0,platch }   :
+               hip_cs   ? {8'd0,hip_dout}  :
                pal_cs   ? pal_dout         :
                pslrm_cs ? lmem_dout        :
                snd_cs   ? {2{snd2main}}    : // glfgreat uses upper byte, others use the lower one
@@ -346,6 +372,31 @@ jtlgtnfght_cab u_lgtnfght_cab(
     .dout       ( lgtnfght_cab  )
 );
 
+jtblswhstl_cab u_blswhstl_cab(
+    .clk        ( clk           ),
+    .addr       ( a_mx[2:1]     ),
+    .eep_rdy    ( eep_rdy       ),
+    .eep_do     ( eep_do        ),
+    .dma        ( dma_bsy       ),
+    .joystick1  ( joystick1     ),
+    .joystick2  ( joystick2     ),
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
+    .service    ( service[0]    ),
+    .dip_test   ( dip_test      ),
+    .dout       ( blswhstl_cab  )
+);
+
+jtk054000 u_hip(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cs         ( hip_cs        ),
+    .addr       ( a_mx[5:1]     ),
+    .we         ( cpu_we        ),
+    .din        ( cpu_dout[7:0] ),
+    .dout       ( hip_dout      )
+);
+
 jtlgtnfght_com u_lgtnfght_com(
     .clk        ( clk           ),
     .din        ( cpu_dout      ),
@@ -367,9 +418,10 @@ always @(posedge clk, posedge rst) begin
         eep_cs  <= 0;
         eep_clk <= 0;
         cbnk    <= 0;
+        tile_bank <= 0;
     end else begin
         if( iowr_lo  ) { cbnk, dimpol, dimmod, eep_clk, eep_cs, eep_di } <= cpu_dout[7:0];
-        if( iowr_hi  ) { riders_dim, riders_rmrd } <= cpu_dout[6:3];
+        if( iowr_hi  ) { tile_bank, riders_dim, riders_rmrd } <= cpu_dout[7:3];
     end
 end
 
@@ -457,8 +509,10 @@ jtframe_m68k u_cpu(
             $fclose(f);
             $display("Read %1d bytes for dimming configuration", fcnt);
             {dimpol,dimmod,dim} = {saved[0][5:4],saved[0][2:0]};
+            tile_bank = saved[0][7];
         end else begin
             {dimpol,dimmod,dim} = 0;
+            tile_bank = 0;
         end
     end
     initial begin

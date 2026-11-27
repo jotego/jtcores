@@ -56,19 +56,20 @@ module jt053244(    // sprite logic
     output     [ 7:0] st_dout
 );
 
-parameter HFLIP_OFFSET = 0, VFLIP_OFFSET = 0, DEBUG_FLICKER = 1;
+parameter HFLIP_OFFSET = 0, VFLIP_OFFSET = 0, DEBUG_FLICKER = 1, HFLIP_NEGOFF = 0, CLR7 = 0;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
                  REG_CFG   = 2; // interrupt control, ROM read
 
 
-wire [15:0] scan_even, scan_odd, dma_din;
+wire [15:0] scan_even, scan_odd, dma_din, buf_even;
 wire [11:2] scan_addr;
 wire [11:1] dma_wr_addr;
 wire [ 9:0] xoffset, yoffset;
 wire [ 7:0] cfg;
-wire        dma_wel, dma_weh, dma_trig, vb_rd, nc,
+reg         buf_off, bsy_l;
+wire        dma_wel, dma_weh, dma_trig, buf_clr, vb_rd, nc,
             cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
 
 
@@ -77,9 +78,22 @@ assign gvf       = cfg[1];
 assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
-assign dma_trig  = cs && cpu_addr[2:1]==3;
+assign buf_clr   = CLR7==1 && cs && cpu_addr==7 && !cpu_dsn[0];
+assign dma_trig  = cs && cpu_addr[2:1]==3 && !buf_clr;
+assign scan_even = {buf_even[15] & ~buf_off, buf_even[14:0]};
 
-jt053244_scan #(.HFLIP_OFFSET(HFLIP_OFFSET),.VFLIP_OFFSET(VFLIP_OFFSET),
+always @(posedge clk) begin
+    if( rst ) begin
+        buf_off <= 0;
+        bsy_l   <= 0;
+    end else begin
+        bsy_l <= dma_bsy;
+        if( dma_bsy && !bsy_l ) buf_off <= 0;
+        if( buf_clr ) buf_off <= 1;
+    end
+end
+
+jt053244_scan #(.HFLIP_OFFSET(HFLIP_OFFSET),.VFLIP_OFFSET(VFLIP_OFFSET),.HFLIP_NEGOFF(HFLIP_NEGOFF),
     .DEBUG_FLICKER(DEBUG_FLICKER)
     )u_scan(
     .rst       ( rst        ),
@@ -164,7 +178,7 @@ jtframe_dual_ram16 #(.AW(10)) u_even( // 10:0 -> 2kB
     .data1  ( 16'd0          ),
     .addr1  ( scan_addr      ),
     .we1    ( 2'b0           ),
-    .q1     ( scan_even      )
+    .q1     ( buf_even       )
 );
 
 jtframe_dual_ram16 #(.AW(10)) u_odd( // 10:0 -> 2kB

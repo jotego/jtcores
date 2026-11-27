@@ -7,7 +7,7 @@ module jtriders_colmix(
     input             clk,
     input             pxl_cen,
 
-    input             lgtnfght, glfgreat,
+    input             lgtnfght, glfgreat, blswhstl,
 
     // Base Video
     input             lhbl,
@@ -101,7 +101,7 @@ always @* begin
         2,0: dim_cmn[0] = brit;
     endcase
     if(lgtnfght) dim_cmn = {1'b1, brit};
-    if(glfgreat) dim_cmn = {~shad,1'b0};
+    if(glfgreat | blswhstl) dim_cmn = {~shad,1'b0};
 end
 
 function [7:0] conv58(input [4:0] cin );

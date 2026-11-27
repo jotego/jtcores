@@ -10,7 +10,7 @@ module jtriders_sound(
     input           cen_fm,
     input           cen_fm2,
     input           cen_pcm,
-    input           lgtnfght, glfgreat, ssriders,
+    input           lgtnfght, glfgreat, ssriders, blswhstl,
 
     // communication with main CPU
     input   [15:0]  main_dout,  // bus access for Punk Shot
@@ -78,7 +78,7 @@ assign cen_ws   = cen_8 & ~skip_cen; // wait state for RAM/ROM access
 assign main_dmux= glfgreat ? main_dout[15:8] : main_dout[7:0];
 
 always @(posedge clk) begin
-    cen_g <= (glfgreat | lgtnfght) ? cen_fm : cen_ws;
+    cen_g <= (glfgreat | lgtnfght | blswhstl) ? cen_fm : cen_ws;
 end
 
 jtframe_edge u_wait(
@@ -100,7 +100,7 @@ always @* begin
         pcmc_addr[20:19]=0;
         pcmd_addr[20:19]=0;
     end
-    if(glfgreat | ssriders ) begin
+    if(glfgreat | ssriders | blswhstl) begin
         pcma_addr[20]=0;
         pcmb_addr[20]=0;
         pcmc_addr[20]=0;
