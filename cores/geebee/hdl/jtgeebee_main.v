@@ -123,8 +123,8 @@ always @(posedge clk or posedge rst) begin
                 ready_v_q <= !(v[7] && v[6] && v[5]);
         end
         vblank_d <= vblank;
-        if (vblank && !vblank_d) irq <= 1;
-        if (int_ack) irq <= 0;
+        if (!ball_on) irq <= 0;
+        else if (vblank && !vblank_d) irq <= 1;
         if (cen_cpu && bus_wr) begin
             if (bhd_wr) ball_x <= dout;
             if (bvd_wr) ball_y <= dout;
