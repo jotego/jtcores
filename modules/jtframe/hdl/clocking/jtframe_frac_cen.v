@@ -32,8 +32,9 @@ end
 
 reg  [W-1:0] cen_r=0, cenb_r=0;
 reg  half    = 0;
+reg  rst_r   = 0;
 reg  rst_l   = 0;
-wire restart = rst_l & ~rst;
+wire restart = rst_l & ~rst_r;
 wire over    = next>=lim;
 wire halfway = next >= (lim>>1)  && !half;
 
@@ -75,7 +76,8 @@ always @(posedge clk) begin
     end else begin
         cencnt <= next;
     end
-    rst_l <= rst;
+    rst_r <= rst;
+    rst_l <= rst_r;
     if( restart ) begin
         cencnt    <= 0;
         half      <= 0;

@@ -41,7 +41,7 @@ initial begin
         for( i=0; i<3*M+j; i=i+1 ) @(posedge clk) #1 if(cen[0]) during = during+1;
         assert_msg( during>0, "cen must keep running during reset");
         rst = 0;
-        #1 assert_msg( {cenb,cen}==0, "no cen on the reset release edge");
+        @(posedge clk) #1 assert_msg( {cenb,cen}==0, "no cen on the restart cycle");
         @(posedge clk) #1;
         record(seq);
         assert_msg( seq==ref_seq, "cen sequence after reset must match the power-up sequence");
