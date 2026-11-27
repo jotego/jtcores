@@ -4,6 +4,7 @@
 
 module jtframe_i8742(
     input        rst,
+    input        ram_clr,
     input        clk,
     input        cen,
 
@@ -40,6 +41,8 @@ wire        cen_div3;
 wire [ 7:0] ram_addr, ram_dout, ram_din, rom_data;
 wire [10:0] rom_addr;
 wire        ram_we;
+reg         clr=0;
+reg  [ 7:0] clr_addr=0;
 
 always @(posedge clk) begin
     case( st_addr[3:0] )
@@ -57,7 +60,7 @@ end
 
 upi41_core u_t48(
     // T48 interface
-    .reset_i        ( ~rst      ),
+    .reset_i        ( ~(rst|clr)),
     .xtal_i         ( clk       ),
     .xtal_en_i      ( cen       ),
 
@@ -109,12 +112,22 @@ jtframe_prom #(
     .q      ( rom_data  )
 );
 
+always @(posedge clk) begin
+    if( !clr ) begin
+        clr_addr <= 0;
+        if( ram_clr ) clr <= 1;
+    end else begin
+        clr_addr <= clr_addr+8'd1;
+        if( &clr_addr && !ram_clr ) clr <= 0;
+    end
+end
+
 jtframe_ram #(.AW(8)) u_ram(
     .clk    ( clk       ),
     .cen    ( 1'b1      ), // this may create problems
-    .data   ( ram_din   ),
-    .addr   ( ram_addr  ),
-    .we     ( ram_we    ),
+    .data   ( clr ? 8'd0     : ram_din  ),
+    .addr   ( clr ? clr_addr : ram_addr ),
+    .we     ( clr | ram_we      ),
     .q      ( ram_dout  )
 );
 

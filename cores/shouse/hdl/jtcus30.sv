@@ -154,6 +154,7 @@ jtframe_dcrm #(.SW(13),.SIGNED_INPUT(0)) u_dcrm_right(
 );
 
 jtframe_cendiv #(.MDIV(8)) u_cendiv(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_in     ( cen & ~rst),
     .cen_div    ( cen120    ),

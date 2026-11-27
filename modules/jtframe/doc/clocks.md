@@ -71,7 +71,7 @@ A game must run the same way every time it leaves reset, so hardware regressions
 - the game stays in reset from the FPGA start until a first download ends (`jtframe_reset`). Before it, the SDRAM holds stale data, and on MiSTer the core runs for a variable time before the HPS starts the download. A game running then leaves RAM and register contents that the game reset does not clear
   - a setup without any download keeps the game in reset: a MiST/SiDi RBF loaded without an ARC, or `jtsim -mister`, whose harness does not drive the HPS bus. Cartridge loads also count as a download
 
-Clock enables generated inside the game module by free-running counters, such as `jtframe_frac_cen` instances, which have no reset input, are not covered. Restart such counters when the game reset is released if the game needs to repeat exactly. Check that a new CPU wrapper or clock divider does not keep a phase across the reset either.
+Clock enables generated inside the game module by free-running counters are not covered unless they get the game reset. `jtframe_frac_cen`, `jtframe_gated_cen` and `jtframe_cendiv` restart when their `rst` input is released, but most `jtframe_frac_cen` instances tie `rst` to zero. Restart such counters when the game reset is released if the game needs to repeat exactly. Check that a new CPU wrapper or clock divider does not keep a phase across the reset either.
 
 # Internal JTFRAME Clocks
 
