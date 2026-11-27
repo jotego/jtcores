@@ -512,18 +512,6 @@ func add_game_ports(args Args, cfg *MemConfig) (e error) {
 	if e = t.Execute(&buffer, cfg); e != nil {
 		return e
 	}
-	has_sdram_ports := len(cfg.SDRAM.Cache_lanes) != 0
-	for _, bank := range cfg.SDRAM.Banks {
-		has_sdram_ports = has_sdram_ports || len(bank.Buses) != 0
-	}
-	if !has_sdram_ports {
-		ports := buffer.Bytes()
-		if last_comma := bytes.LastIndexByte(ports, ','); last_comma >= 0 {
-			buffer.Reset()
-			buffer.Write(ports[:last_comma])
-			buffer.Write(ports[last_comma+1:])
-		}
-	}
 	outpath := "jt" + args.Core + "_game.v"
 	outpath = filepath.Join(os.Getenv("CORES"), args.Core, "hdl", outpath)
 	f, err := os.Open(outpath)

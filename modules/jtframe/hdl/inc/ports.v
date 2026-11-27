@@ -64,24 +64,29 @@
     output   [ 7:0] ioctl_din,
     input    [ 7:0] ioctl_dout, `endif
     input           ioctl_ram,
-    input           ioctl_cart,
-    // Explicit ports
-{{- range .Ports}}
-    {{if .Input}}input{{else}}output{{end}}   {{if .MSB}}[{{.MSB}}:{{.LSB}}]{{end}} {{.Name}},{{end }}
-    // Buses to BRAM
-{{ range $cnt, $bus:=.BRAM -}}
-    {{- if .Rw }}{{if not .Din}}output   {{ data_range . }} {{.Name}}_din,{{end}}{{end}}
-    {{- if .Dual_port.Name }}
-    {{ if not .Dual_port.We }}output   {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}} {{.Dual_port.Name}}_we, // Dual port for {{.Dual_port.Name}}
-    {{end}}{{else}}
-    {{end}}
-{{- end}}
-{{- $first := true -}}
+    input           ioctl_cart
+{{- range $index, $port := .Ports }},{{ if eq $index 0 }}
+    // Explicit ports{{ end }}
+    {{if $port.Input}}input{{else}}output{{end}}   {{if $port.MSB}}[{{$port.MSB}}:{{$port.LSB}}]{{end}} {{$port.Name}}
+{{- end }}
+{{- $firstBRAM := true }}
+{{- range .BRAM }}
+{{- $din := and .Rw (not .Din) }}
+{{- $we := and .Dual_port.Name (not .Dual_port.We) }}
+{{- if or $din $we }},{{ if $firstBRAM }}
+    // Buses to BRAM{{ $firstBRAM = false }}{{ end }}
+{{- if $din }}
+    output   {{ data_range . }} {{.Name}}_din{{ if $we }},{{ end }}
+{{- end }}
+{{- if $we }}
+    output   {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}} {{.Dual_port.Name}}_we
+{{- end }}
+{{- end }}
+{{- end }}
+{{- $firstBus := true }}
 {{- range .SDRAM.Banks}}
-{{- range .Buses}}
-    {{- if $first}}
-    // Buses to SDRAM{{$first = false}}{{else}},
-{{end}}
+{{- range .Buses}},{{ if $firstBus }}
+    // Buses to SDRAM{{ $firstBus = false }}{{ end }}
     input    {{ data_range . }} {{.Name}}_data,{{if not .Cs}}
     output          {{.Name}}_cs,{{end}}{{if not .Addr }}
     output   {{ addr_range . }} {{.Name}}_addr,{{end}}
@@ -91,9 +96,7 @@
     output   [ 1:0] {{.Name}}_dsn,{{end}}{{end }}
     input           {{.Name}}_ok{{end}}
 {{- end}}
-{{- $last := len .SDRAM.Cache_lanes }}
-{{- $last = sub $last 1}}
-{{- range $k,$v := .SDRAM.Cache_lanes}}
+{{- range $v := .SDRAM.Cache_lanes }},
     input    {{ data_range $v }} {{$v.Name}}_data,
     output          {{$v.Name}}_rd,
     output   {{ cache_line_addr_range $v }} {{$v.Name}}_addr,
@@ -103,5 +106,5 @@
     output   [{{ sub (byte_en_width $v.Data_width) 1 }}:0] {{$v.Name}}_dsn{{end}}{{ if $v.Flush.Enable }},
     input           {{$v.Name}}_flushing,
     input           {{$v.Name}}_flush_done,
-    output          {{$v.Name}}_flush{{end}}{{ if ne $k $last }},{{end}}
+    output          {{$v.Name}}_flush{{end}}
 {{- end}}

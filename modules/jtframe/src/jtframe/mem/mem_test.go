@@ -2061,6 +2061,72 @@ func Test_check_banks_rejects_invalid_large_cache(t *testing.T) {
 	}
 }
 
+func Test_mem_ports_template_separates_optional_ports(t *testing.T) {
+	const prefix = "    input           ioctl_cart"
+	explicit := []Port{{Name: "board_switch"}, {Name: "board_control"}}
+	bram := BRAMBus{Name: "ram", Data_width: 8, Rw: true}
+	bram.Dual_port.Name = "video"
+	tpl := get_mem_ports_template(t)
+	for _, tc := range []struct {
+		name string
+		cfg  MemConfig
+		want string
+	}{
+		{
+			name: "empty bank",
+			cfg:  MemConfig{SDRAM: SDRAMCfg{Banks: []SDRAMBank{{}}}},
+		},
+		{
+			name: "explicit ports only",
+			cfg:  MemConfig{Ports: explicit},
+			want: ", board_switch, board_control",
+		},
+		{
+			name: "explicit and BRAM ports",
+			cfg:  MemConfig{Ports: explicit, BRAM: []BRAMBus{bram}},
+			want: ", board_switch, board_control, ram_din, video_we",
+		},
+		{
+			name: "BRAM and SDRAM buses",
+			cfg: MemConfig{
+				BRAM: []BRAMBus{bram},
+				SDRAM: SDRAMCfg{Banks: []SDRAMBank{{}, {Buses: []SDRAMBus{
+					{Name: "tiles", Addr_width: 16, Data_width: 8},
+					{Name: "sprites", Addr_width: 16, Data_width: 8},
+				}}}},
+			},
+			want: ", ram_din, video_we, tiles_data, tiles_cs, tiles_addr, tiles_ok, sprites_data, sprites_cs, sprites_addr, sprites_ok",
+		},
+		{
+			name: "cache lane with flush",
+			cfg: MemConfig{SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cache", Data_width: 16, Span_bytes: 65536, Rw: true, Flush: SDRAMCacheFlush{Enable: true}},
+			}}},
+			want: ", cache_data, cache_rd, cache_addr, cache_ok, cache_we, cache_din, cache_dsn, cache_flushing, cache_flush_done, cache_flush",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var verilog strings.Builder
+			if err := tpl.Execute(&verilog, tc.cfg); err != nil {
+				t.Fatal(err)
+			}
+			_, tail, found := strings.Cut(verilog.String(), prefix)
+			if !found {
+				t.Fatalf("missing port %q", prefix)
+			}
+			var ports []string
+			for _, line := range strings.Split(tail, "\n") {
+				if fields := strings.Fields(line); len(fields) > 0 && fields[0] != "//" {
+					ports = append(ports, fields[len(fields)-1])
+				}
+			}
+			if got := strings.Join(ports, " "); got != tc.want {
+				t.Fatalf("ports after ioctl_cart = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
 func Test_mem_ports_template_emits_cache_write_ports(t *testing.T) {
 	sample := `sdram:
   cache-lanes:
