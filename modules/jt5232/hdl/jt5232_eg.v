@@ -18,6 +18,8 @@ module jt5232_eg(
     output [11:0] env
 );
 
+localparam EW=26;
+
 // resistor values from MAME
 localparam real CLK=`JTFRAME_MCLK/256,
                CAP=1e-6,
@@ -41,7 +43,6 @@ localparam [25:0] DAB=26'h0064219,
                   D2B=26'h000f0f1,
                   P9B=26'h399999a;
 `endif
-localparam EW=26;
 /* verilator lint_off REALCVT */
 localparam [1:0] ATTACK=0,
                   DECAY=1,

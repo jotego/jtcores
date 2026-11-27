@@ -68,14 +68,26 @@ end
 `endif
 
 always @(posedge clk) begin
-    clip_l <= clip_raw;
-    if(!clip_l && clip_raw) begin clip<=1; clip_cnt<=0; end
-    if(cen256 && clip) {clip,clip_cnt}<={1'd0,clip_cnt}+5'd1;
+    if(rst) begin
+        clip_l   <= 0;
+        clip     <= 0;
+        clip_cnt <= 0;
+    end else begin
+        clip_l <= clip_raw;
+        if(!clip_l && clip_raw) begin clip<=1; clip_cnt<=0; end
+        if(cen256 && clip) {clip,clip_cnt}<={1'd0,clip_cnt}+5'd1;
+    end
 end
 
 always @(posedge clk) begin
-    {cen256,div3} <= {1'b0,div3}+7'd1;
-    duty <= duty+{4'd0,cen256};
+    if(rst) begin
+        div3   <= 0;
+        cen256 <= 0;
+        duty   <= 0;
+    end else begin
+        {cen256,div3} <= {1'b0,div3}+7'd1;
+        duty <= duty+{4'd0,cen256};
+    end
 end
 
 // CPU interface
@@ -83,7 +95,11 @@ always @(posedge clk) begin
     no_used <= |noise;
 end
 
-always @(posedge clk) if(cen1) begin
+always @(posedge clk) if(rst) begin
+    ncnt <= 0;
+    nrng <= 1;
+    nclk <= 0;
+end else if(cen1) begin
     ncnt <= ncnt+7'd1;
     if(&ncnt) begin
         nrng <= {1'b0,nrng[16:1]}^(nrng[0] ? 17'h12000 : 17'h0);

@@ -32,7 +32,13 @@ assign over  = cnt==step;
 assign over2 = cnt==(step>>1);
 assign hnx   = h+8'd1;
 
-always @(posedge clk) if(cen) begin
+always @(posedge clk) if(rst) begin
+    cnt   <= 0;
+    h     <= 0;
+    hl    <= 0;
+    pipes <= 0;
+    organ <= 0;
+end else if(cen) begin
     cnt <= over ? 9'd0 : cnt+9'd1;
     // counts twice, at the middle and at the end
     if(over2 && !hl) begin hl<=1; h <= hnx; end
