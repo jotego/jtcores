@@ -25,9 +25,12 @@ exec docker run --rm --pull=never --entrypoint /bin/bash --name jtshdfrc-shadfrc
     -e MODULES=/jtcores/modules -e CORES=/jtcores/cores \
     -e JTBIN=/jtcores/release -e ROM=/jtcores/rom \
     -e RLS=/jtcores/release -e MRA=/jtcores/release/mra \
+    -e SHDFRC_SCENE_TARGET="${SHDFRC_SCENE_TARGET:-mister}" \
     jotego/simulator:arm64 -euo pipefail -c '
     export PATH="$PWD/bin:$JTFRAME/bin:$PATH"
     helper="$PWD/bin/jtframe"
+    sim_target=("-$SHDFRC_SCENE_TARGET")
+    if [[ "$SHDFRC_SCENE_TARGET" == mister ]]; then sim_target+=(-u JTFRAME_180SHIFT); fi
     go build -C "$JTFRAME/src/jtframe" -o "$helper" .
     ln -srf "$ROM/shadfrce.rom" rom.bin
 
@@ -50,7 +53,7 @@ exec docker run --rm --pull=never --entrypoint /bin/bash --name jtshdfrc-shadfrc
         fi
     done
     if ((seed)); then
-        if ! jtsim -mister -u JTFRAME_180SHIFT -skipROM -load -video 1 > build/scene-rom.log 2>&1; then
+        if ! jtsim "${sim_target[@]}" -skipROM -load -video 1 > build/scene-rom.log 2>&1; then
             echo "ROM download failed. See build/scene-rom.log" >&2
             exit 1
         fi
@@ -62,7 +65,7 @@ exec docker run --rm --pull=never --entrypoint /bin/bash --name jtshdfrc-shadfrc
         export SHDFRC_SCENE="scenes/$frame"
         if ((first)); then
             if [[ ! -x ../game/dump2bin.sh ]]; then ../game/rest2bin.sh "$SHDFRC_SCENE"; fi
-            if ! jtsim -mister -u JTFRAME_180SHIFT -skipROM -batch -fast -d SIMSCENE -d NOSOUND -video 4 > "$log" 2>&1; then
+            if ! jtsim "${sim_target[@]}" -skipROM -batch -fast -d SIMSCENE -d NOSOUND -video 4 > "$log" 2>&1; then
                 echo "Scene $frame failed. See $log" >&2
                 exit 1
             fi

@@ -27,6 +27,7 @@ sdram:
   banks:
     - buses:
         - name: wram
+          unless: [SHDFRC_LOCAL_RAM]
           addr_width: 17
           data_width: 16
           offset: WRAM_OFFSET
@@ -36,6 +37,7 @@ sdram:
         - { name: main, addr_width: 20, data_width: 16 }
     - buses:
         - name: spr
+          unless: [SHDFRC_LOCAL_RAM]
           addr_width: 13
           data_width: 16
           offset: SPR_OFFSET
@@ -57,6 +59,28 @@ sdram:
         - { name: obj,  addr_width: 23, data_width: 32 }
 
 bram:
+  - { name: work, size: 64kB, data_width: 16, rw: true, addr: "main_addr[15:1]", din: ram_din, when: [SHDFRC_LOCAL_RAM] }
+  - { name: vram_outer, size: 8kB, data_width: 16, rw: true, addr: "{main_addr[13],main_addr[11:1]}", din: ram_din, when: [SHDFRC_LOCAL_RAM] }
+  - { name: vram_middle, size: 2kB, data_width: 16, rw: true, addr: "main_addr[10:1]", din: ram_din, when: [SHDFRC_LOCAL_RAM] }
+  - name: sprite_ram
+    when: [SHDFRC_LOCAL_RAM]
+    size: 8kB
+    data_width: 16
+    rw: true
+    addr: main_addr[12:1]
+    din: ram_din
+    dual_port: { name: sprite_rd, dout: sprite_rd_data }
+    simfile: {}
+  - name: palette
+    when: [SHDFRC_LOCAL_RAM]
+    size: 32kB
+    data_width: 16
+    rw: true
+    addr: main_addr[14:1]
+    din: ram_din
+    we: pal_we
+    dual_port: { name: palette_rd, dout: palette_rd_data }
+    simfile: {}
   - name: bg0
     size: 4kB
     data_width: 16
@@ -82,6 +106,7 @@ bram:
     dual_port: { name: fg_rd, dout: fg_rd_data }
     simfile: {}
   - name: pal_main
+    unless: [SHDFRC_LOCAL_RAM]
     size: 8kB
     data_width: 16
     rw: true
@@ -89,6 +114,7 @@ bram:
     dual_port: { name: pal_main_rd, dout: pal_main_rd_data }
     simfile: {}
   - name: pal_char
+    unless: [SHDFRC_LOCAL_RAM]
     size: 512B
     data_width: 16
     rw: true
