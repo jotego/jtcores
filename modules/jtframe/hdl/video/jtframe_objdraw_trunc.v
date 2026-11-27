@@ -20,7 +20,8 @@ module jtframe_objdraw_trunc #( parameter
     KEEP_OLD  = 0,
     SHADOW    = 0,
     ALPHA     = 0,
-    PACKED    = 0
+    PACKED    = 0,
+    BPP       = 4
 )(
     input               rst,
     input               clk,
@@ -41,12 +42,12 @@ module jtframe_objdraw_trunc #( parameter
 
     input               hflip,
     input               vflip,
-    input      [PW-5:0] pal,
+    input      [PW-BPP-1:0] pal,
 
     output     [CW+6:2] rom_addr, // {code,H,Y}
     output              rom_cs,
     input               rom_ok,
-    input      [31:0]   rom_data,
+    input      [8*BPP-1:0] rom_data,
 
     output     [PW-1:0] pxl
 );
@@ -66,7 +67,8 @@ module jtframe_objdraw_trunc #( parameter
         .SHADOW         ( SHADOW        ),
         .KEEP_OLD       ( KEEP_OLD      ),
         .ALPHA          ( ALPHA         ),
-        .PACKED         ( PACKED        )
+        .PACKED         ( PACKED        ),
+        .BPP            ( BPP           )
     )u_gate(
         .rst            ( rst           ),
         .clk            ( clk           ),

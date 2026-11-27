@@ -28,9 +28,10 @@ module jtframe_obj_buffer #(parameter
     SHADOW_PEN  = ALPHA, // Value used by only-shadow sprites. Use independently from shadow bits
                          // requires at least two clock cycles
     SHADOW      = 0,     // 1 enables shadows on data MSB
-    KEEP_OLD    = 0      // Do not overwrite old non-ALPHA data
+    KEEP_OLD    = 0,     // Do not overwrite old non-ALPHA data
                          // requires address, data and we signals to be held
                          // for at least two clock cycles
+    LATCH_RD    = 1      // set to 0 for the synchronous RAM output, before erase
 )(
     input   clk,
     input   LHBL,
@@ -42,7 +43,7 @@ module jtframe_obj_buffer #(parameter
     // Old data reads (and erases)
     input   [AW-1:0] rd_addr,
     input   rd,                 // data will be erased after the rd event
-    output reg [DW-1:0] rd_data
+    output  [DW-1:0] rd_data
 );
 
 localparam EW = SHADOW==1 ? DW-SW : DW;
@@ -87,8 +88,17 @@ always @(posedge clk) begin
     end else begin
         dly       <= dly>>1;
     end
-    if( delete_we ) rd_data <= dump_data;
 end
+
+generate
+    if( LATCH_RD ) begin : gen_latch_rd
+        reg [DW-1:0] held_data;
+        always @(posedge clk) if( delete_we ) held_data <= dump_data;
+        assign rd_data = held_data;
+    end else begin : gen_direct_rd
+        assign rd_data = dump_data;
+    end
+endgenerate
 
 wire [AW-1:0] wr_af = flip ? ~wr_addr + FLIP_OFFSET[AW-1:0] : wr_addr;
 
