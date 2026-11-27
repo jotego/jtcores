@@ -12,7 +12,6 @@ module jtshdfrc_colmix(
     input         [ 7:0] lfg,
     input         [ 9:0] lbg1,
     input         [10:0] lbg0, lobj,
-    output reg           ob_clr,
 
     output reg    [14:1] pal_rd_addr,
     input         [15:0] pal_rd_data,
@@ -34,7 +33,6 @@ function [7:0] div255(input [15:0] x);
 endfunction
 
 always @(posedge clk) begin
-    ob_clr <= 0;
     cen_d1 <= pxl_cen;
     mix_go <= cen_d1;
     pal_go <= mix_go;
@@ -48,7 +46,6 @@ always @(posedge clk) begin
             pidx <= { 2'b01, lobj[9], 1'b0, lobj[8:5], 1'b0, lobj[4:0] };
         if( lfg[3:0]!=0 && gfx_en[0] )
             pidx <= { 4'b0000, lfg[7:4], 2'b00, lfg[3:0] };
-        ob_clr   <= 1;
         blank_px <= !video_en || !gfx_en[2];
     end
     if( pal_go ) pal_rd_addr <= pidx;

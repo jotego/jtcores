@@ -10,12 +10,14 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
+      - jtframe_draw.v
   - from: cpu
     get:
       - jtframe_m68k.yaml
       - jtframe_z80.yaml
   - from: ram
     get:
+      - jtframe_obj_buffer.v
       - jtframe_dual_ram16.v
       - jtframe_dual_ram.v
       - jtframe_ram16.v

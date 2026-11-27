@@ -99,7 +99,6 @@ wire [ 9:0] lb_ra = { vcnt[0], hcnt };
 wire [ 7:0] lfg;
 wire [ 9:0] lbg1;
 wire [10:0] lbg0, lobj;
-wire        ob_clr;
 
 jtshdfrc_char u_char(
     .rst        ( rst        ),
@@ -144,10 +143,11 @@ jtshdfrc_obj u_obj(
     .rst           ( rst           ),
     .clk           ( clk           ),
     .line_start    ( line_start    ),
+    .line_wrap     ( line_wrap     ),
+    .pxl_cen       ( pxl_cen       ),
     .vcnt          ( vcnt          ),
     .rline         ( rline         ),
-    .lb_ra         ( lb_ra         ),
-    .ob_clr        ( ob_clr        ),
+    .hcnt          ( hcnt          ),
     .spr_rd_addr   ( spr_rd_addr   ),
     .spr_rd_data   ( spr_rd_data   ),
     .spr_copy_busy ( spr_copy_busy ),
@@ -173,7 +173,6 @@ jtshdfrc_colmix u_colmix(
     .lbg1        ( lbg1        ),
     .lbg0        ( lbg0        ),
     .lobj        ( lobj        ),
-    .ob_clr      ( ob_clr      ),
     .pal_rd_addr ( pal_rd_addr ),
     .pal_rd_data ( pal_rd_data ),
     .red         ( red         ),
