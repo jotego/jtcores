@@ -192,9 +192,6 @@ set_global_assignment -name FORCE_SYNCH_CLEAR ON
 set_global_assignment -name QIP_FILE files.qip
 
 set_global_assignment -name AUTO_RAM_TO_LCELL_CONVERSION ON
-{{ if .Macros.JTFRAME_NO_SHIFTREG_RAM -}}
-set_global_assignment -name AUTO_SHIFT_REGISTER_RECOGNITION OFF
-{{ end -}}
 
 set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to SPI_SCK
 set_global_assignment -name SEARCH_PATH "../hdl"
