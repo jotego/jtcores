@@ -3,6 +3,7 @@
  * Date: 29-3-2020 */
 
 module jtcps1_cpucen(
+    input       rst,
     input       clk,
     input       cen12,
     input       cpu_speed,
@@ -15,7 +16,7 @@ wire nc0, cen10;
 
 // Fractional cen cannot provide an uniformly spaced cenb
 jtframe_frac_cen #(.W(2))u_cen10(
-    .rst        ( 1'b0          ),
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .n          ( 10'd5         ),
     .m          ( 10'd24        ),

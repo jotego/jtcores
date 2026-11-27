@@ -234,6 +234,7 @@ jtframe_sys6809 #(.RAM_AW(0)) u_cpu(
 );
 
 jtframe_cen3p57 #(.CLK24(1)) u_vlmcen(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_3p57   ( vlm_cen   ),
     .cen_1p78   (           )

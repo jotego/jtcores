@@ -165,7 +165,7 @@ k053252 u_ref(
 );
 
 jtframe_frac_cen #(2,3) u_frac_cen(
-    .rst    ( 1'b0      ),
+    .rst    ( rst       ),
     .clk    ( clk       ),
     .n      ( 3'd1      ),
     .m      ( 3'd4      ),

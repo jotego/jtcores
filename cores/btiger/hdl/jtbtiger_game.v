@@ -49,6 +49,7 @@ jtframe_cen48 u_cen(
 );
 
 jtframe_cen3p57 u_cen3p57(
+    .rst      ( rst       ),
     .clk      ( clk       ),
     .cen_3p57 ( cenfm     ),
     .cen_1p78 (           )     // unused

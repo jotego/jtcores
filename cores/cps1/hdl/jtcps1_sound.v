@@ -109,13 +109,14 @@ jtframe_mixer #(.W1(14)) u_right(
 );
 
 jtframe_cen3p57 u_fmcen(
+    .rst        (  rst       ),
     .clk        (  clk       ),       // 48 MHz
     .cen_3p57   (  cen_fm    ),
     .cen_1p78   (  cen_fm2   )
 );
 
 jtframe_frac_cen u_okicen(
-    .rst        (  1'b0             ),
+    .rst        (  rst              ),
     .clk        (  clk              ),
     .n          ( 10'd1             ),
     .m          ( 10'd48            ),

@@ -49,6 +49,7 @@ assign psg2_rcen = rc_en[1:0]==1 ? 4'b0010 :
 assign st_dout   = { 4'd0, rc_en };
 
 jtframe_cen3p57 u_cen3p57(
+    .rst      ( rst      ),
     .clk      ( clk      ),
     .cen_3p57 ( psg1_cen ),
     .cen_1p78 ( psg2_cen )

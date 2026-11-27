@@ -20,6 +20,7 @@ jtframe_frac_cen uut(
 );
 
 jtframe_cen3p57 #(1) uut3p57(
+    .rst     ( 1'b0     ),
     .clk     ( clk      ),
     .cen_3p57( cen_3p57 ),
     .cen_1p78( cen_1p78 )

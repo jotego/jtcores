@@ -56,6 +56,7 @@ function [3:0] dec( input [1:0] e );
 endfunction
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
+    .rst      ( rst      ),
     .clk      ( clk      ),
     .cen_3p57 (          ),
     .cen_1p78 ( psg_cen  )

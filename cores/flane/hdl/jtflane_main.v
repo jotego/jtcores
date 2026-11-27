@@ -146,6 +146,7 @@ always @(posedge clk) begin
 end
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_3p57   ( cen_fm    ),
     .cen_1p78   (           )

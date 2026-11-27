@@ -353,7 +353,7 @@ jtcop_snd u_sound(
 
     wire nc;
     jtframe_frac_cen #(.WC(3)) u_cenmcu(
-        .rst ( 1'b0     ),
+        .rst ( rst24    ),
         .clk ( clk24    ),
         .n   ( 3'd1     ),
         .m   ( 3'd3     ),

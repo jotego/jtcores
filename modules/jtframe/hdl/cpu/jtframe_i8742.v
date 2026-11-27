@@ -43,6 +43,13 @@ wire [10:0] rom_addr;
 wire        ram_we;
 reg         clr=0;
 reg  [ 7:0] clr_addr=0;
+wire [ 7:0] mem_addr, mem_din;
+wire        mem_we, core_rstn;
+
+assign mem_addr  = clr ? clr_addr : ram_addr;
+assign mem_din   = clr ? 8'd0     : ram_din;
+assign mem_we    = clr | ram_we;
+assign core_rstn = ~(rst|clr);
 
 always @(posedge clk) begin
     case( st_addr[3:0] )
@@ -60,7 +67,7 @@ end
 
 upi41_core u_t48(
     // T48 interface
-    .reset_i        ( ~(rst|clr)),
+    .reset_i        ( core_rstn ),
     .xtal_i         ( clk       ),
     .xtal_en_i      ( cen       ),
 
@@ -125,9 +132,9 @@ end
 jtframe_ram #(.AW(8)) u_ram(
     .clk    ( clk       ),
     .cen    ( 1'b1      ), // this may create problems
-    .data   ( clr ? 8'd0     : ram_din  ),
-    .addr   ( clr ? clr_addr : ram_addr ),
-    .we     ( clr | ram_we      ),
+    .data   ( mem_din   ),
+    .addr   ( mem_addr  ),
+    .we     ( mem_we    ),
     .q      ( ram_dout  )
 );
 

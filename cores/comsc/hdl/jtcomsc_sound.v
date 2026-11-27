@@ -128,7 +128,7 @@ jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
 );
 
 jtframe_frac_cen u_adpcm_cen( // 640Hz
-    .rst        (  1'b0               ),
+    .rst        (  rst                ),
     .clk        (  clk                ), // 24 MHz
     .n          ( 10'd2               ),
     .m          ( 10'd75              ),

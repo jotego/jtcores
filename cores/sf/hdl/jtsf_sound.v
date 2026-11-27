@@ -56,6 +56,7 @@ jtframe_cen48 u_cenalt(
 /* verilator lint_on PINMISSING */
 
 jtframe_cen3p57 u_cen (
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_3p57   ( cen3p5    ),
     .cen_1p78   ( cen1p7    )

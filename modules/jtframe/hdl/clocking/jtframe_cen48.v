@@ -60,6 +60,7 @@ endmodule
 // Generates a 3.57 MHz clock enable signal for a 48MHz/24MHz clock
 
 module jtframe_cen3p57(
+    input  rst,
     input  clk,       // 48 MHz
     output cen_3p57,
     output cen_1p78
@@ -89,7 +90,7 @@ module jtframe_cen3p57(
 `endif
 
     jtframe_frac_cen #(.W(2),.WC(16)) u_frac(
-        .rst    ( 1'b0  ),
+        .rst    ( rst   ),
         .clk    ( clk   ),
         .n      ( STEP<<CLK24 ),
         .m      ( LIM   ),

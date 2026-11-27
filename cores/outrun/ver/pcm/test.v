@@ -72,9 +72,12 @@ end
 always @(posedge clk) clk24 <= ~clk24;
 
 jts16_cen u_cen(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   (           ),
     .pxl_cen    (           ),
+
+    .rst24      ( rst       ),
 
     .clk24      ( clk24     ),
     .mcu_cen    ( cen_pcm   ), // 8 MHz
