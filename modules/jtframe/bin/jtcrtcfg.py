@@ -142,6 +142,7 @@ Letter | Option
    E   | PCE 2BTN/6BTN                              |
    F   | PCE Multitap                               |
    G   | PSX Digital Normal                         |
+   H   | PSX Analog                                 |
 ----------------------------------------------------|
 
 Your selection:    """

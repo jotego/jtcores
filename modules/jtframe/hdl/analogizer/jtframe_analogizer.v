@@ -17,6 +17,12 @@ module jtframe_analogizer(
     output  [15:0] snac_p2,
     output  [15:0] snac_p3,
     output  [15:0] snac_p4,
+    // Analog sticks, JTFRAME format (same as the joyana_* inputs of jtframe_board):
+    // [7:0] = X, [15:8] = Y, two's complement, 0 = center, right and bottom positive.
+    // l = left stick, r = right stick, 1..4 = SNAC player. PSX analog modes only
+    output  [15:0] joyana_l1, joyana_r1, joyana_l2, joyana_r2,
+                   joyana_l3, joyana_r3, joyana_l4, joyana_r4,
+    output         snac_joyana_en,  // the SNAC controllers have sticks: joyana_* replace the Pocket ones
     // SNAC Pocket cartridge port interface
     input   [ 7:4] cart0_in,
     input          cartp30_in, 
@@ -58,6 +64,22 @@ wire        cartp30_out_snac, cartp31_out_snac, conf_AB;
 
 assign      conf_AB   =  snac_cont[4];
 
+// PSX analog sticks {RY, RX, LY, LX}, unsigned with 80h = center, to the JTFRAME signed
+// format. Only in the PSX analog modes: the digital pads do not send stick bytes
+localparam [4:0] GC_PSX_ANALOG = 5'h12, GC_PSX_ANALOG_FAST = 5'h13;
+wire [31:0] snac_joy1, snac_joy2;
+wire        psx_analog = snac_cont[4:0]==GC_PSX_ANALOG || snac_cont[4:0]==GC_PSX_ANALOG_FAST;
+
+assign snac_joyana_en = psx_analog;
+assign joyana_l1 = psx_analog ? snac_joy1[15: 0] ^ 16'h8080 : 16'd0;
+assign joyana_r1 = psx_analog ? snac_joy1[31:16] ^ 16'h8080 : 16'd0;
+assign joyana_l2 = psx_analog ? snac_joy2[15: 0] ^ 16'h8080 : 16'd0;
+assign joyana_r2 = psx_analog ? snac_joy2[31:16] ^ 16'h8080 : 16'd0;
+assign joyana_l3 = 16'd0;           // no SNAC controller with analog sticks for P3 / P4
+assign joyana_r3 = 16'd0;
+assign joyana_l4 = 16'd0;
+assign joyana_r4 = 16'd0;
+
 always @( posedge clk) begin
     snac1_bus   <=  snac_en ? cart1_p76_snac : 2'h0;
     snac0_bus   <=  cart0_out_snac;
@@ -73,7 +95,9 @@ openFPGA_Pocket_Analogizer_SNAC u_snac_controller(
     .conf_AB          ( conf_AB          ),
     .game_cont_type   ( snac_cont[4:0]   ),
     .p1_btn_state     ( snac_p1          ),
+    .p1_joy_state     ( snac_joy1        ),
     .p2_btn_state     ( snac_p2          ),
+    .p2_joy_state     ( snac_joy2        ),
     .p3_btn_state     ( snac_p3          ),
     .p4_btn_state     ( snac_p4          ),
     // .busy             (                  ),
@@ -137,6 +161,15 @@ assign  snac_p1       = 0;
 assign  snac_p2       = 0;
 assign  snac_p3       = 0;
 assign  snac_p4       = 0;
+assign  snac_joyana_en= 0;
+assign  joyana_l1     = 0;
+assign  joyana_r1     = 0;
+assign  joyana_l2     = 0;
+assign  joyana_r2     = 0;
+assign  joyana_l3     = 0;
+assign  joyana_r3     = 0;
+assign  joyana_l4     = 0;
+assign  joyana_r4     = 0;
 assign  cart3_out     = 0;
 assign  cart3_dir     = 0;
 assign  cart2_out     = 0;

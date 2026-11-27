@@ -127,6 +127,9 @@ jtframe_pocket_joystick uut(
     .cont3_joy  ( analog_zero ),
     .cont4_joy  ( analog_zero ),
     .analog_en  ( analog_en   ),
+    .snac_joyana_l1( 16'd0 ), .snac_joyana_r1( 16'd0 ), .snac_joyana_l2( 16'd0 ), .snac_joyana_r2( 16'd0 ),
+    .snac_joyana_l3( 16'd0 ), .snac_joyana_r3( 16'd0 ), .snac_joyana_l4( 16'd0 ), .snac_joyana_r4( 16'd0 ),
+    .snac_joyana_en( 1'b0     ),    // the Pocket controllers' sticks
     .joystick1  ( joy1        ),
     .joystick2  ( joy2        ),
     .joystick3  ( joy3        ),

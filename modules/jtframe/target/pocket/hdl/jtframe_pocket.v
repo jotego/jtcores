@@ -154,6 +154,10 @@ module jtframe_pocket #(parameter
     output            yc_en,
     // SNAC Controller inputs
     input     [15:0]  snac_p1, snac_p2, snac_p3, snac_p4,
+    // SNAC analog sticks (jtframe_analogizer), JTFRAME joyana format
+    input     [15:0]  snac_joyana_l1, snac_joyana_r1, snac_joyana_l2, snac_joyana_r2,
+                      snac_joyana_l3, snac_joyana_r3, snac_joyana_l4, snac_joyana_r4,
+    input             snac_joyana_en,
     output    [ 7:0]  snac_cfg,
 //////////// board
     output          rst,      // synchronous reset
@@ -403,7 +407,16 @@ jtframe_pocket_base #(
     .snac_p1        ( snac_p1       ),
     .snac_p2        ( snac_p2       ),
     .snac_p3        ( snac_p3       ),
-    .snac_p4        ( snac_p4       )
+    .snac_p4        ( snac_p4       ),
+    .snac_joyana_l1 ( snac_joyana_l1),
+    .snac_joyana_r1 ( snac_joyana_r1),
+    .snac_joyana_l2 ( snac_joyana_l2),
+    .snac_joyana_r2 ( snac_joyana_r2),
+    .snac_joyana_l3 ( snac_joyana_l3),
+    .snac_joyana_r3 ( snac_joyana_r3),
+    .snac_joyana_l4 ( snac_joyana_l4),
+    .snac_joyana_r4 ( snac_joyana_r4),
+    .snac_joyana_en ( snac_joyana_en)
 );
 
 jtframe_board #(
