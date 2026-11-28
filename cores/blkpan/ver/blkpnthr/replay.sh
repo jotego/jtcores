@@ -24,7 +24,7 @@ if ! mkdir build/replay.lock; then
     exit 1
 fi
 backup=$(mktemp -d "$here/build/replay.XXXXXXXX")
-paths=(frames logs rom.bin core.mod framerate test.wav mmr.bin pal.bin scroll.bin obj.bin
+paths=(frames logs rom.bin core.mod framerate test.wav video.bin sdram.old mmr.bin pal.bin scroll.bin obj.bin
     vram1.bin vram2.bin char.bin sdram_bank0.bin sdram_bank1.bin sdram_bank2.bin sdram_bank3.bin)
 started=false
 restore() {
@@ -60,26 +60,18 @@ started=true
 replay_scene() {
     local frame=$1 latch
     ../game/rest2bin.sh "scenes/$frame/dump.bin" || return
-    if $first; then
-        jtsim -setname blkpnthr -skipROM -mister -load -d NOMAIN -d NOSOUND -d SIMSCENE \
-            -video 4 || return
-    else
-        mkdir -p frames || return
-        rm -f -- frames/frame_*.png frames/frames.crc || return
-        obj_dir/sim --video-limit -time 1 || return
-    fi
+    jtsim -setname blkpnthr -skipROM -mister -load -d NOMAIN -d NOSOUND -d SIMSCENE \
+        -video 4 || return
     latch=$(od -An -tu1 -N1 "scenes/$frame/mmr.bin") || return
     printf 'SCENE_LATCH 0x%02X\n' "$latch"
 }
 
-first=true
 for frame in "$@"; do
     log="sim_results/$frame.log"
     if ! replay_scene "$frame" >"$log" 2>&1; then
         printf 'Replay failed at frame %s. See %s\n' "$frame" "$here/$log" >&2
         exit 1
     fi
-    first=false
     latch=$(od -An -tu1 -N1 "scenes/$frame/mmr.bin")
     if ! grep -Eq 'u_intlatch.*read 4 bytes from offset 0' "$log" ||
         ! grep -Eq "hflip = $(( (latch >> 2) & 1 ))$" "$log" ||

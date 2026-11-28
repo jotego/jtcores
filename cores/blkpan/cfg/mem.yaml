@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 26-08-2026
 
 params:
   - { name: SND_OFFSET, value: "(`SND_START)>>1" }

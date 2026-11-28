@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 26-08-2026
+
 CORENAME=JTBLKPAN
 
 JTFRAME_BUTTONS=2
@@ -19,6 +23,9 @@ JTFRAME_DIPBASE=16
 SND_START          =0x080000
 PCM_START          =0x088000
 JTFRAME_BA1_START  =0x0A8000
+
+[mist|sidi]
+JTFRAME_SKIP
 
 [mister]
 JTFRAME_ARX=5
