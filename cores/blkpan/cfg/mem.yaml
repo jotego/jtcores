@@ -1,0 +1,132 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 26-08-2026
+
+params:
+  - { name: SND_OFFSET, value: "(`SND_START)>>1" }
+  - { name: PCM_OFFSET, value: "(`PCM_START)>>1" }
+
+ports:
+  - { name: main_dout, msb: 15, lsb: 0 }
+
+clocks:
+  clk:
+    - mul: 67
+      div: 920
+      outputs: [ cen3p5, cen1p7 ]
+
+audio:
+  rsum: 1k
+  channels:
+    - { name: fm,  module: jt51,     rsum: 1k }
+    - { name: pcm, module: jt007232, rsum: 1k, pre: 0.10 }
+
+sdram:
+  banks:
+    - buses:
+      - name: main            # 68000 program
+        addr_width: 19        # 512kB
+        data_width: 16
+      - name: snd             # Z80 program
+        addr_width: 15        # 32kB
+        data_width: 8
+        offset: SND_OFFSET
+      # jt007232 drives two independent ROM buses; both point at the single
+      # 128kB sample region (same idiom as cores/aliens).
+      - name: pcma            # K007232 samples
+        addr_width: 17        # 128kB
+        data_width: 8
+        offset: PCM_OFFSET
+      - name: pcmb
+        addr_width: 17
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: workram
+        addr_width: 15
+        data_width: 16
+        din: main_dout
+        rw: true
+
+bram:
+  - name: pal
+    addr_width: 12           # bytes -> 2048 16-bit entries
+    data_width: 16
+    simfile: { big_endian: true }
+    dual_port:
+      name: palcpu
+      addr: palcpu_addr
+      din:  "{2{main_dout[7:0]}}"
+      dout: palcpu_dout
+      we:   palcpu_we
+      rw:   true
+
+  - name: scroll
+    size: 2kB
+    data_width: 8
+    addr: scroll_cpu_addr
+    din: scroll_cpu_din
+    we: scroll_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: scroll_gfx_addr
+      dout: scroll_gfx_dout
+
+  - name: obj
+    size: 2kB
+    data_width: 8
+    addr: obj_cpu_addr
+    din: obj_cpu_din
+    we: obj_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: obj_gfx_addr
+      dout: obj_gfx_dout
+
+  - name: vram1
+    size: 8kB
+    data_width: 16
+    addr: vram1_cpu_addr
+    din: vram1_cpu_din
+    we: vram1_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: vram_gfx_addr
+      dout: vram1_gfx_dout
+
+  - name: vram2
+    size: 4kB
+    data_width: 8
+    addr: vram2_cpu_addr
+    din: vram2_cpu_din
+    we: vram2_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: vram2_gfx_addr
+      dout: vram2_gfx_dout
+
+  - name: char
+    size: 64kB
+    data_width: 32
+    addr: char_cpu_addr
+    din: char_cpu_din
+    we: char_cpu_we
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      addr: char_gfx_addr
+      dout: char_gfx_dout
+
+  - name: sndram
+    size: 2kB
+    data_width: 8
+    rw: true

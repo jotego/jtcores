@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 26-08-2026
+
+blkpan:
+  - get:
+      - jtblkpan_game.v
+      - jtblkpan_main.v
+      - jtblkpan_addr_dec.v
+      - jtblkpan_snd.v
+  - when: [SIMSCENE]
+    get:
+      - jtblkpan_intlatch_mmr.v
+
+nemsis:
+  - get:
+      - jtnemsis_gx400a_video.v
+      - jtnemsis_gx400_priority_handler.v
+      - jtnemsis_k5290.v
+      - jtnemsis_k5291.v
+      - jtnemsis_k5292.v
+      - jtnemsis_k5293.v
+      - jtnemsis_k5294.v
+      - jtnemsis_k5295.v
+      - jtnemsis_video_bram_if.v
+      - jtnemsis_lmn74194_nbit.v
+      - jtnemsis_os_pulse_gen.v
+
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+
+jt51:        # YM2151
+jt007232:    # K007232 PCM
