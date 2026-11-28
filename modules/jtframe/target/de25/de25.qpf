@@ -1,0 +1,1 @@
+PROJECT_REVISION = "{{ .Macros.CORENAME | lower }}"

@@ -1,0 +1,1251 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-3-2019 */
+
+module jtframe_de25 #(parameter
+    BUTTONS                 = 2,
+    GAME_INPUTS_ACTIVE_LOW  =1'b1,
+    COLORW                  = 4,
+    VIDEO_WIDTH             = 384,
+    VIDEO_HEIGHT            = 224,
+    SDRAMW                  = 23
+)(
+    input           clk_sys,
+    input           clk_rom,
+    input           clk_pico,
+    input           pll_locked,
+    // interface with microcontroller
+    output [63:0]   status,
+    inout  [45:0]   HPS_BUS,
+    output [ 1:0]   buttons,
+    // LED
+    // Extension port (fake USB3)
+    input      [6:0] USER_IN,
+    output reg [6:0] USER_OUT,
+    output          db15_en,
+    output          uart_en,
+    input           game_tx,
+    output          game_rx,
+    output          show_osd,
+    input           OSD_STATUS,
+    // Base video
+    input [COLORW-1:0] game_r, game_g, game_b,
+    input           LHBL,
+    input           LVBL,
+    input           hs,
+    input           vs,
+    inout           pxl_cen,
+    inout           pxl2_cen,
+    // Audio
+    input  signed [15:0] snd_lin,  snd_rin,
+    output signed [15:0] snd_lout, snd_rout,
+    input                snd_sample,
+    input                snd_peak,
+    output [ 5:0]   snd_en,
+    input  [ 5:0]   snd_vu,
+    output [ 7:0]   snd_vol,
+    // SDRAM interface
+    inout  [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
+    output [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
+    output          SDRAM_DQML,     // SDRAM Low-byte Data Mask
+    output          SDRAM_DQMH,     // SDRAM High-byte Data Mask
+    output          SDRAM_nWE,      // SDRAM Write Enable
+    output          SDRAM_nCAS,     // SDRAM Column Address Strobe
+    output          SDRAM_nRAS,     // SDRAM Row Address Strobe
+    output          SDRAM_nCS,      // SDRAM Chip Select
+    output [ 1:0]   SDRAM_BA,       // SDRAM Bank Address
+    input           SDRAM_CLK,      // SDRAM Clock
+    output          SDRAM_CKE,      // SDRAM Clock Enable
+
+    // line-frame buffer
+    input        [`JTFRAME_LF_VW-1:0] game_vrender,
+    input        [`JTFRAME_LF_HW-1:0] game_hdump,
+    input        [`JTFRAME_LF_HW-1:0] ln_addr,
+    input        [15:0] ln_data,
+    input               ln_done,
+    input               ln_we,
+    input               fb_keep,
+    output              ln_hs, ln_vs, ln_lvbl,
+    output       [15:0] ln_dout,
+    output       [15:0] ln_pxl,
+    output       [`JTFRAME_LF_VW-1:0] ln_v,
+`ifdef JTFRAME_LF_ZOOM
+    input        [ 8:0] game_h_step,
+    input        [ 8:0] game_v_step,
+`endif
+`ifdef JTFRAME_MR_GAME_DDR
+    // DDR3 for the game logic, on clk_rom. Not compatible with rotation, the line-frame buffer or DDR loading
+    input        [ 7:0] game_ddr_burstcnt,
+    input        [28:0] game_ddr_addr,
+    input               game_ddr_rd,
+    input               game_ddr_we,
+    input        [ 7:0] game_ddr_be,
+    input        [63:0] game_ddr_din,
+    output              game_ddr_busy,
+    output       [63:0] game_ddr_dout,
+    output              game_ddr_dout_ready,
+`endif
+
+    // Signals to rotate the screen
+`ifdef JTFRAME_VERTICAL
+    output          FB_EN,
+    output  [4:0]   FB_FORMAT,
+    output [11:0]   FB_WIDTH,
+    output [11:0]   FB_HEIGHT,
+    output [31:0]   FB_BASE,
+    output [13:0]   FB_STRIDE,
+    input           FB_VBL,
+    input           FB_LL,
+    output          FB_FORCE_BLANK,
+
+    // Palette control for 8bit modes.
+    // Ignored for other video modes.
+    output          FB_PAL_CLK,
+    output  [7:0]   FB_PAL_ADDR,
+    output [23:0]   FB_PAL_DOUT,
+    input  [23:0]   FB_PAL_DIN,
+    output          FB_PAL_WR,
+ `endif
+
+    // DDR3 RAM
+    output          DDRAM_CLK,
+    input           DDRAM_BUSY,
+    output  [7:0]   DDRAM_BURSTCNT,
+    output [28:0]   DDRAM_ADDR,
+    input  [63:0]   DDRAM_DOUT,
+    input           DDRAM_DOUT_READY,
+    output          DDRAM_RD,
+    output [63:0]   DDRAM_DIN,
+    output  [7:0]   DDRAM_BE,
+    output          DDRAM_WE,
+
+    // ROM programming
+    output       [26:0] ioctl_addr,
+    output       [ 7:0] ioctl_dout,
+    output              ioctl_wr,
+    // NVRAM
+    input        [ 7:0] ioctl_din,
+    output              ioctl_ram,
+
+    input               dwnld_busy,
+    output              ioctl_rom,
+    output              ioctl_cart,
+    // Save/Load
+    input               sav_change,
+    input               sav_wait,
+    input               sav_done,
+    output       [ 1:0] sav_wr,
+    output              sav_ack,
+    input        [15:0] sav_din,
+    output       [15:0] sav_dout,
+    output       [15:0] sav_addr,
+
+    input  [SDRAMW-1:0] prog_addr,
+    input        [15:0] prog_data,
+    input        [ 1:0] prog_mask,
+    input        [ 1:0] prog_ba,
+    input               prog_we,
+    input               prog_rd,
+    output              prog_dst,
+    output              prog_dok,
+    output              prog_rdy,
+    output              prog_ack,
+    // ROM access from game
+    input  [SDRAMW-1:0] ba0_addr, ba1_addr, ba2_addr, ba3_addr,
+`ifdef JTFRAME_SDRAM_CACHE
+    input  [SDRAMW-1:0] burst_addr,
+    input         [1:0] burst_ba,
+    input               burst_rd, burst_wr,
+    output              burst_ack, burst_dst, burst_dok, burst_rdy,
+`endif
+    input         [3:0] ba_rd,    ba_wr,
+    output        [3:0] ba_ack,   ba_rdy,   ba_dst,   ba_dok,
+    input        [15:0] ba0_din,  ba1_din,  ba2_din,  ba3_din,
+    input        [ 1:0] ba0_dsn,  ba1_dsn,  ba2_dsn,  ba3_dsn,
+`ifdef JTFRAME_SDRAM_CACHE
+    input        [15:0] burst_din,
+`endif
+    output       [15:0] sdram_dout,
+//////////// board
+    output          rst,      // synchronous reset
+    output          rst_n,    // asynchronous reset
+    output          game_rst,
+    output          game_rst_n,
+    // reset forcing signals:
+    input           rst_req,
+    // joystick
+    output  [ 9:0]  game_joystick1, game_joystick2, game_joystick3, game_joystick4,
+    // left analogue stick
+    output  [15:0]  joyana_l1, joyana_l2, joyana_l3, joyana_l4,
+    // right analogue stick
+    output  [15:0]  joyana_r1, joyana_r2, joyana_r3, joyana_r4,
+    output  [ 3:0]  game_coin, game_start,
+    output          game_service,
+    output          game_tilt,
+    // paddle 0..255
+    output  [ 7:0]  game_paddle_1, game_paddle_2, game_paddle_3, game_paddle_4,
+    output  [ 8:0]  spinner_1, spinner_2, spinner_3, spinner_4,
+    // mouse
+    output  [15:0]  mouse_1p,  mouse_2p,
+    output  [ 1:0]  mouse_strobe,
+    // Lightguns
+    output  [ 8:0]  gun_1p_x, gun_1p_y, gun_2p_x, gun_2p_y,
+    output          gun_border_en,
+    // Dial
+    output  [ 1:0]  dial_x,    dial_y,
+    // HDMI
+    output  [12:0]  hdmi_arx,  hdmi_ary,
+    input   [11:0]  hdmi_width,hdmi_height,
+    // DIP and OSD settings
+    output  [ 1:0]  rotate,
+
+    output          dip_test,
+    // scan doubler
+    output    [7:0] scan2x_r, scan2x_g, scan2x_b,
+    output          scan2x_hs,
+    output          scan2x_vs,
+    output          scan2x_clk,
+    output          scan2x_cen,
+    output          scan2x_de,
+    output    [1:0] scan2x_sl,
+    // analogue h-size, applied by sys_top on the VGA branch only
+    output    [4:0] hsize_ctl,
+`ifdef JTFRAME_CRT480I
+    // Analog output. MRA mod bit 18 selects 15 kHz 480i (jtframe_crt_480i); otherwise the
+    // scan2x_* picture as in any JTFRAME core. scan2x_* always feeds the HDMI scaler.
+    output    [7:0] crt_r, crt_g, crt_b,
+    output          crt_hs, crt_vs, crt_de, crt_cen, crt_f1,
+    output    [1:0] crt_sl,
+    output          crt_on,     // 480i selected, or still waiting for the mod bytes: sys_top keeps the scaler off
+                                // the analog output and gives HDMI the native picture
+`endif
+    // non standard:
+    output            dip_pause,
+    inout             dip_flip,
+    output    [ 1:0]  dip_fxlevel,
+    // Control words
+    output    [31:0]  dipsw,
+    // Debug
+    output            LED,
+    output    [ 3:0]  gfx_en,
+    output    [ 7:0]  debug_bus,
+    input     [ 7:0]  debug_view,
+    output    [ 7:0]  st_addr,
+    input     [ 7:0]  st_dout
+);
+
+wire [21:0] gamma_bus;
+wire [31:0] timestamp;
+wire [ 7:0] ioctl_index;
+
+wire [3*COLORW-1:0] base_rgb;
+wire        base_lhbl, base_lvbl, base_hs, base_vs;
+
+wire [ 3:0] hoffset, voffset;
+wire [31:0] cheat;
+wire        ioctl_cheat, ioctl_lock;
+
+wire [15:0] joystick1, joystick2, joystick3, joystick4;
+wire        ps2_kbd_clk, ps2_kbd_data;
+wire        force_scan2x, direct_video;
+wire        video_rotated;
+wire        lightgun_en;
+
+`ifdef JTFRAME_CRT480I
+wire [18:0] core_mod;
+wire        core_mod_ok;
+`else
+wire [17:0] core_mod;
+`endif
+wire [ 7:0] st_lpbuf, game_vol;
+wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
+// Mouse support
+wire [24:0] ps2_mouse;
+reg         ps2_mouse_l;
+wire [ 8:0] mouse_dx, mouse_dy;
+wire [ 7:0] mouse_f;
+wire        mouse_st;
+
+wire        hs_resync, vs_resync;
+
+// Horizontal scaling for CRT
+wire        hsize_enable;
+wire [3:0]  hsize_scale;
+wire        hsize_hs, hsize_vs, hsize_hb, hsize_vb;
+wire [COLORW-1:0] hsize_r, hsize_g, hsize_b;
+
+wire        hps_download, hps_upload, hps_wr, hps_wait;
+wire [15:0] hps_index;
+wire [26:0] hps_addr;
+wire [ 7:0] hps_dout;
+
+// Screen rotation
+wire [ 7:0] rot_burstcnt;
+wire [28:0] rot_addr;
+wire [63:0] rot_dout, rot_din;
+wire        rot_we, rot_rd, rot_busy;
+wire [ 7:0] rot_be;
+
+// Fast DDR load
+wire [ 7:0] ddrld_burstcnt;
+wire [28:0] ddrld_addr;
+wire        ddrld_rd, ddrld_busy;
+
+// UART
+wire        uart_rx, uart_tx;
+wire [6:0]  joy_in, joy_out;
+
+// Vertical crop
+wire [12:0] raw_arx, raw_ary;
+wire        raw_de;
+reg  [11:0] crop_size;
+reg   [4:0] crop_off; // -16...+15
+wire  [2:0] crop_scale; //0 - normal, 1 - V-integer, 2 - HV-Integer-, 3 - HV-Integer+, 4 - HV-Integer
+wire        crop_en;    // OSD control by the user
+reg         crop_ok;    // whether the mister.ini video settings tolerate cropping
+wire  [3:0] vcopt;
+reg         en216p;
+reg   [4:0] voff;
+reg         pxl1_cen;
+
+// Save/Load
+wire [ 1:0] ram_save;
+wire        ram_load;
+
+wire  [7:0] target_info;
+
+assign game_paddle_3 = paddle_3;
+assign game_paddle_4 = paddle_4;
+
+`ifdef JTFRAME_VERTICAL
+assign {FB_PAL_CLK, FB_FORCE_BLANK, FB_PAL_ADDR, FB_PAL_DOUT, FB_PAL_WR} = '0;
+`endif
+
+// UART
+// The core and cheat UARTs are connected in parallel
+// If JTFRAME_UART is not defined, the core side is disabled
+// If JTFRAME_CHEAT is not defined, the cheat side is disabled
+// Otherwise, both can listen and talk
+always @(posedge clk_sys) begin
+    USER_OUT <= db15_en ? joy_out :
+        uart_en ? {~6'h0, uart_tx&game_tx } :
+        7'h7f;
+end
+
+assign uart_rx  = uart_en ? USER_IN[1] : 1'b1;
+assign game_rx  = uart_rx;
+assign joy_in   = USER_IN;
+
+// Mouse
+assign mouse_st = ps2_mouse[24]^ps2_mouse_l;
+assign mouse_f  = ps2_mouse[7:0];
+assign mouse_dx = { mouse_f[4], ps2_mouse[15: 8] };
+assign mouse_dy = { mouse_f[5], ps2_mouse[23:16] };
+
+always @(posedge clk_sys)
+    ps2_mouse_l <= ps2_mouse[24];
+
+jtframe_de25_status u_status(
+    .status         ( status         ),
+`ifdef JTFRAME_CRT480I
+    .crt_on         ( crt_on         ),
+`endif
+    .crop_en        ( crop_en        ),
+    .vcopt          ( vcopt          ),
+    .crop_scale     ( crop_scale     ),
+    .voffset        ( voffset        ),
+    .hoffset        ( hoffset        ),
+    .hsize_enable   ( hsize_enable   ),
+    .hsize_scale    ( hsize_scale    ),
+    .ram_save       ( ram_save       ),
+    .ram_load       ( ram_load       ),
+    .gun_border_en  ( gun_border_en  ),
+    .uart_en        ( uart_en        )
+);
+
+jtframe_target_info u_target_info(
+    .clk            ( clk_sys        ),
+    .joyana_l1      ( joyana_l1      ),
+    .joyana_r1      ( joyana_r1      ),
+    .joystick1      ( joystick1      ),
+    .joystick2      ( joystick2      ),
+    .mouse_1p       ( mouse_1p       ),
+    .mouse_2p       ( mouse_2p       ),
+    .hps_index      ( hps_index      ),
+    .spinner_1      ( spinner_1      ),
+    .spinner_2      ( spinner_2      ),
+    .spinner_3      ( spinner_3      ),
+    .spinner_4      ( spinner_4      ),
+    .game_paddle_1  ( game_paddle_1  ),
+    .game_paddle_2  ( game_paddle_2  ),
+    .dial_x         ( dial_x         ),
+    .dial_y         ( dial_y         ),
+    .st_lpbuf       ( st_lpbuf       ),
+    .ioctl_lock     ( ioctl_lock     ),
+    .ioctl_cart     ( ioctl_cart     ),
+    .ioctl_ram      ( ioctl_ram      ),
+    .ioctl_rom      ( ioctl_rom      ),
+    .ioctl_wr       ( ioctl_wr       ),
+    .dwnld_busy     ( dwnld_busy     ),
+    .hps_download   ( hps_download   ),
+    .debug_bus      ( debug_bus      ),
+    .target_info    ( target_info    )
+);
+
+jtframe_resync u_resync(
+    .clk        ( clk_sys       ),
+    .pxl_cen    ( pxl1_cen      ),
+    .hs_in      ( hs            ),
+    .vs_in      ( vs            ),
+    .LVBL       ( LVBL          ),
+    .LHBL       ( LHBL          ),
+    .hoffset    ( hoffset       ),
+    .voffset    ( voffset       ),
+    .hs_out     ( hs_resync     ),
+    .vs_out     ( vs_resync     )
+);
+
+reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotate, bit 1 = flip
+
+// OSD option visibility. This is linked to the d(D) and h(H) prefixes in cfgstr
+wire [15:0] status_menumask; // a high value hides the menu item
+wire        vertical, db15_osd_combo_en;
+
+assign db15_osd_combo_en = ~status[61];
+assign status_menumask[15:9] = 0,
+       status_menumask[8]    = ~(db15_en | uart_en),
+`ifdef JTFRAME_CRT480I
+       status_menumask[7]    = ~crt_on, // extra CRT height/filter options in the Video page
+`else
+       status_menumask[7]    = 0,
+`endif
+       status_menumask[6]    = ~lightgun_en, // sinden lightgun borders
+       status_menumask[5]    = crop_ok, // video crop options
+`ifdef JTFRAME_ROTATE       // extra rotate options for vertical games
+       status_menumask[4]    = ~vertical,  // shown for vertical games
+       status_menumask[1]    = 1,   // hidden
+`else
+       status_menumask[4]    = 1,   // hidden
+       status_menumask[1]    = ~vertical,  // shown for vertical games
+`endif
+       status_menumask[3]    =~video_rotated, // scan FX options do not work with rotated video (except HQ2x)
+       status_menumask[2]    = ~hsize_enable, // horizontal scaling
+       status_menumask[0]    = direct_video;
+
+always @(posedge clk_sys) begin
+    framebuf_flip <= status[39:38]==2;
+end
+
+// this places the pxl1_cen in the pixel centre
+always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
+
+
+jtframe_de25_dwnld u_dwnld(
+    .rst            ( rst            ),
+    .clk            ( clk_rom        ),
+
+    .prog_we        ( prog_we        ),
+    .prog_rdy       ( prog_rdy       ),
+    .ioctl_rom      ( ioctl_rom      ),
+    .dwnld_busy     ( dwnld_busy     ),
+
+    .hps_download   ( hps_download   ),
+    .hps_upload     ( hps_upload     ),
+    .hps_index      ( hps_index[7:0] ),
+    .hps_wr         ( hps_wr         ),
+    .hps_addr       ( hps_addr       ),
+    .hps_dout       ( hps_dout       ),
+    .hps_wait       ( hps_wait       ),
+
+    .ioctl_wr       ( ioctl_wr       ),
+    .ioctl_addr     ( ioctl_addr     ),
+    .ioctl_dout     ( ioctl_dout     ),
+    .ioctl_ram      ( ioctl_ram      ),
+    .ioctl_cart     ( ioctl_cart     ),
+    .ioctl_cheat    ( ioctl_cheat    ),
+    .ioctl_lock     ( ioctl_lock     ),
+
+    // Configuration
+    .core_mod       ( core_mod       ),
+`ifdef JTFRAME_CRT480I
+    .core_mod_ok    ( core_mod_ok    ),
+`endif
+    .game_vol       ( game_vol       ),
+    .status         ( status         ),
+    .dipsw          ( dipsw          ),
+    .cheat          ( cheat          ),
+
+    // DDR
+    .ddram_busy     ( ddrld_busy       ),
+    .ddram_burstcnt ( ddrld_burstcnt   ),
+    .ddram_addr     ( ddrld_addr       ),
+    .ddram_dout     ( DDRAM_DOUT       ),
+    .ddram_dout_ready(DDRAM_DOUT_READY ),
+    .ddram_rd       ( ddrld_rd         )
+);
+
+wire [7:0] hps_din;
+wire [15:0] joyusb_1, joyusb_2;
+
+
+`ifndef JTFRAME_NO_DB15
+assign db15_en  = status[37];
+jtframe_joymux #(.BUTTONS(BUTTONS)) u_joymux(
+    .rst        ( rst       ),
+    .clk        ( clk_sys   ),
+    .show_osd   ( show_osd  ),
+
+    // MiSTer pins
+    .USER_IN    ( joy_in    ),
+    .USER_OUT   ( joy_out   ),
+
+    // joystick mux
+    .db15_en    ( db15_en   ),
+    .osd_combo_en ( db15_osd_combo_en ),
+    .joyusb_1   ( joyusb_1  ),
+    .joyusb_2   ( joyusb_2  ),
+    .joymux_1   ( joystick1 ),
+    .joymux_2   ( joystick2 )
+);
+`else
+assign db15_en   = 0;
+assign show_osd  = 0;
+assign joystick1 = joyusb_1;
+assign joystick2 = joyusb_2;
+`endif
+
+`ifdef JTFRAME_SHADOW
+    jtframe_shadow #(
+        .AW    ( SDRAMW              ),
+        .START ( `JTFRAME_SHADOW     ),
+        .LW    ( `JTFRAME_SHADOW_LEN )  // length of data to be dumped as a power of 2
+    ) u_shadow (
+        .clk_rom    ( clk_rom       ),
+
+        // Capture SDRAM bank 0 inputs
+        .ba0_addr   ( ba0_addr      ),
+        .wr0        ( ba_wr[0]      ),
+        .din        ( ba0_din       ),
+        .din_m      ( ba0_dsn       ),  // write mask -active low
+
+        // Let data be dumped via NVRAM interface
+        .ioctl_addr ( ioctl_addr    ),
+        .ioctl_din  ( hps_din       )
+    );
+`else
+    assign hps_din = ioctl_din;
+`endif
+
+`ifdef JTFRAME_CRT480I
+wire [127:0] status_full;   // CRT filter: 65:64; height: 69:67; bit 66 is free
+assign status = status_full[63:0];
+`endif
+
+// No core-specific HPS command extension in this persona.
+wire [35:0] ext_bus;
+assign ext_bus[32] = 1'b0;
+assign ext_bus[15:0] = 16'd0;
+
+hps_io #(
+    .CONF_STR(""),.CONF_STR_BRAM(1),.STRLEN(1024),
+    .PS2DIV(32),.WIDE(`JTFRAME_MR_FASTIO),.BLKSZ(1)
+) u_hps_io
+(
+    .EXT_BUS         ( ext_bus        ),
+    .clk_sys         ( clk_rom        ),
+    .HPS_BUS         ( HPS_BUS        ),
+
+    .buttons         ( buttons        ),
+`ifdef JTFRAME_CRT480I
+    .status          ( status_full    ),
+`else
+    .status          ( status         ),
+`endif
+    .status_menumask ( status_menumask),
+    .gamma_bus       ( gamma_bus      ),
+    .direct_video    ( direct_video   ),
+    .forced_scandoubler(force_scan2x  ),
+    .video_rotated   ( video_rotated  ),
+
+    .ioctl_download  ( hps_download   ),
+    .ioctl_wr        ( hps_wr         ),
+    .ioctl_addr      ( hps_addr       ),
+    .ioctl_dout      ( hps_dout       ),
+    .ioctl_din       ( hps_din        ),
+    .ioctl_index     ( hps_index      ),
+    .ioctl_wait      ( hps_wait     | sd_wait  ),
+    .ioctl_upload    ( hps_upload     ),
+    // NVRAM support
+    .ioctl_rd        (                ), // no need
+    `ifdef JTFRAME_SAVEGAME
+    .sd_lba          ('{sd_lba}       ), // input
+    .sd_rd           ( sd_rd          ), // input
+    .sd_wr           ( sd_wr          ), // input
+    .sd_ack          ( sd_ack         ), // output
+    .sd_buff_addr    ( sd_buff_addr   ), // output
+    .sd_buff_dout    ( sd_buff_dout   ), // output
+    .sd_buff_din     ('{sd_buff_din}  ), // input
+    .sd_buff_wr      ( sd_buff_wr     ), // output
+    .sd_blk_cnt      ('{6'b0}         ), // input
+    .img_mounted     ( img_mounted    ), // output
+    .img_readonly    ( img_readonly   ), // output
+    .img_size        ( img_size       ), // output
+    `endif
+    .joystick_0      ( joyusb_1       ),
+    .joystick_1      ( joyusb_2       ),
+    .joystick_2      ( joystick3      ),
+    .joystick_3      ( joystick4      ),
+    .joystick_l_analog_0( joyana_l1   ),
+    .joystick_l_analog_1( joyana_l2   ),
+    .joystick_l_analog_2( joyana_l3   ),
+    .joystick_l_analog_3( joyana_l4   ),
+    .joystick_r_analog_0( joyana_r1   ),
+    .joystick_r_analog_1( joyana_r2   ),
+    .joystick_r_analog_2( joyana_r3   ),
+    .joystick_r_analog_3( joyana_r4   ),
+    .ps2_kbd_clk_out ( ps2_kbd_clk    ),
+    .ps2_kbd_data_out( ps2_kbd_data   ),
+
+    // paddle 0..255
+    .paddle_0        ( paddle_1       ),
+    .paddle_1        ( paddle_2       ),
+    .paddle_2        ( paddle_3       ),
+    .paddle_3        ( paddle_4       ),
+
+    .spinner_0       ( spinner_1      ),
+    .spinner_1       ( spinner_2      ),
+    .spinner_2       ( spinner_3      ),
+    .spinner_3       ( spinner_4      ),
+    // Unused:
+    .ps2_key         (                ),
+    .RTC             (                ),
+    .TIMESTAMP       ( timestamp      ),
+    .ps2_mouse       ( ps2_mouse      ),
+    .ps2_mouse_ext   (                ),
+    .ioctl_file_ext  (                )
+);
+
+wire        sd_wait;
+`ifdef JTFRAME_SAVEGAME
+wire [31:0] sd_lba;
+reg  [ 7:0] sd_buff_din;
+wire [ 7:0] sd_buff_addr, sd_buff_dout;
+wire        bk_ena, sd_ack, sd_wr, sd_rd, sd_buff_wr;
+wire [63:0] img_size;
+wire        img_mounted, img_readonly;
+
+jtframe_mister_cartsave u_save(
+    .clk         ( clk_sys      ),
+    .OSD_STATUS  ( OSD_STATUS   ),
+    .io_strobe   ( HPS_BUS[33]  ),
+    .img_size    ( img_size     ),
+    .img_mounted ( img_mounted  ),
+    .img_readonly( img_readonly ),
+    .ram_save    ( ram_save     ),
+    .ram_load    ( ram_load     ),
+    .downloading ( ioctl_cart   ),
+    .sd_buff_addr( sd_buff_addr ),
+    .sd_buff_dout( sd_buff_dout ),
+    .sd_buff_din ( sd_buff_din  ),
+    .sd_buff_wr  ( sd_buff_wr   ),
+    .sd_ack      ( sd_ack       ),
+    .sd_rd       ( sd_rd        ),
+    .sd_wr       ( sd_wr        ),
+    .bk_ena      ( bk_ena       ),
+    .sd_lba      ( sd_lba       ),
+    .sd_wait     ( sd_wait      ),
+    .sav_change  ( sav_change   ),
+    .sav_wait    ( sav_wait     ),
+    .sav_done    ( sav_done     ),
+    .sav_din     ( sav_din      ),
+    .sav_dout    ( sav_dout     ),
+    .sav_addr    ( sav_addr     ),
+    .sav_ack     ( sav_ack      ),
+    .sav_wr      ( sav_wr       )
+);
+`else
+assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
+`endif
+
+    // hretime lives in sys_top — pass signals through
+    assign hsize_ctl = { hsize_enable, hsize_scale };
+    assign hsize_hs  = hs_resync;
+    assign hsize_vs  = vs_resync;
+    assign hsize_hb  = ~LHBL;
+    assign hsize_vb  = ~LVBL;
+    assign hsize_r   = game_r;
+    assign hsize_g   = game_g;
+    assign hsize_b   = game_b;
+
+localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;
+
+wire [VIDEO_DW-1:0] game_rgb;
+wire [COLORW-1:0] base_r, base_g, base_b;
+
+assign {base_r,base_g,base_b} = base_rgb;
+
+// arcade video does not support 15bpp colour, so for that
+// case we need to convert it to 24bpp
+generate
+    if( COLORW!=5 ) begin
+        assign game_rgb = base_rgb;
+    end else begin
+        assign game_rgb = {
+            base_r, base_r[4:2],
+            base_g, base_g[4:2],
+            base_b, base_b[4:2]   };
+    end
+endgenerate
+
+// VIDEO_WIDTH does not include blanking:
+arcade_video #(.WIDTH(VIDEO_WIDTH),.DW(VIDEO_DW))
+u_arcade_video(
+    .clk_video  ( clk_sys       ),
+    .ce_pix     ( pxl_cen       ),
+
+    .RGB_in     ( game_rgb      ),
+    .HBlank     ( ~base_lhbl    ),
+    .VBlank     ( ~base_lvbl    ),
+    .HSync      ( hsize_hs      ),
+    .VSync      ( hsize_vs      ),
+
+    .CLK_VIDEO  ( scan2x_clk    ),
+    .CE_PIXEL   ( scan2x_cen    ),
+    .VGA_R      ( scan2x_r      ),
+    .VGA_G      ( scan2x_g      ),
+    .VGA_B      ( scan2x_b      ),
+    .VGA_HS     ( scan2x_hs     ),
+    .VGA_VS     ( scan2x_vs     ),
+    .VGA_DE     ( raw_de        ),
+    .VGA_SL     ( scan2x_sl     ),
+
+    .gamma_bus  ( gamma_bus     ),
+    .fx         ( status[5:3]   ), // scanlines
+`ifdef JTFRAME_CRT480I
+    .forced_scandoubler( force_scan2x & ~crt_on ) // with 480i this path feeds the HDMI scaler only
+`else
+    .forced_scandoubler( force_scan2x )
+`endif
+);
+
+`ifdef JTFRAME_CRT480I
+// jtframe_crt_480i (GPL-2.0-or-later, Chris Watson) re-times the game's own video into 15 kHz 480i for
+// the analog output when the MRA sets mod bit 18. It takes the same video as arcade_video,
+// before any scaler or scan line effect. It runs on clk_pico (48 MHz / 4.5 = 10.67 MHz output
+// pixels), where it meets timing (at 96 MHz its deflicker blend does not): each game pixel is
+// handed over with a toggle, and its output comes back to clk_sys for the single video clock.
+// clk_pico and clk_sys come from the same PLL; a game pixel and an output pixel both last
+// at least two clk_pico cycles.
+// The mod bytes arrive after the ROM, so the analog output stays black with no syncs until
+// they have: a 15 kHz monitor never sees the native rate while a 480i MRA loads. Every
+// jtframe MRA has them; an MRA without them gets no analog output (HDMI is not affected).
+reg [2:0] c480_height_m, c480_height;
+reg [1:0] c480_dfl_m, c480_dfl;
+reg [60:53] crt_pos_m, crt_pos;
+reg [3*COLORW-1:0] v1_pix, v2_pix;
+reg         v1_de, v1_vs, v1_t=0, v2_de, v2_vs, v2_t=0, v2_ce=0, c480_cen_l=0;
+reg         ana_on=0, crt_sel=0;
+wire  [7:0] c480_r, c480_g, c480_b;
+wire  [2:0] c480_vh;
+wire signed [6:0] c480_hoffset, c480_voffset;
+
+// The height menu starts at 224; the filter menu uses the module's encoding.
+assign c480_vh = c480_height < 3'd3 ? c480_height + 3'd4 : c480_height - 3'd3;
+// Keep the regular signed four-bit CRT offsets. Each H step is four output
+// pixels (-32..+28), and each V step is two field lines (-16..+14).
+assign c480_hoffset = {crt_pos[56], crt_pos[56:53], 2'b00};
+assign c480_voffset = {{2{crt_pos[60]}}, crt_pos[60:57], 1'b0};
+
+assign crt_on = crt_sel | ~ana_on;
+wire        c480_hs, c480_vs, c480_de, c480_cen, c480_f1;
+
+always @(posedge clk_sys) if( pxl_cen ) begin
+    v1_pix <= base_rgb;
+    { v1_de, v1_vs } <= { base_lhbl & base_lvbl, hsize_vs };
+    v1_t   <= ~v1_t;
+end
+
+always @(posedge clk_pico) begin
+    c480_height_m <= status_full[69:67];
+    c480_height   <= c480_height_m;
+    c480_dfl_m    <= status_full[65:64];
+    c480_dfl      <= c480_dfl_m;
+    crt_pos_m <= status[60:53];
+    crt_pos   <= crt_pos_m;
+    v2_t    <= v1_t;
+    v2_ce   <= v2_t != v1_t;
+    if( v2_t != v1_t ) begin
+        v2_pix <= v1_pix;
+        { v2_de, v2_vs } <= { v1_de, v1_vs };
+    end
+end
+
+always @(posedge clk_sys) begin
+    c480_cen_l <= c480_cen;
+    // crt_on follows bit 18 after every mod download
+    if( core_mod_ok && !hps_download ) begin
+        crt_sel <= core_mod[18];
+        ana_on <= 1;
+    end
+end
+
+jtframe_crt_480i #(
+    .CLK_HZ     ( 48_000_000    ),
+    .CLK_DIV    ( 4             ),
+    .CLK_FRAC   ( 1             ),    // 48 MHz / 4.5 = 10.67 MHz
+`ifdef JTFRAME_CRT480I_RING
+    .RING       ( `JTFRAME_CRT480I_RING ),
+`endif
+    .PW         ( 3*COLORW      ),
+    .LUT_EXT    ( 0             )
+) u_crt_480i(
+    .clk        ( clk_pico      ),
+    .ce_in      ( v2_ce         ),
+    .pix_in     ( v2_pix        ),
+    .vs_in      ( v2_vs         ),
+    .de_in      ( v2_de         ),
+    .hoffset    ( c480_hoffset  ),
+    .voffset    ( c480_voffset  ),
+    .deflicker  ( c480_dfl      ),
+    .vheight    ( c480_vh       ),                              // 1:1, or 200..240 lines
+    .lut_addr   (               ),
+    .lut_rgb    ( 24'd0         ),
+    .ce_out     ( c480_cen      ),
+    .r_out      ( c480_r        ),
+    .g_out      ( c480_g        ),
+    .b_out      ( c480_b        ),
+    .hs_out     ( c480_hs       ),
+    .vs_out     ( c480_vs       ),
+    .de_out     ( c480_de       ),
+    .hb_out     (               ),
+    .vb_out     (               ),
+    .field      ( c480_f1       ),
+    .locked     (               )
+);
+
+assign { crt_r, crt_g, crt_b } = !ana_on ? 24'd0 : crt_on ? { c480_r, c480_g, c480_b } : { scan2x_r, scan2x_g, scan2x_b };
+assign { crt_hs, crt_vs, crt_de } = !ana_on ? 3'd0 : crt_on ? { c480_hs, c480_vs, c480_de } : { scan2x_hs, scan2x_vs, scan2x_de };
+assign crt_cen = crt_on ? c480_cen & ~c480_cen_l : scan2x_cen; // one clk_sys cycle per output pixel
+assign crt_f1  = crt_on & c480_f1;
+assign crt_sl  = crt_on ? 2'd0 : scan2x_sl;
+`endif
+
+jtframe_board #(
+    .BUTTONS               ( BUTTONS              ),
+    .GAME_INPUTS_ACTIVE_LOW(GAME_INPUTS_ACTIVE_LOW),
+    .COLORW                ( COLORW               ),
+    .VIDEO_WIDTH           ( VIDEO_WIDTH          ),
+    .VIDEO_HEIGHT          ( VIDEO_HEIGHT         ),
+    .SDRAMW                ( SDRAMW               ),
+    .MISTER                ( 0                    )
+) u_board(
+    .rst            ( rst             ),
+    .rst_n          ( rst_n           ),
+    .capture_pause  ( 1'b0            ),
+    .cab_active     ( 1'b0            ),
+    .cab_inputs     ( 21'b0           ),
+    .cab_dump_pause ( 1'b0            ),
+    .game_rst       ( game_rst        ),
+    .game_rst_n     ( game_rst_n      ),
+    .rst_req        ( rst_req         ),
+    .sdram_init     (                 ),
+
+    .pll_locked     ( pll_locked      ),
+
+    .ioctl_cart     ( ioctl_cart      ),
+    .ioctl_ram      ( ioctl_ram       ),
+    .dwnld_busy     ( dwnld_busy      ),
+
+    .clk_sys        ( clk_sys         ),
+    .clk_rom        ( clk_rom         ),
+    .clk_pico       ( clk_pico        ),
+
+    .core_mod       ( core_mod[17:0]  ),
+    .game_vol       ( game_vol        ),
+    .vertical       ( vertical        ),
+    .black_frame    (                 ),
+    // Sound
+    .snd_lin        ( snd_lin         ),
+    .snd_rin        ( snd_rin         ),
+    .snd_lout       ( snd_lout        ),
+    .snd_rout       ( snd_rout        ),
+    .snd_sample     ( snd_sample      ),
+    .snd_en         ( snd_en          ),
+    .snd_vu         ( snd_vu          ),
+    .snd_vol        ( snd_vol         ),
+    .snd_peak       ( snd_peak        ),
+    // joystick
+    .ps2_kbd_clk    ( ps2_kbd_clk     ),
+    .ps2_kbd_data   ( ps2_kbd_data    ),
+    .board_joystick1( joystick1       ),
+    .board_joystick2( joystick2       ),
+    .board_joystick3( joystick3       ),
+    .board_joystick4( joystick4       ),
+    .joy_aux_en     ( 1'b1            ),
+    .joyana_l1      ( joyana_l1       ),
+    .joyana_r1      ( joyana_r1       ),
+    .joyana_l2      ( joyana_l2       ),
+    .joyana_r2      ( joyana_r2       ),
+    .board_start    ( 4'd0            ),
+    .board_coin     ( 4'd0            ),
+    .game_joystick1 ( game_joystick1  ),
+    .game_joystick2 ( game_joystick2  ),
+    .game_joystick3 ( game_joystick3  ),
+    .game_joystick4 ( game_joystick4  ),
+    .game_coin      ( game_coin       ),
+    .game_start     ( game_start      ),
+    .game_service   ( game_service    ),
+    .game_tilt      ( game_tilt       ),
+    // Mouse & paddle
+    .bd_mouse_dx    ( mouse_dx        ),
+    .bd_mouse_dy    ( mouse_dy        ),
+    .bd_mouse_st    ( mouse_st        ),
+    .bd_mouse_f     ( mouse_f         ),
+    .bd_mouse_idx   ( 1'b0            ),    // MiSTer only supports one mouse
+
+    .board_paddle_1 ( paddle_1        ),
+    .board_paddle_2 ( paddle_2        ),
+    .game_paddle_1  ( game_paddle_1   ),
+    .game_paddle_2  ( game_paddle_2   ),
+    .mouse_1p       ( mouse_1p        ),
+    .mouse_2p       ( mouse_2p        ),
+    .mouse_strobe   ( mouse_strobe    ),
+    .spinner_1      ( spinner_1       ),
+    .spinner_2      ( spinner_2       ),
+    .dial_x         ( dial_x          ),
+    .dial_y         ( dial_y          ),
+    // Lightguns
+    .gun_1p_x       ( gun_1p_x        ),
+    .gun_1p_y       ( gun_1p_y        ),
+    .gun_2p_x       ( gun_2p_x        ),
+    .gun_2p_y       ( gun_2p_y        ),
+    .lightgun_en    ( lightgun_en     ),
+    // DIP and OSD settings
+    .status         ( status          ),
+    .dipsw          ( dipsw           ),
+    .dip_test       ( dip_test        ),
+    .dip_pause      ( dip_pause       ),
+    .dip_flip       ( dip_flip        ),
+    .dip_fxlevel    ( dip_fxlevel     ),
+    .timestamp      ( timestamp       ),
+    // screen
+    .hdmi_arx       ( raw_arx         ),
+    .hdmi_ary       ( raw_ary         ),
+    .rotate         ( rotate          ),
+    .rot_osdonly    (                 ),
+    // LED
+    .osd_shown      ( 1'b0            ),
+    .led            ( LED             ),
+    // UART
+    .uart_rx        ( uart_rx         ),
+    .uart_tx        ( uart_tx         ),
+
+    // SDRAM interface
+    // Bank 0: allows R/W
+    .ba0_addr   ( ba0_addr      ),
+    .ba1_addr   ( ba1_addr      ),
+    .ba2_addr   ( ba2_addr      ),
+    .ba3_addr   ( ba3_addr      ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_addr ( burst_addr    ),
+    .burst_ba   ( burst_ba      ),
+    .burst_rd   ( burst_rd      ),
+    .burst_wr   ( burst_wr      ),
+    .burst_ack  ( burst_ack     ),
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
+    .burst_rdy  ( burst_rdy     ),
+`endif
+    .ba_rd      ( ba_rd         ),
+    .ba_wr      ( ba_wr         ),
+    .ba_dst     ( ba_dst        ),
+    .ba_dok     ( ba_dok        ),
+    .ba_rdy     ( ba_rdy        ),
+    .ba_ack     ( ba_ack        ),
+    .ba0_din    ( ba0_din       ),
+    .ba0_dsn    ( ba0_dsn       ),
+    .ba1_din    ( ba1_din       ),
+    .ba1_dsn    ( ba1_dsn       ),
+    .ba2_din    ( ba2_din       ),
+    .ba2_dsn    ( ba2_dsn       ),
+    .ba3_din    ( ba3_din       ),
+    .ba3_dsn    ( ba3_dsn       ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_din  ( burst_din     ),
+`endif
+
+    // ROM-load interface
+    .prog_addr  ( prog_addr     ),
+    .prog_ba    ( prog_ba       ),
+    .prog_rd    ( prog_rd       ),
+    .prog_we    ( prog_we       ),
+    .prog_data  ( prog_data     ),
+    .prog_dsn   ( prog_mask     ),
+    .prog_rdy   ( prog_rdy      ),
+    .prog_dst   ( prog_dst      ),
+    .prog_dok   ( prog_dok      ),
+    .prog_ack   ( prog_ack      ),
+    // SDRAM interface
+    .SDRAM_DQ   ( SDRAM_DQ      ),
+    .SDRAM_A    ( SDRAM_A       ),
+    .SDRAM_DQML ( SDRAM_DQML    ),
+    .SDRAM_DQMH ( SDRAM_DQMH    ),
+    .SDRAM_nWE  ( SDRAM_nWE     ),
+    .SDRAM_nCAS ( SDRAM_nCAS    ),
+    .SDRAM_nRAS ( SDRAM_nRAS    ),
+    .SDRAM_nCS  ( SDRAM_nCS     ),
+    .SDRAM_BA   ( SDRAM_BA      ),
+    .SDRAM_CKE  ( SDRAM_CKE     ),
+
+    // Common signals
+    .sdram_dout ( sdram_dout    ),
+
+    // Cheat!
+    .cheat          ( cheat           ),
+    .prog_cheat     ( ioctl_cheat     ),
+    .prog_lock      ( ioctl_lock      ),
+    .ioctl_wr       ( hps_wr          ),
+    .ioctl_dout     ( ioctl_dout      ),
+    .ioctl_addr     ( ioctl_addr[7:0] ),
+    .st_addr        ( st_addr         ),
+    .st_dout        ( st_dout         ),
+    .target_info    ( target_info     ),
+
+    // input data recording
+    .ioctl_din      (                 ),
+    .ioctl_merged   (                 ),
+    // input video
+    .osd_rotate     ( rotate          ),
+    .game_r         ( hsize_r         ),
+    .game_g         ( hsize_g         ),
+    .game_b         ( hsize_b         ),
+    .LHBL           ( ~hsize_hb       ),
+    .LVBL           ( ~hsize_vb       ),
+    .hs             ( hsize_hs        ),
+    .vs             ( hsize_vs        ),
+    .pxl_cen        ( pxl_cen         ),
+    .pxl2_cen       ( pxl2_cen        ),
+    // output video with credits and debug informaiton
+    .base_lhbl      ( base_lhbl         ),
+    .base_lvbl      ( base_lvbl         ),
+    .base_hs        ( base_hs           ), // Disconnected 
+    .base_vs        ( base_vs           ), // Disconnected
+    .base_rgb       ( base_rgb          ),
+    // Debug
+    .gfx_en         ( gfx_en          ),
+    .debug_bus      ( debug_bus       ),
+    .debug_view     ( debug_view      )
+);
+
+always @(posedge scan2x_clk) begin
+    crop_ok   <= hdmi_width == 1920 && hdmi_height == 1080 && status[5:3]==0 /* scan lines FX */ &&
+                 !force_scan2x && crop_scale==0 && !direct_video /*&& !rotate[0]*/;
+    crop_off  <= (vcopt < 6) ? {vcopt,1'b0} : ({vcopt,1'b0} - 5'd24);
+    crop_size <= (crop_ok & crop_en) ? 10'd216 : 10'd0;
+end
+
+video_freak u_crop(
+    .CLK_VIDEO  ( scan2x_clk    ),
+    .CE_PIXEL   ( scan2x_cen    ),
+    .VGA_VS     ( scan2x_vs     ),
+    .HDMI_WIDTH ( hdmi_width    ),
+    .HDMI_HEIGHT( hdmi_height   ),
+    .VGA_DE     ( scan2x_de     ),
+    .VIDEO_ARX  ( hdmi_arx      ),
+    .VIDEO_ARY  ( hdmi_ary      ),
+
+    .VGA_DE_IN  ( raw_de        ),
+    .ARX        ( raw_arx       ),
+    .ARY        ( raw_ary       ),
+    .CROP_SIZE  ( crop_size     ),
+    .CROP_OFF   ( crop_off      ),
+    .SCALE      ( crop_scale    )
+);
+
+
+wire rot_clk;
+
+`ifdef JTFRAME_VERTICAL
+    screen_rotate u_rotate(
+        .CLK_VIDEO      ( scan2x_clk     ),
+        .CE_PIXEL       ( scan2x_cen     ),
+
+        .VGA_R          ( scan2x_r       ),
+        .VGA_G          ( scan2x_g       ),
+        .VGA_B          ( scan2x_b       ),
+        .VGA_HS         ( scan2x_hs      ),
+        .VGA_VS         ( scan2x_vs      ),
+        .VGA_DE         ( scan2x_de      ),
+
+        .rotate_ccw     (  rotate[1]     ),
+        .no_rotate      ( ~rotate[0]     ),
+        .flip           ( framebuf_flip  ),
+        .video_rotated  ( video_rotated  ),
+
+        .FB_EN          ( FB_EN          ),
+        .FB_FORMAT      ( FB_FORMAT      ),
+        .FB_WIDTH       ( FB_WIDTH       ),
+        .FB_HEIGHT      ( FB_HEIGHT      ),
+        .FB_BASE        ( FB_BASE        ),
+        .FB_STRIDE      ( FB_STRIDE      ),
+        .FB_VBL         ( FB_VBL         ),
+        .FB_LL          ( FB_LL          ),
+
+        //.debug_bus      ( debug_bus      ),
+
+        //muxed
+        .DDRAM_BUSY     ( rot_busy       ),
+        .DDRAM_BURSTCNT ( rot_burstcnt   ),
+        .DDRAM_ADDR     ( rot_addr       ),
+        .DDRAM_BE       ( rot_be         ),
+        .DDRAM_WE       ( rot_we         ),
+        .DDRAM_RD       ( rot_rd         ),
+        // umuxed
+        .DDRAM_CLK      ( rot_clk        ), // same as clk_rom
+        .DDRAM_DIN      ( rot_din        )
+    );
+`else
+    `ifdef JTFRAME_MR_GAME_DDR
+    assign rot_clk      = clk_rom;
+    assign rot_burstcnt = game_ddr_burstcnt;
+    assign rot_addr     = game_ddr_addr;
+    assign rot_rd       = game_ddr_rd;
+    assign rot_we       = game_ddr_we;
+    assign rot_be       = game_ddr_be;
+    assign rot_din      = game_ddr_din;
+    assign game_ddr_busy       = rot_busy;
+    assign game_ddr_dout       = DDRAM_DOUT;
+    assign game_ddr_dout_ready = DDRAM_DOUT_READY;
+    `elsif JTFRAME_LF_BUFFER
+    `else
+    assign rot_clk      = clk_rom;
+    assign rot_burstcnt = 8'd0;
+    assign rot_addr     = 29'd0;
+    assign rot_rd       = 1'b0;
+    assign rot_we       = 1'b0;
+    assign rot_be       = 8'd0;
+    assign rot_din      = 64'd0;
+    `endif
+`endif
+
+`ifdef JTFRAME_LF_BUFFER
+    wire lfbuf_rst = rst | ioctl_rom;
+`ifndef JTFRAME_MR_LF_BRAM
+    wire rot_dout_ready = rot_busy ? 1'b0 : DDRAM_DOUT_READY;
+
+    // DDR-backed line-frame buffer
+    jtframe_lfbuf_ddr #(.HW(`JTFRAME_LF_HW),.VW(`JTFRAME_LF_VW)) u_lf_buf(
+        .rst        ( lfbuf_rst     ),
+        .clk        ( clk_rom       ),
+        .pxl_cen    ( pxl1_cen      ),
+
+        .hs         ( hs            ),
+        .vs         ( vs            ),
+        .lvbl       ( LVBL          ),
+        .lhbl       ( LHBL          ),
+        .vrender    ( game_vrender  ),
+        .hdump      ( game_hdump    ),
+
+        // interface with the game core
+        .ln_addr    ( ln_addr       ),
+        .ln_data    ( ln_data       ),
+        .ln_done    ( ln_done       ),
+        .ln_hs      ( ln_hs         ),
+        .ln_dout    ( ln_dout       ),
+        .ln_pxl     ( ln_pxl        ),
+        .ln_v       ( ln_v          ),
+        .ln_vs      ( ln_vs         ),
+        .ln_lvbl    ( ln_lvbl       ),
+        .ln_we      ( ln_we         ),
+        .fb_keep    ( fb_keep       ),
+`ifdef JTFRAME_LF_ZOOM
+        .h_step     ( game_h_step   ),
+        .v_step     ( game_v_step   ),
+`else
+        .h_step     ( 9'h100        ),
+        .v_step     ( 9'h100        ),
+`endif
+
+        .ddram_clk  ( rot_clk       ),
+        .ddram_busy ( rot_busy      ),
+        .ddram_addr ( rot_addr      ),
+        .ddram_dout ( DDRAM_DOUT    ),
+        .ddram_rd   ( rot_rd        ),
+        .ddram_din  ( rot_din       ),
+        .ddram_be   ( rot_be        ),
+        .ddram_we   ( rot_we        ),
+        .ddram_burstcnt  ( rot_burstcnt    ),
+        .ddram_dout_ready( rot_dout_ready ),
+        .st_addr    ( st_addr       ),
+        .st_dout    ( st_lpbuf      )
+    );
+`else
+    // BRAM-backed line-frame buffer, used when DDR is needed by screen rotation
+    jtframe_lfbuf_bram #(.HW(`JTFRAME_LF_HW),.VW(`JTFRAME_LF_VW)) u_lf_buf(
+        .rst        ( lfbuf_rst     ),
+        .clk        ( clk_rom       ),
+        .pxl_cen    ( pxl1_cen      ),
+
+        .hs         ( hs            ),
+        .vs         ( vs            ),
+        .lvbl       ( LVBL          ),
+        .lhbl       ( LHBL          ),
+        .vrender    ( game_vrender  ),
+        .hdump      ( game_hdump    ),
+
+        // interface with the game core
+        .ln_addr    ( ln_addr       ),
+        .ln_data    ( ln_data       ),
+        .ln_done    ( ln_done       ),
+        .ln_hs      ( ln_hs         ),
+        .ln_dout    ( ln_dout       ),
+        .ln_pxl     ( ln_pxl        ),
+        .ln_v       ( ln_v          ),
+        .ln_vs      ( ln_vs         ),
+        .ln_lvbl    ( ln_lvbl       ),
+        .ln_we      ( ln_we         ),
+        .fb_keep    ( fb_keep       ),
+`ifdef JTFRAME_LF_ZOOM
+        .h_step     ( game_h_step   ),
+        .v_step     ( game_v_step   ),
+`else
+        .h_step     ( 9'h100        ),
+        .v_step     ( 9'h100        ),
+`endif
+
+        .st_addr    ( st_addr       ),
+        .st_dout    ( st_lpbuf      )
+    );
+`endif
+`endif
+
+jtframe_mr_ddrmux u_ddrmux(
+        .rst            ( rst             ),
+        .clk            ( clk_rom         ),
+        .ioctl_rom      ( ioctl_rom       ),
+        // Fast DDR load
+        .ddrld_burstcnt ( ddrld_burstcnt  ),
+        .ddrld_addr     ( ddrld_addr      ),
+        .ddrld_rd       ( ddrld_rd        ),
+        .ddrld_busy     ( ddrld_busy      ),
+        // Video DDR client
+        .rot_clk        ( rot_clk         ),
+        .rot_burstcnt   ( rot_burstcnt    ),
+        .rot_addr       ( rot_addr        ),
+        .rot_rd         ( rot_rd          ),
+        .rot_we         ( rot_we          ),
+        .rot_be         ( rot_be          ),
+        .rot_din        ( rot_din         ),
+        .rot_busy       ( rot_busy        ),
+        // DDR Signals
+        .ddr_clk        ( DDRAM_CLK       ),
+        .ddr_busy       ( DDRAM_BUSY      ),
+        .ddr_burstcnt   ( DDRAM_BURSTCNT  ),
+        .ddr_addr       ( DDRAM_ADDR      ),
+        .ddr_rd         ( DDRAM_RD        ),
+        .ddr_we         ( DDRAM_WE        ),
+        .ddr_be         ( DDRAM_BE        ),
+        .ddr_din        ( DDRAM_DIN       )
+    );
+
+endmodule

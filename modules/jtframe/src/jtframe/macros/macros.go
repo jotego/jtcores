@@ -433,6 +433,7 @@ func make_clocks(target string) (mclk int) {
 		case "JTFRAME_PLL7159": freq = 7159090
 		case "JTFRAME_PLL6144":
 			switch target {
+			case "de25": freq = 6144000
 			case "MISTER":
 				freq = 6143465 // ideally 6.144000
 			default:
@@ -440,6 +441,7 @@ func make_clocks(target string) (mclk int) {
 			}
 		case "JTFRAME_PLL6293":
 			switch target {
+			case "de25": freq = 6293700
 			case "MISTER":
 				freq = 6293402 // ideally 6.293700
 			default:
@@ -449,6 +451,7 @@ func make_clocks(target string) (mclk int) {
 			freq = 5369318 // drives 42.954544 MHz, doubled to 85.909088 with SDRAM96
 		case "JTFRAME_PLL6671":
 			switch target {
+			case "de25": freq = 6671000
 			case "MISTER":
 				freq = 6670673 // ideally 6.671000
 			default:
@@ -466,6 +469,9 @@ func make_clocks(target string) (mclk int) {
 			}
 		}
 		mclk = freq * 8
+		if target == "de25" && mclk != 48000000 {
+			Set("DE25_GAME_REF_HZ", strconv.Itoa(mclk))
+		}
 		Set(pll, "") // define a macro with the PLL name
 	} else {
 		Set("JTFRAME_PLL6000", "")

@@ -1,0 +1,5 @@
+{{.CORENAME}};;
+DIP;
+{{ if .CORE_OSD }}{{ .CORE_OSD }}{{ end }}
+R0,Reset;
+V,v{{ .JTFRAME_COMMIT }};

@@ -30,7 +30,7 @@ func init() {
 	rootCmd.AddCommand(cfgstrCmd)
 	flag := cfgstrCmd.Flags()
 
-	flag.StringP("target", "t", "mist", "Target platform (mist, mister, sidi, sidi128, neptuno, mc2, mcp, pocket, sockit, de1soc, de10std)")
+	flag.StringP("target", "t", "mist", "Target platform (mist, mister, de25, sidi, sidi128, neptuno, mc2, mcp, pocket, sockit, de1soc, de10std)")
 	flag.String("tpl", "", "Path to template file")
 	flag.Bool("nodbg", false, "No debug features")
 	flag.StringSliceP("def", "d", nil, "Defines macros, separated by comma")

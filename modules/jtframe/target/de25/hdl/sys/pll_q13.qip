@@ -1,0 +1,4 @@
+set_global_assignment -name QIP_FILE           [file join $::quartus(qip_path) pll.13.qip ]
+set_global_assignment -name QIP_FILE           [file join $::quartus(qip_path) pll_hdmi.13.qip ]
+set_global_assignment -name QIP_FILE           [file join $::quartus(qip_path) pll_audio.13.qip ]
+set_global_assignment -name QIP_FILE           [file join $::quartus(qip_path) pll_cfg.qip ]

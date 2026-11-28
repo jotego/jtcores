@@ -1,0 +1,62 @@
+set_global_assignment -name FAMILY "Agilex 5"
+set_global_assignment -name DEVICE A5EB013BB23BE4SCS
+set_global_assignment -name TOP_LEVEL_ENTITY de25_mister_top
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"
+set_global_assignment -name VERILOG_CU_MODE SFCU
+set_global_assignment -name USE_CONF_DONE SDM_IO16
+set_global_assignment -name USE_HPS_COLD_RESET SDM_IO11
+set_global_assignment -name HPS_INITIALIZATION "HPS First"
+set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "ACTIVE SERIAL X4"
+set_global_assignment -name ACTIVE_SERIAL_CLOCK AS_FREQ_125MHZ
+set_global_assignment -name DEVICE_INITIALIZATION_CLOCK OSC_CLK_1_125MHZ
+set_global_assignment -name PWRMGT_VOLTAGE_OUTPUT_FORMAT "LINEAR FORMAT"
+set_global_assignment -name PWRMGT_LINEAR_FORMAT_N "-12"
+set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name VHDL_INPUT_VERSION VHDL_2008
+set_global_assignment -name SEARCH_PATH "{{ env "JTFRAME" }}/hdl/inc"
+set_global_assignment -name QIP_FILE files.qip
+source "{{ env "JTFRAME" }}/target/de25/syn/de25_mister_rev_b_pins.tcl"
+source "{{ env "JTFRAME" }}/target/de25/syn/de25_mister_hps_partition.tcl"
+
+# Platform Designer outputs are generated in this project's ip directory.
+set_global_assignment -name QSYS_FILE ip/mister_pll.qsys
+set_global_assignment -name IP_FILE ip/ip/mister_pll/mister_pll_system_pll.ip
+set_global_assignment -name QSYS_FILE ip/terasic-ghrd/mister_hps.qsys
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/mister_hps/mister_hps_mister_ddram_cdc.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/mister_hps/mister_hps_mister_gp_in.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/mister_hps/mister_hps_mister_gp_out.ip
+set_global_assignment -name QSYS_FILE ip/terasic-ghrd/jtag_subsys/jtag_subsys.qsys
+set_global_assignment -name QSYS_FILE ip/terasic-ghrd/hps_subsys/hps_subsys.qsys
+set_global_assignment -name QSYS_FILE ip/terasic-ghrd/peripheral_subsys/peripheral_subsys.qsys
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/qsys_top/clk_100.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/qsys_top/ext_hps_f2sdram_master.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/qsys_top/qsys_top_ace5lite_cache_coherency_translator_0.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/qsys_top/rst_in.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/qsys_top/user_rst_clkgate_0.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/hps_subsys/ip/hps_subsys/agilex_hps.ip
+set_global_assignment -name QIP_FILE ip/terasic-ghrd/hps_subsys/ip/hps_subsys/f2sdram_adapter/f2sdram_adapter.qip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/hps_subsys/ip/qsys_top/emif_io96b_hps.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/jtag_subsys/ip/jtag_subsys/fpga_m.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/jtag_subsys/ip/jtag_subsys/hps_f2sdram.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/jtag_subsys/ip/jtag_subsys/hps_m.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/jtag_subsys/ip/jtag_subsys/jtag_clk.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/jtag_subsys/ip/jtag_subsys/jtag_rst_in.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/peripheral_subsys/ip/peripheral_subsys/button_pio.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/peripheral_subsys/ip/peripheral_subsys/dipsw_pio.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/peripheral_subsys/ip/peripheral_subsys/led_pio.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/peripheral_subsys/ip/peripheral_subsys/pb_cpu_0.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/peripheral_subsys/ip/peripheral_subsys/periph_clk.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/peripheral_subsys/ip/peripheral_subsys/periph_rst_in.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/peripheral_subsys/ip/peripheral_subsys/sysid.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/mister_hps/mister_hps_clk_100.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/mister_hps/mister_hps_mister_h2f_reset_fanout.ip
+set_global_assignment -name IP_FILE ip/terasic-ghrd/ip/mister_hps/mister_hps_mister_vbuf_bridge.ip
+set_global_assignment -name QSYS_FILE ip/de25_game_pll.qsys
+set_global_assignment -name IP_FILE ip/ip/de25_game_pll/de25_game_pll_system_pll.ip
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to SI5332_SDA -entity de25_mister_top
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to SI5332_SCL -entity de25_mister_top
+set_location_assignment PIN_BV14 -to SI5332_SDA
+set_location_assignment PIN_CG26 -to SI5332_SCL

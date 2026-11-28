@@ -141,6 +141,7 @@ fi
 
 # Check Quartus path
 case $TARGET in
+    de25) ;; # Only generate the source project
     mist) # MiST can only be compiled on Quartus 13, which is slower on systems with many CPU cores
         if ! (which quartus_sh|grep 13 -q); then
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
@@ -197,7 +198,7 @@ fi
 
 ################ compilation
 if [ $SKIP_COMPILE = FALSE ]; then
-    if ! which quartus_sh>/dev/null; then
+    if [ $TARGET != de25 ] && ! which quartus_sh>/dev/null; then
         echo -e "${rBG}ERROR:${NC}${wBG} cannot find quartus_sh in the path. Please add the correct path${NC}"
         echo -e "      ${wBG} to the PATH environment variable${NC}"
         exit 1
@@ -262,6 +263,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         if [ -e $CORES/$PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET $LOCAL_GEN $NODBG || exit $?; fi
         jtframe mmr $PRJ
         jtframe files syn $PRJ --target=$TARGET $LOCAL_GEN || exit $?
+        if [ $TARGET = de25 ]; then exit 0; fi
         # Compilation
         if ! compile_quartus; then
             grep -i error "$LOG" -A 2

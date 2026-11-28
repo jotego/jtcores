@@ -57,6 +57,7 @@ _autosave-*
 build_id.v
 core.def
 core.mod
+cores/*/de25/*
 cores/*/mc2/*
 cores/*/mcp/*
 cores/*/mist/*

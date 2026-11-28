@@ -1,0 +1,74 @@
+jtframe/target/de25:
+  - get:
+      - jtframe_emu.sv
+      - jtframe_de25.sv
+      - jtframe_de25_dwnld.v
+      - jtframe_de25_status.v
+      - jtframe_mr_ddrmux.v
+      - jtframe_mr_ddrtest.v
+      - jtframe_target_info.sv
+      - sync_fix.sv
+  - from: platform
+    get:
+      - adv7513_init.sv
+      - de25_clock_frequency_monitor.sv
+      - de25_hps_warm_reset_handshake.sv
+      - de25_i2c_register_master.sv
+      - de25_mister_audio_v2.sv
+      - de25_mister_ddram.sv
+      - de25_mister_gp_bridge.sv
+      - de25_mister_menu_top.sv
+      - de25_mister_reset_control.sv
+      - de25_platform_v2_clock_service.sv
+      - de25_si5332_address_probe.sv
+      - de25_si5332_service.sv
+  - from: platform
+    when: [ DE25_GAME_REF_HZ ]
+    get:
+      - de25_si5332_out0.sv
+  - from: sys
+    get:
+      - arcade_video.v
+      - gamma_corr.sv
+      - hps_io.sv
+      - hq2x.sv
+      - math.sv
+      - scandoubler.v
+      - video_freak.sv
+      - video_freezer.sv
+      - video_mixer.sv
+      - ascal.vhd
+      - osd.v
+  - get:
+      - DE25_MISTER_MENU.sdc
+      - de25_platform_v2.sdc
+      - gng_sdram.sdc
+jtframe:
+  - from: sdram
+    get:
+    - jtframe_shadow.v
+  - from: video
+    get:
+    - jtframe_hretime.v
+  - from: video
+    get:
+    - jtframe_lfbuf_ddr.v
+    - jtframe_lfbuf_ddr_ctrl.v
+    - jtframe_lfbuf_line.v
+    - jtframe_logo.v
+    - jtframe_linebuf.v
+  - from: video
+    when: [ JTFRAME_MR_LF_BRAM ]
+    get:
+    - jtframe_lfbuf_bram.v
+    - jtframe_lfbuf_bram_ctrl.v
+  - from: video/tilemap
+    get:
+    - jtframe_tilemap.v
+  - from: clocking
+    get:
+    - jtframe_rst_sync.v
+    - jtframe_sync.v
+  - from: ram
+    get:
+      - jtframe_prom.v
